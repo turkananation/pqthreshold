@@ -1,0 +1,32 @@
+name: pqthreshold
+description: >
+  High-assurance pure-Dart threshold cryptography and distributed key-management
+  primitives. Provides verifiable secret sharing, distributed key generation (DKG),
+  threshold signatures, and multi-party ceremony building blocks oriented toward
+  organizational root keys, enclave recovery, and self-custodial multi-device
+  setups. Zero native dependencies. Designed to complement pqcrypto/pqforge for
+  hybrid post-quantum deployments where no single party ever holds the full secret.
+version: 0.1.0
+repository: https://github.com/turkananation/pqthreshold
+homepage: https://turkananation.github.io/pqthreshold/
+documentation: https://github.com/turkananation/pqthreshold/wiki
+
+environment:
+  sdk: ^3.12.2
+
+platforms:
+  android:
+  ios: 
+  macos: 
+  windows:
+  linux: 
+  web:
+
+# Add regular dependencies here.
+dependencies:
+  pqforge: ^0.4.3
+  swissarmyknife: ^0.1.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

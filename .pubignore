@@ -1,0 +1,7 @@
+.dart_tool/
+test/
+doc/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+pubspec.lock
