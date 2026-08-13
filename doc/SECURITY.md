@@ -4,6 +4,7 @@
 
 Status: formative specification  
 Audience: implementers, reviewers, integrators, operators  
+**Implementers:** start at [INDEX.md](INDEX.md)  
 Prerequisites: `ARCHITECTURE.md`, `CEREMONIES.md`, `INTEGRATION.md`
 
 ---
@@ -250,7 +251,7 @@ Do not claim “post-quantum threshold” unless a specific PQ threshold scheme 
 
 ## 13. Vulnerability reporting
 
-Report suspected security issues privately according to `SECURITY.md` in the repository root (contact method and response timeline to be published with the package).
+Report suspected security issues privately according to [SECURITY.md](../SECURITY.md) at the repository root (GitHub Security Advisories or private reporting).
 
 Please include:
 
@@ -308,9 +309,41 @@ Everything above the library boundary is mandatory for real security and outside
 
 - This SECURITY model is formative until version 1.0  
 - Any change that weakens a claim in §2 or expands a non-claim in §3 requires a major version discussion  
-- Scheme-specific security notes (concrete assumptions, known limitations) will be added as appendices when algorithms are selected  
+- Scheme-specific assumptions for v1: **Appendix A** below  
 
 **Bottom line:**  
 `pqthreshold` gives you cryptographic tools so that a secret does not have to live in one place.  
 It does not give you a complete secure system.  
 The difference between those two statements is the difference between a useful library and a false sense of safety.
+
+---
+
+## Appendix A — Scheme-specific notes (`frostEd25519V1`)
+
+**Profile:** [FROST_PROFILE.md](FROST_PROFILE.md)  
+**Params:** [PARAMS.md](PARAMS.md)  
+**Messages:** [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md)
+
+### A.1 Assumptions
+
+| Component | Assumption |
+| --------- | ---------- |
+| Feldman VSS | Discrete log on Ed25519; dealer honest at split time (C2) |
+| Gennaro DKG | `< t` malicious participants; complaint phase exposes bad shares |
+| FROST signing | `< t` corrupted signers; `{frostIdentifier}` binds roster and ceremony |
+| Combined verify | RFC 8032 Ed25519 verification via `PqClassical.provider` |
+
+### A.2 Known limitations
+
+- **Not post-quantum** — organizational roots remain classical; hybridize at application layer ([INTEGRATION.md](INTEGRATION.md)).
+- **Pure Dart timing** — see §10; scalar/point code may leak via timing on hostile OS.
+- **Dealer C2** — dealer sees full secret during split; must wipe after distribution ([CEREMONIES.md](CEREMONIES.md) §6).
+- **No ROAST** — identifiable abort not implemented; aborted signing requires new session.
+- **max n = 255** — protocol limit ([PARAMS.md](PARAMS.md)); practical limits lower on web.
+
+### A.3 Verification obligations (implementers)
+
+- Reject all protocol messages with wrong `ceremonyId` or `scheme`.
+- Enforce `senderIndex` in `1..n` ([PARAMS.md](PARAMS.md) §4).
+- Use SHA-512 for FROST H1/H2/H3; SHA-256 for `messageBinding` ([FROST_PROFILE.md](FROST_PROFILE.md) §5, [SERIALIZATION.md](SERIALIZATION.md) §5).
+- Run tests in [TEST_VECTORS.md](TEST_VECTORS.md) before claiming v1 readiness.

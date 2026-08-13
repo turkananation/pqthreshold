@@ -4,7 +4,8 @@
 
 Status: formative specification  
 Audience: integrators, security reviewers, operators of enclave / organizational roots  
-Prerequisites: `ARCHITECTURE.md`, `SECURITY.md`
+**Implementers:** [INDEX.md](INDEX.md)  
+Prerequisites: `ARCHITECTURE.md`, `SECURITY.md`, [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md)
 
 ---
 
@@ -72,8 +73,9 @@ All ceremonies assume:
 | C2 | Dealer-based Sharing Ceremony | Split an existing secret (legacy or imported key) | same |
 | C3 | Threshold Signing Ceremony | Produce a signature under the joint key | any `t`-of-`n` |
 | C4 | Recovery / Reconstruction Ceremony | Reconstruct the secret or re-share under a new participant set | ≥ `t` |
+| C4-B | Re-share without reconstruct | **v2** — not in initial release | ≥ `t` |
 | C5 | Rotation Ceremony | Replace the threshold key while preserving continuity | ≥ `t` of old + new DKG |
-| C6 | Share Refresh Ceremony | Proactively update shares without changing the public key | scheme-dependent |
+| C6 | Share Refresh Ceremony | **v2** — proactive refresh without public key change | scheme-dependent |
 
 ---
 
@@ -236,7 +238,9 @@ Either:
 
 ```
 
-### Flow B — Re-share to a new committee (preferred)
+### Flow B — Re-share to a new committee (v2)
+
+> **v1 note:** Re-sharing without full reconstruction is deferred to v2. In v1, use controlled reconstruction (Flow A) under explicit policy, or run a new DKG (C5 rotation).
 
 ```text
 
@@ -293,7 +297,9 @@ Verifiers that trust `oldPublicKey` can transitively trust `newPublicKey` after 
 
 ---
 
-## 10. C6 — Share Refresh Ceremony (optional)
+## 10. C6 — Share Refresh Ceremony (v2)
+
+> **Not in v1.** Use Rotation (C5) until proactive refresh is implemented.
 
 ### Goal
 
@@ -351,14 +357,14 @@ They must never contain private shares or reconstructed secrets.
 
 ## 13. Mapping to library surfaces
 
-| Ceremony | Primary library components |
-| ---------- | ---------------------------- |
-| C1 Root DKG | `dkg/`, `ceremony/`, `transcript/` |
-| C2 Dealer sharing | `sharing/`, `transcript/` |
-| C3 Threshold signing | `signing/` |
-| C4 Recovery | `sharing/` (reconstruct), optionally `dkg/` + `ceremony/` |
-| C5 Rotation | C1 + C3 (continuity signature) + `ceremony/` |
-| C6 Refresh | scheme-specific extension of `sharing/` or `dkg/` |
+| Ceremony | Primary library components | Protocol spec |
+| -------- | -------------------------- | --------------- |
+| C1 Root DKG | `dkg/`, `ceremony/`, `transcript/` | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §3 |
+| C2 Dealer sharing | `sharing/`, `transcript/` | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §4 |
+| C3 Threshold signing | `signing/` | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §5 |
+| C4 Recovery | `sharing/` (reconstruct), optionally `dkg/` + `ceremony/` | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §4.4 |
+| C5 Rotation | C1 + C3 (continuity signature) + `ceremony/` | [SERIALIZATION.md](SERIALIZATION.md) §4.6 |
+| C6 Refresh | scheme-specific extension of `sharing/` or `dkg/` | v2 — not v1 |
 
 ---
 
@@ -406,4 +412,5 @@ Followed carefully, they preserve the central invariant of `pqthreshold`:
 **after the ceremony, the full secret should not exist in any one place.**
 
 This document is the formative specification for those flows.  
-Implementation details of each round message remain scheme-specific and are documented alongside the concrete algorithms chosen for the library.
+Round message byte layouts: [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md).  
+Cryptographic profile: [FROST_PROFILE.md](FROST_PROFILE.md).

@@ -79,32 +79,41 @@ It is designed as the natural companion to [`pqcrypto`](https://pub.dev/packages
 
 ## Quick start
 
+> **Illustrative only (Tier 2 simulation API).** Production ceremonies use per-participant `CeremonySession` state machines with application-provided transport. See [`doc/API.md`](doc/API.md).
+
 ```dart
 import 'package:pqthreshold/pqthreshold.dart';
 
 Future<void> main() async {
-  // Example: 3-of-5 threshold setup (illustrative API shape)
+  // Example: 3-of-5 threshold setup (intended API shape)
   final params = ThresholdParams.tOfN(t: 3, n: 5);
 
-  // Distributed key generation (no trusted dealer)
-  final dkg = await DistributedKeyGeneration.run(params);
+  // In-process simulation — NOT for production multi-device ceremonies
+  final dkg = await DkgSimulator.run(params);
   final publicKey = dkg.publicKey;
-  final shares = dkg.shares; // one share per participant
+  final shares = dkg.shares;
 
-  // Later: threshold signing (quorum of shares required)
+  final message = Uint8List.fromList([1, 2, 3]);
   final partials = <PartialSignature>[];
   for (final share in shares.take(params.t)) {
-    partials.add(await ThresholdSigner.signPartial(share, message));
+    partials.add(await ThresholdSigner.signPartial(share: share, message: message));
   }
 
-  final signature = ThresholdSigner.combine(partials, publicKey);
-  final valid = ThresholdSigner.verify(publicKey, message, signature);
+  final signature = ThresholdSigner.combine(
+    partials: partials,
+    publicKey: publicKey,
+    message: message,
+  );
+  final valid = ThresholdSigner.verify(
+    publicKey: publicKey,
+    message: message,
+    signature: signature,
+  );
   print('threshold signature valid: $valid');
 }
 ```
 
-> The exact API surface is versioned and documented in the package.  
-> The snippet above shows the intended shape, not a final frozen contract.
+> Types above are specified in `doc/API.md`; they are not yet implemented in code.
 
 ---
 
@@ -126,7 +135,7 @@ It does **not**:
 - Choosing appropriate thresholds for your threat model
 - Combining the primitives with hybrid post-quantum signatures / KEMs when long-term security is required
 
-See [doc/SECURITY.md](doc/SECURITY.md) for the full threat model, assumptions, and claim boundaries.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and [doc/SECURITY.md](doc/SECURITY.md) for the full threat model, assumptions, and claim boundaries.
 
 ---
 
@@ -167,13 +176,10 @@ When **not** to use it:
 
 | Area | Status |
 | ------ | -------- |
-| Verifiable secret sharing | Core target |
-| Distributed key generation | Core target |
-| Threshold signatures | Core target |
-| Ceremony helpers | Core target |
-| Pure Dart / zero FFI | Required |
-| Web support | Where the algorithms allow |
-| Production hardening & vectors | Ongoing |
+| Specification (Phase 0) | **Complete** — [doc/INDEX.md](doc/INDEX.md) |
+| Implementation (Phase 1+) | Not started — [doc/IMPLEMENTATION.md](doc/IMPLEMENTATION.md) |
+| Verify locally | `dart run tool/verify.dart full` |
+| CI | `.github/workflows/ci.yml` → `verify quick` |
 
 The package follows the same evidence-oriented style as `pqcrypto`: clear documentation of what is implemented, what is tested, and what is explicitly not claimed.
 
@@ -196,13 +202,30 @@ flutter pub get
 
 ## Documentation map
 
+**Implementers: start at [doc/INDEX.md](doc/INDEX.md).**
+
 | Document | Purpose |
 | ---------- | --------- |
+| [doc/INDEX.md](doc/INDEX.md) | **Reading order and phase map** |
 | [README.md](README.md) | This file |
+| [SECURITY.md](SECURITY.md) | Vulnerability reporting |
 | [doc/SECURITY.md](doc/SECURITY.md) | Threat model & claim boundaries |
 | [doc/ARCHITECTURE.md](doc/ARCHITECTURE.md) | Internal structure |
+| [doc/SCHEMES.md](doc/SCHEMES.md) | v1 algorithm choices |
+| [doc/PARAMS.md](doc/PARAMS.md) | t/n limits and participant indices |
+| [doc/SERIALIZATION.md](doc/SERIALIZATION.md) | Stored object formats |
+| [doc/FROST_PROFILE.md](doc/FROST_PROFILE.md) | FROST Ed25519 ciphersuite |
+| [doc/PROTOCOL_MESSAGES.md](doc/PROTOCOL_MESSAGES.md) | Protocol message bytes |
+| [doc/API.md](doc/API.md) | Public API contract (Tier 1 vs Tier 2) |
+| [doc/TEST_VECTORS.md](doc/TEST_VECTORS.md) | Test vector layout |
+| [doc/IMPLEMENTATION.md](doc/IMPLEMENTATION.md) | Module build order (first code) |
+| [doc/TOOLING.md](doc/TOOLING.md) | CI and verify.dart |
+| [doc/RELEASE_CHECKLIST.md](doc/RELEASE_CHECKLIST.md) | v1.0 release gate |
 | [doc/CEREMONIES.md](doc/CEREMONIES.md) | Recommended multi-party flows |
 | [doc/INTEGRATION.md](doc/INTEGRATION.md) | Working with pqcrypto / pqforge |
+| [doc/SWISSARMYKNIFE.md](doc/SWISSARMYKNIFE.md) | swissarmyknife usage map (state machines, Result, …) |
+| [doc/ROADMAP.md](doc/ROADMAP.md) | Implementation phases |
+| [doc/adr/](doc/adr/) | Architecture decision records |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
 ---
@@ -213,10 +236,10 @@ flutter pub get
 dart pub get
 dart analyze
 dart test
-dart run tool/verify.dart   # if present
+dart run tool/verify.dart   # quick (CI) or: full
 ```
 
-Please read `CONTRIBUTING.md` and `SECURITY.md` before opening pull requests or reporting vulnerabilities.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) before opening pull requests or reporting vulnerabilities.
 
 ---
 

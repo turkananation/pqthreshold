@@ -1,6 +1,6 @@
-import 'package:pqthreshold/pqthreshold.dart';
+// Planning phase — see doc/API.md for examples once implemented.
 
 void main() {
-  var awesome = Awesome();
-  print('awesome: ${awesome.isAwesome}');
+  // Reserved for future ceremony / simulation examples.
+  // import 'package:pqthreshold/pqthreshold.dart';
 }

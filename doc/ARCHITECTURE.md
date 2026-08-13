@@ -4,7 +4,8 @@
 
 Status: formative specification  
 Audience: implementers, reviewers, integrators  
-Companion documents: `SECURITY.md`, `CEREMONIES.md`, `INTEGRATION.md`
+Companion documents: `SECURITY.md`, `CEREMONIES.md`, `INTEGRATION.md`  
+**Implementers:** [INDEX.md](INDEX.md)
 
 ---
 
@@ -63,6 +64,8 @@ pqthreshold
 ```
 
 Each top-level area is a separate library surface (or clearly bounded set of types) so that applications can depend only on what they need.
+
+**Cross-cutting:** DKG and ceremony modules use **swissarmyknife** `StateMachine` and `Result`; cryptographic operations use **pqforge** (see `doc/SWISSARMYKNIFE.md`).
 
 ---
 
@@ -280,8 +283,8 @@ The library documents its assumptions clearly; it does not attempt to enforce as
 
 ## 10. Dependency and platform constraints
 
-- **Runtime dependencies**: prefer zero or a minimal set of pure-Dart packages. Heavy or native dependencies are forbidden.
-- **Dart SDK**: aligned with the same floor used by `pqcrypto` / `pqforge`.
+- **Runtime dependencies**: **two** — `pqforge` (crypto), `swissarmyknife` (structure). See `doc/SWISSARMYKNIFE.md`.
+- **Dart SDK**: aligned with the same floor used by `pqforge` (`^3.12.x`).
 - **Platforms**:
   - Dart VM / server — full support
   - Flutter mobile / desktop — full support
@@ -326,7 +329,6 @@ New schemes must:
 ## 13. Directory layout (recommended)
 
 ```text
-
 lib/
   pqthreshold.dart              # public barrel
   src/
@@ -338,15 +340,31 @@ lib/
     transcript/
     errors/
     util/
+    scheme/
 doc/
+  INDEX.md                      # start here — reading order
   ARCHITECTURE.md               # this file
+  SCHEMES.md
+  PARAMS.md
+  SERIALIZATION.md
+  FROST_PROFILE.md
+  PROTOCOL_MESSAGES.md
+  API.md
+  SWISSARMYKNIFE.md
+  TEST_VECTORS.md
   SECURITY.md
   CEREMONIES.md
   INTEGRATION.md
+  ROADMAP.md
+  IMPLEMENTATION.md
+  TOOLING.md
+  RELEASE_CHECKLIST.md
+  adr/
 test/
   …
 tool/
   verify.dart                   # optional release gate
+```
 
 ---
 
@@ -362,20 +380,35 @@ tool/
 
 ---
 
-## 15. Open architectural decisions (to be closed before 1.0)
+## 15. Architectural decisions (resolved for v1 implementation)
 
-1. Exact threshold signature scheme(s) for the initial release
-2. Whether to support dealer-based VSS in addition to dealer-less DKG, or only dealer-less
-3. Concrete serialization format and domain-separation strings
-4. Degree of constant-time effort feasible in pure Dart for the chosen arithmetic
-5. Web support matrix per scheme
-6. How aggressively to expose low-level round messages versus only ceremony helpers
+| # | Decision | Resolution | Record |
+| - | -------- | ---------- | ------ |
+| 1 | Threshold signature scheme(s) | FROST (Ed25519), combined sig = standard Ed25519 | `doc/SCHEMES.md`, ADR-001 |
+| 2 | Dealer-based VSS vs dealer-less only | Both: Feldman VSS (C2) + Gennaro DKG (C1) | ADR-001 |
+| 3 | Serialization format | Custom binary `PQTH` header + `PqBytes.lengthPrefixed` | `doc/SERIALIZATION.md`, ADR-003 |
+| 4 | Constant-time in pure Dart | Best-effort via `PqBytes.constantTimeEquals`; document residual risk | `doc/SECURITY.md` §10 |
+| 5 | Web support matrix | Ed25519/FROST supported; DKG soft limit `n ≤ 7` on web | `doc/SCHEMES.md` §6 |
+| 6 | Low-level round messages vs ceremony-only | **Both tiers**: Tier 1 `CeremonySession` (production); Tier 2 simulation (tests) | `doc/API.md` |
 
-These decisions must be recorded in this document or in `SECURITY.md` once resolved.
+Open for v2: proactive share refresh (C6), re-share without reconstruct (C4-B), Pedersen VSS.
 
 ---
 
-## 16. Summary
+## 16. Scheme plugin interface
+
+Future schemes share a common seam under `lib/src/scheme/`:
+
+- `ThresholdScheme` — params validation, scheme ID, platform limits
+- `DkgProtocol` — round messages, session state, finalize
+- `SigningProtocol` — partial sign, combine, verify
+- `VssProtocol` — split, verify share, reconstruct
+
+v1 implements only `frostEd25519V1`. New schemes require ADR + `doc/SCHEMES.md` update.
+
+---
+
+## 17. Summary
 
 `pqthreshold` is a focused, pure-Dart library that turns “we need a key that no single party holds” into concrete, auditable primitives: verifiable sharing, distributed key generation, threshold signing, and ceremony helpers. It deliberately stops at the cryptographic boundary—transport, authentication, and policy remain the application’s responsibility—so that the same core can serve enclave roots, multi-officer approvals, and self-custodial recovery without pulling the rest of the stack into the library.
 

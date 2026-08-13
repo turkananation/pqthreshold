@@ -4,6 +4,7 @@
 
 Status: formative specification  
 Audience: application developers, platform integrators, security reviewers  
+**Implementers:** [INDEX.md](INDEX.md)  
 Prerequisites: `ARCHITECTURE.md`, `CEREMONIES.md`, `SECURITY.md`
 
 ---
@@ -157,7 +158,9 @@ Application code must enforce that reconstruction is exceptional, multi-person, 
 | Continuity proof | Threshold signature over `(oldPk, newPk, context)` produced by `pqthreshold`, stored/verified by application |
 | Membership credential | Content may be a W3C VC or custom structure; **signature** on it can be a threshold signature |
 
-No circular dependency is required: `pqthreshold` does not import `pqforge`; the application depends on both.
+**Dependency model:** `pqthreshold` depends on **`pqforge`** (crypto) and **`swissarmyknife`** (structure). pqforge supplies hashing, randomness, and Ed25519; swissarmyknife supplies DKG state machines, internal `Result` flow, validators, and codecs. Neither replaces the other. See `doc/adr/002-runtime-dependencies.md`, `doc/SCHEMES.md` §4, and `doc/SWISSARMYKNIFE.md`.
+
+Combined v1 signatures are **standard 64-byte Ed25519** and verify through **`PqClassical.provider.ed25519Verify`** without threshold-specific adapters.
 
 ---
 

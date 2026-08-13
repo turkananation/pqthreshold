@@ -49,7 +49,7 @@
 - [ ] `transcript`
 - [ ] `errors` / `util`
 - [ ] Public barrel / exports
-- [ ] Docs only (`ARCHITECTURE`, `SECURITY`, `CEREMONIES`, `INTEGRATION`, README)
+- [ ] Docs only (`ARCHITECTURE`, `SECURITY`, `CEREMONIES`, `INTEGRATION`, `SCHEMES`, README)
 
 ## Behavior checklist
 
@@ -115,18 +115,3 @@ dart test
 **Reviewer notes (optional)**
 
 <!-- Anything you want reviewers to focus on -->
-```text
-
-**Suggested file location:**  
-`.github/PULL_REQUEST_TEMPLATE.md`  
-(or `.github/PULL_REQUEST_TEMPLATE/default.md` if you use multiple templates)
-
-**Optional short PR title convention** (add to `CONTRIBUTING.md`):
-
-```text
-feat(dkg): ...
-fix(signing): ...
-refactor(sharing): ...
-docs(security): ...
-test(ceremony): ...
-chore(ci): ...

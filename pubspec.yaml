@@ -22,7 +22,8 @@ platforms:
   linux: 
   web:
 
-# Add regular dependencies here.
+# pqforge: crypto (pqforge-first; pointycastle last resort).
+# swissarmyknife: state machines, Result, validation, codecs — see doc/SWISSARMYKNIFE.md.
 dependencies:
   pqforge: ^0.4.3
   swissarmyknife: ^0.1.0
