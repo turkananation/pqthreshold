@@ -66,6 +66,14 @@ final class BinaryReader {
     return value;
   }
 
+  /// Reads big-endian uint64 (via [PqBytes.readUint64]).
+  int readUint64Be() {
+    _require(8);
+    final value = PqBytes.readUint64(_data, _offset);
+    _offset += 8;
+    return value;
+  }
+
   /// Ensures the entire buffer was consumed.
   void expectEnd() {
     if (_offset != _data.length) {
@@ -103,6 +111,10 @@ final class BinaryWriter {
   void writeUint32Be(int value) {
     RangeError.checkValueInInterval(value, 0, 0xFFFFFFFF, 'value');
     _chunks.add(PqBytes.uint32(value));
+  }
+
+  void writeUint64Be(int value) {
+    _chunks.add(PqBytes.uint64(value));
   }
 
   /// Returns concatenated bytes.

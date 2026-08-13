@@ -75,15 +75,15 @@ Docs: [FROST_PROFILE.md](FROST_PROFILE.md), [PROTOCOL_MESSAGES.md](PROTOCOL_MESS
 - [x] Combined signature verifies via `PqClassical.provider.ed25519Verify`
 - [x] Vectors under `test/vectors/frost/`
 
-**Phase 4 complete.** Begin Phase 5 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §8.
+**Phase 4 complete.** Phase 5 complete — begin Phase 6 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §9.
 
 ## Phase 5 — Ceremony helpers
 
 Docs: [CEREMONIES.md](CEREMONIES.md), [API.md](API.md) §4.4, [SERIALIZATION.md](SERIALIZATION.md) §4.6
 
-- [ ] `lib/src/ceremony/` — `RootCeremony`, signing orchestration, rotation
-- [ ] `ContinuityProof` encode/decode
-- [ ] Example app using Tier 2 simulation
+- [x] `lib/src/ceremony/` — `RootCeremony`, signing orchestration, rotation
+- [x] `ContinuityProof` encode/decode
+- [x] Example app using Tier 2 simulation
 
 ## Phase 6 — v1.0 readiness
 

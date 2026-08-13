@@ -217,6 +217,13 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 - `lib/src/ceremony/root_ceremony.dart`, rotation helpers.
 - `ContinuityProof` codec.
 
+### 8.1 Phase 5 done when
+
+- [x] `dart run tool/verify.dart full` passes
+- [x] `RootCeremony`, `ThresholdSigningCeremony`, `RotationCeremony` per [API.md](API.md) §4.4
+- [x] `ContinuityProof` wire codec round-trip
+- [x] Example app C1 → C3 → C5 flow
+
 ---
 
 ## 9. Definition of done (v1.0)

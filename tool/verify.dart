@@ -43,6 +43,7 @@ const _phaseTestDirs = [
   'test/sharing',
   'test/dkg',
   'test/signing',
+  'test/ceremony',
 ];
 
 Future<void> main(List<String> args) async {

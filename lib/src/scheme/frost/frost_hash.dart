@@ -6,7 +6,6 @@ import 'dart:typed_data';
 import 'package:pqforge/pqforge.dart';
 
 import '../feldman/ed25519_scalar.dart';
-import '../../util/sha512.dart';
 
 /// H1: binding-factor scalars.
 BigInt frostH1(Uint8List frostIdentifier, Uint8List input) {
@@ -61,7 +60,7 @@ BigInt _hashToScalar(Uint8List digest) {
   return scalarFromLeBytes(digest);
 }
 
-Uint8List _sha512(Uint8List input) => sha512Bytes(input);
+Uint8List _sha512(Uint8List input) => PqBytes.sha512(input);
 
 /// Encodes participant [index] as a 32-byte canonical scalar.
 Uint8List serializeParticipantIndex(int index) {

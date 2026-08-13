@@ -1,80 +1,56 @@
-/// Tier 2 in-process DKG simulation (`doc/API.md` §2).
+/// Tier 2 in-process ceremony simulation (`doc/API.md` §2).
 library;
 
 import 'dart:typed_data';
 
-import 'package:pqforge/pqforge.dart' hide PublicKey;
-
-import 'src/dkg/ceremony_session.dart';
-import 'src/dkg/dkg_message.dart';
-import 'src/params/threshold_params.dart';
+import 'src/ceremony/continuity_proof.dart';
+import 'src/ceremony/rotation_ceremony.dart';
+import 'src/ceremony/threshold_signing_ceremony.dart';
 import 'src/sharing/share.dart';
 import 'src/transcript/transcript.dart';
-import 'src/util/ceremony_id.dart';
 
-/// Runs a full DKG ceremony in one process — tests and docs only.
-abstract final class DkgSimulator {
-  /// Simulates C1 for all [params.n] participants.
-  static ({
-    List<Share> shares,
-    PublicKey publicKey,
-    List<Transcript> transcripts,
-  }) run({
-    required ThresholdParams params,
-    Uint8List? ceremonyId,
-    List<String>? participantIds,
-  }) {
-    final cid = ceremonyId ?? generateCeremonyId();
-    validateCeremonyId(cid);
-    final ids = participantIds ??
-        List.generate(params.n, (i) => 'participant-${i + 1}');
-    if (ids.length != params.n) {
-      throw ArgumentError('participantIds length must equal n=${params.n}');
-    }
+export 'src/ceremony/continuity_proof.dart' show ContinuityProof;
+export 'src/ceremony/rotation_ceremony.dart' show RotationCeremony;
+export 'src/ceremony/threshold_signing_ceremony.dart'
+    show ThresholdSigningCeremony;
+export 'src/dkg/dkg_simulator.dart' show DkgSimulator;
+export 'src/sharing/share.dart' show PublicKey, Share;
+export 'src/transcript/transcript.dart' show Transcript;
 
-    final sessions = [
-      for (var i = 1; i <= params.n; i++)
-        CeremonySession.create(
-          params: params,
-          ceremonyId: cid,
-          participantId: ids[i - 1],
-          participantIndex: i,
-          participantIds: ids,
-        ),
-    ];
-
-    var round1 = <DkgMessage>[];
-    for (final session in sessions) {
-      round1.addAll(session.processInbox(const []));
-    }
-
-    var round2 = <DkgMessage>[];
-    for (final session in sessions) {
-      round2.addAll(session.processInbox(round1));
-    }
-
-    for (final session in sessions) {
-      final forMe = round2.where(
-        (m) => m.recipientIndex == session.participantIndex,
+/// Runs C5 rotation in one process — tests, examples, and docs only.
+abstract final class RotationSimulator {
+  /// Delegates to [RotationCeremony.simulate].
+  static Future<
+      ({
+        List<Share> newShares,
+        PublicKey newPublicKey,
+        ContinuityProof continuityProof,
+        Transcript newTranscript,
+      })> run({
+    required List<Share> oldShares,
+    required PublicKey oldPublicKey,
+    Uint8List? newCeremonyId,
+    int? signedAtUnixSeconds,
+  }) =>
+      RotationCeremony.simulate(
+        oldShares: oldShares,
+        oldPublicKey: oldPublicKey,
+        newCeremonyId: newCeremonyId,
+        signedAtUnixSeconds: signedAtUnixSeconds,
       );
-      session.processInbox(forMe);
-    }
+}
 
-    final outputs = sessions.map((s) => s.finalize()).toList();
-    final publicKey = outputs.first.publicKey;
-    for (final output in outputs.skip(1)) {
-      if (!PqBytes.constantTimeEquals(
-        output.publicKey.bytes,
-        publicKey.bytes,
-      )) {
-        throw StateError('Participants derived different joint public keys');
-      }
-    }
-
-    return (
-      shares: [for (final o in outputs) o.share],
-      publicKey: publicKey,
-      transcripts: [for (final o in outputs) o.transcript],
-    );
-  }
+/// Runs C3 signing in one process — tests, examples, and docs only.
+abstract final class SigningSimulator {
+  /// Delegates to [ThresholdSigningCeremony.simulate].
+  static Future<Uint8List> run({
+    required List<Share> shares,
+    required Uint8List message,
+    Uint8List? context,
+  }) =>
+      ThresholdSigningCeremony.simulate(
+        shares: shares,
+        message: message,
+        context: context,
+      );
 }

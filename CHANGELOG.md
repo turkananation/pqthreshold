@@ -1,3 +1,12 @@
+## 0.6.0
+
+- **Phase 5 ceremony helpers:** C1/C3/C5 orchestration per `doc/API.md` §4.4.
+- `RootCeremony.startSession` / `simulate`, `ThresholdSigningCeremony.simulate`, `RotationCeremony.simulate`.
+- `ContinuityProof` type with PQTH wire codec (`doc/SERIALIZATION.md` §4.6).
+- Example app runs C1 → C3 → C5 via Tier 2 simulators.
+- FROST SHA-512 via `PqBytes.sha512` from pqforge 0.4.4 (no direct `crypto` dependency).
+- Six ceremony tests in `test/ceremony/ceremony_test.dart`; `dart run tool/verify.dart full` passes.
+
 ## 0.5.0
 
 - **Phase 4 FROST threshold signing:** Ed25519-compatible aggregate signatures (C3).
