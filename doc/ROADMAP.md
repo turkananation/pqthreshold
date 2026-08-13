@@ -58,11 +58,13 @@ Docs: [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §4, [FROST_PROFILE.md](FROST
 
 Docs: [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §3, [CEREMONIES.md](CEREMONIES.md) C1, [SWISSARMYKNIFE.md](SWISSARMYKNIFE.md) §3.5
 
-- [ ] `lib/src/dkg/` — `CeremonySession` backed by swissarmyknife `StateMachine`
-- [ ] `lib/src/transcript/` — hash chain
-- [ ] In-process `DkgSimulator` (Tier 2)
-- [ ] Integration test: simulated C1 for 2-of-3 and 3-of-5
-- [ ] Vectors under `test/vectors/dkg/`
+- [x] `lib/src/dkg/` — `CeremonySession` backed by swissarmyknife `StateMachine`
+- [x] `lib/src/transcript/` — hash chain
+- [x] In-process `DkgSimulator` (Tier 2) in `lib/testing.dart`
+- [x] Integration test: simulated C1 for 2-of-3 and 3-of-5
+- [x] Vectors under `test/vectors/dkg/`
+
+**Phase 3 complete.** Begin Phase 4 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §7.
 
 ## Phase 4 — Threshold signing
 

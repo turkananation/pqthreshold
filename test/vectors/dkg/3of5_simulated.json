@@ -1,0 +1,20 @@
+{
+  "format": "pqthreshold-test-vector-v1",
+  "scheme": "frostEd25519V1",
+  "description": "3-of-5 simulated DKG shares and joint public key",
+  "params": {
+    "t": 3,
+    "n": 5
+  },
+  "ceremonyId": "0102030405060708090a0b0c0d0e0f10",
+  "expected": {
+    "jointPublicKey": "a20c1368e30b4781f41a9322410c53549680dd53a1b93dbedb42803437f4f301",
+    "shares": [
+      "2474a0e658d8b7bd09ec51de9cee8d3bced1d1d1d1d1d1d1d1d1d1d1d1d1c202",
+      "057324fb1b2dfc47cf47177bce2e56d98be93e94e93e94e93e94e93e94e91b01",
+      "4d5b65c8cddd6bc3e21fbb37080c7250288de2378de2378de2378de2378da106",
+      "0f596df15387f4d76dd745716b8c028ca3bcbcbcbcbcbcbcbcbcbcbcbcbc5303",
+      "384032d3c88ca8dd460bafcad6a9e6a0fd77cd2278cd2278cd2278cd22783207"
+    ]
+  }
+}

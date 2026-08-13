@@ -1,0 +1,13 @@
+{
+  "format": "pqthreshold-test-vector-v1",
+  "scheme": "frostEd25519V1",
+  "description": "2-of-3 simulated DKG joint public key",
+  "params": {
+    "t": 2,
+    "n": 3
+  },
+  "ceremonyId": "0102030405060708090a0b0c0d0e0f10",
+  "expected": {
+    "jointPublicKey": "95d9204dee8c80b18a5c065e2fd271402a2b3eaa9f379b767ebdff33d8751efe"
+  }
+}

@@ -21,3 +21,8 @@ export 'src/util/secret_buffer.dart';
 /// Verifiable secret sharing and threshold key material (Phase 2+).
 export 'src/sharing/share.dart';
 export 'src/sharing/verifiable_secret_sharing.dart';
+
+/// Distributed key generation (Phase 3+).
+export 'src/dkg/ceremony_session.dart';
+export 'src/dkg/dkg_message.dart';
+export 'src/transcript/transcript.dart';

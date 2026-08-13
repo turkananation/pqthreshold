@@ -178,6 +178,13 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 
 - `lib/testing.dart`: `DkgSimulator` ([API.md](API.md) §2).
 
+### 6.5 Phase 3 done when
+
+- [x] `dart run tool/verify.dart full` passes
+- [x] `CeremonySession` split / verify / finalize per [API.md](API.md) §4.1
+- [x] `Transcript` append/seal/verify and wire codec
+- [x] DKG vectors under `test/vectors/dkg/`; regenerate via `dart run tool/generate_dkg_vectors.dart`
+
 ---
 
 ## 7. Phase 4 — FROST signing

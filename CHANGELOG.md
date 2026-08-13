@@ -1,3 +1,13 @@
+## 0.4.0
+
+- **Phase 3 distributed key generation:** Gennaro DKG over Ed25519 (C1).
+- `CeremonySession` with swissarmyknife `StateMachine` per `doc/PROTOCOL_MESSAGES.md` §3.1.
+- DKG wire messages (`DkgMessage`) for Round1/Round2 packages.
+- `Transcript` hash-chain append, seal, verify, and PQTH wire codec.
+- Tier 2 `DkgSimulator` in `package:pqthreshold/testing.dart`.
+- DKG acceptance vectors in `test/vectors/dkg/`; `tool/generate_dkg_vectors.dart` for regeneration.
+- Five integration tests in `test/dkg/dkg_simulation_test.dart`; `dart run tool/verify.dart full` passes.
+
 ## 0.3.0
 
 - **Phase 2 verifiable secret sharing:** Feldman VSS over Ed25519.
