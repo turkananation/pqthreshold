@@ -6,7 +6,7 @@ description: >
   organizational root keys, enclave recovery, and self-custodial multi-device
   setups. Zero native dependencies. Designed to complement pqcrypto/pqforge for
   hybrid post-quantum deployments where no single party ever holds the full secret.
-version: 0.2.0
+version: 0.3.0
 repository: https://github.com/turkananation/pqthreshold
 homepage: https://turkananation.github.io/pqthreshold/
 documentation: https://github.com/turkananation/pqthreshold/wiki

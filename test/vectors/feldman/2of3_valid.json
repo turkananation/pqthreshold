@@ -1,0 +1,17 @@
+{
+  "format": "pqthreshold-test-vector-v1",
+  "scheme": "frostEd25519V1",
+  "description": "2-of-3 Feldman split and reconstruct",
+  "params": {
+    "t": 2,
+    "n": 3
+  },
+  "ceremonyId": "0102030405060708090a0b0c0d0e0f10",
+  "inputs": {
+    "secret": "718612a58263dcde72ec06ab1bf119caafb1b2b3b4b5b6b7b8b9babbbcbdbe0f"
+  },
+  "expected": {
+    "secret": "718612a58263dcde72ec06ab1bf119caafb1b2b3b4b5b6b7b8b9babbbcbdbe0f",
+    "jointPublicKey": "90e463f54d246e63b208f3efb5e8299ca626607f0c133efe0a2c45fa6edec10a"
+  }
+}

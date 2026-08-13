@@ -148,6 +148,13 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 - Add `test/vectors/feldman/*.json` per [TEST_VECTORS.md](TEST_VECTORS.md).
 - `test/sharing/feldman_test.dart`: `t-1` fails, `t` succeeds.
 
+### 5.4 Phase 2 done when
+
+- [x] `dart run tool/verify.dart full` passes
+- [x] `VerifiableSecretSharing.split` / `verifyShare` / `reconstruct` per [API.md](API.md) §4.2
+- [x] `Share` / `PublicKey` codecs round-trip
+- [x] Feldman vectors under `test/vectors/feldman/`; regenerate via `dart run tool/generate_feldman_vectors.dart`
+
 ---
 
 ## 6. Phase 3 — DKG

@@ -47,10 +47,12 @@ Docs: [PARAMS.md](PARAMS.md), [SERIALIZATION.md](SERIALIZATION.md) §3–4.1, [A
 
 Docs: [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §4, [FROST_PROFILE.md](FROST_PROFILE.md) §6, [TEST_VECTORS.md](TEST_VECTORS.md) §4.1
 
-- [ ] `lib/src/sharing/` — Feldman VSS split / verify / reconstruct
-- [ ] `lib/src/scheme/feldman/` — group math (pointycastle last resort)
-- [ ] Property tests: `t-1` fails, `t` succeeds
-- [ ] Vectors under `test/vectors/feldman/`
+- [x] `lib/src/sharing/` — Feldman VSS split / verify / reconstruct
+- [x] `lib/src/scheme/feldman/` — Ed25519 group math (vendored field ops; pqforge has no group API)
+- [x] Property tests: `t-1` fails, `t` succeeds
+- [x] Vectors under `test/vectors/feldman/`
+
+**Phase 2 complete.** Begin Phase 3 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §6.
 
 ## Phase 3 — Distributed key generation
 

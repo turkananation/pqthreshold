@@ -17,3 +17,7 @@ export 'src/serialization/pqth_header.dart';
 
 /// Best-effort sensitive buffer wipe (Phase 1+).
 export 'src/util/secret_buffer.dart';
+
+/// Verifiable secret sharing and threshold key material (Phase 2+).
+export 'src/sharing/share.dart';
+export 'src/sharing/verifiable_secret_sharing.dart';

@@ -1,3 +1,12 @@
+## 0.3.0
+
+- **Phase 2 verifiable secret sharing:** Feldman VSS over Ed25519.
+- `VerifiableSecretSharing.split`, `verifyShare`, `reconstruct` per `doc/API.md` §4.2.
+- `Share` and `PublicKey` types with PQTH wire codecs (`doc/SERIALIZATION.md` §4.2–4.3).
+- In-tree Ed25519 curve/field ops under `lib/src/scheme/feldman/` (pqforge has no group API).
+- Feldman acceptance vectors in `test/vectors/feldman/`; `tool/generate_feldman_vectors.dart` for regeneration.
+- Six unit tests in `test/sharing/feldman_test.dart`; `dart run tool/verify.dart full` passes.
+
 ## 0.2.0
 
 - **Phase 1 foundation:** params, errors, PQTH serialization, and util modules.
