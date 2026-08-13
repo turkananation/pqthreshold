@@ -42,6 +42,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | 13 | [ROADMAP.md](ROADMAP.md) | Implementation phase checklist |
 | 14 | [IMPLEMENTATION.md](IMPLEMENTATION.md) | File-level build order (start coding) |
 | 15 | [TOOLING.md](TOOLING.md) | CI and `tool/verify.dart` |
+| 16 | [TERMINAL.md](TERMINAL.md) | Terminal / CLI workflows with pqforge |
 
 ---
 
@@ -65,6 +66,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | **4** | FROST signing | FROST_PROFILE, PROTOCOL_MESSAGES §5, SERIALIZATION §4.4 | `signing/`, `scheme/frost/` |
 | **5** | Ceremonies | CEREMONIES, API §4.4, SERIALIZATION §4.6 ContinuityProof | `ceremony/` |
 | **6** | Release | TEST_VECTORS, SECURITY Appendix A, ROADMAP Phase 6 | `tool/verify.dart`, CI |
+| **CLI** | Operator terminal | TERMINAL.md, pqforge CLI.md | `bin/pqthreshold.dart` (Phase 3–5) |
 
 ---
 
@@ -113,3 +115,4 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | Version | Change |
 | ------- | ------ |
 | 2026-08-13 | Initial index; links PROTOCOL_MESSAGES, FROST_PROFILE, PARAMS, TEST_VECTORS |
+| 2026-08-13 | Added TERMINAL.md — unified terminal / pqforge lifecycle |

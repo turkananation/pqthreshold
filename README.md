@@ -177,7 +177,7 @@ When **not** to use it:
 | Area | Status |
 | ------ | -------- |
 | Specification (Phase 0) | **Complete** — [doc/INDEX.md](doc/INDEX.md) |
-| Implementation (Phase 1+) | Not started — [doc/IMPLEMENTATION.md](doc/IMPLEMENTATION.md) |
+| Implementation (Phase 1 foundation + CLI slice) | **Landed** — params, PQTH serialization, `pqthreshold params` / `inspect` |
 | Verify locally | `dart run tool/verify.dart full` |
 | CI | `.github/workflows/ci.yml` → `verify quick` |
 
@@ -189,13 +189,27 @@ The package follows the same evidence-oriented style as `pqcrypto`: clear docume
 
 ```yaml
 dependencies:
-  pqthreshold: ^0.1.0
+  pqthreshold: ^0.2.0
 ```
 
 ```bash
 dart pub get
 # or
 flutter pub get
+```
+
+### Terminal (CLI)
+
+Phase 1 ships `params` and `inspect`. Pair with [`pqforge`](https://pub.dev/packages/pqforge) for device keys — see [doc/TERMINAL.md](doc/TERMINAL.md).
+
+```bash
+dart pub global activate pqthreshold   # when published
+# or from clone:
+dart run pqthreshold --help
+
+pqthreshold params validate --t 2 --n 3
+pqthreshold params export --t 3 --n 5 --out ceremony/params.pqth
+pqthreshold inspect --in ceremony/params.pqth
 ```
 
 ---
@@ -223,6 +237,7 @@ flutter pub get
 | [doc/RELEASE_CHECKLIST.md](doc/RELEASE_CHECKLIST.md) | v1.0 release gate |
 | [doc/CEREMONIES.md](doc/CEREMONIES.md) | Recommended multi-party flows |
 | [doc/INTEGRATION.md](doc/INTEGRATION.md) | Working with pqcrypto / pqforge |
+| [doc/TERMINAL.md](doc/TERMINAL.md) | Terminal / CLI workflows with pqforge |
 | [doc/SWISSARMYKNIFE.md](doc/SWISSARMYKNIFE.md) | swissarmyknife usage map (state machines, Result, …) |
 | [doc/ROADMAP.md](doc/ROADMAP.md) | Implementation phases |
 | [doc/adr/](doc/adr/) | Architecture decision records |

@@ -34,11 +34,14 @@ Prerequisites: all docs listed in INDEX §2
 
 Docs: [PARAMS.md](PARAMS.md), [SERIALIZATION.md](SERIALIZATION.md) §3–4.1, [API.md](API.md) §3.1–3.2, [SWISSARMYKNIFE.md](SWISSARMYKNIFE.md) §3.1–3.4
 
-- [ ] `lib/src/params/` — `ThresholdParams`, `SchemeId`; validate with swissarmyknife `Validator`
-- [ ] `lib/src/errors/` — sealed `ThresholdException`; map internal `Result` failures at barrel
-- [ ] `lib/src/util/` — `Disposable` secret buffers; byte helpers from swissarmyknife where non-crypto
-- [ ] `lib/src/serialization/` — `CodecPipeline` encode/decode for `PQTH` format
-- [ ] Unit tests for params validation and serialization round-trips
+- [x] `lib/src/params/` — `ThresholdParams`, `SchemeId`; validate with swissarmyknife `Validator`
+- [x] `lib/src/errors/` — sealed `ThresholdException`; map internal `Result` failures at barrel
+- [x] `lib/src/util/` — `Disposable` secret buffers; byte helpers from swissarmyknife where non-crypto
+- [x] `lib/src/serialization/` — `CodecPipeline` encode/decode for `PQTH` format
+- [x] Unit tests for params validation and serialization round-trips
+- [x] `bin/pqthreshold.dart` — Phase 1 CLI (`params`, `inspect`); see [TERMINAL.md](TERMINAL.md)
+
+**Phase 1 complete.** Begin Phase 2 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §5.
 
 ## Phase 2 — Verifiable secret sharing
 

@@ -22,11 +22,11 @@ const _requiredDocs = [
   'doc/TEST_VECTORS.md',
   'doc/TOOLING.md',
   'doc/IMPLEMENTATION.md',
-  'doc/TOOLING.md',
   'doc/RELEASE_CHECKLIST.md',
   'doc/SECURITY.md',
   'doc/CEREMONIES.md',
   'doc/INTEGRATION.md',
+  'doc/TERMINAL.md',
   'doc/ROADMAP.md',
   'doc/adr/001-scheme-selection.md',
   'doc/adr/002-runtime-dependencies.md',
@@ -39,6 +39,7 @@ const _requiredDocs = [
 /// Optional test directories — run when they exist (added per ROADMAP phases).
 const _phaseTestDirs = [
   'test/serialization',
+  'test/cli',
   'test/sharing',
   'test/dkg',
   'test/signing',

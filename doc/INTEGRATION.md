@@ -142,6 +142,8 @@ Application code must enforce that reconstruction is exceptional, multi-person, 
 - Envelope formats, streaming, multi-recipient sealing  
 - CLI and application recipes  
 
+See **[TERMINAL.md](TERMINAL.md)** for the unified terminal runbook: how `pqforge keygen` / wrap / inspect compose with planned `pqthreshold` ceremony commands, shared custody (`PqWrappedKey`), and on-disk layout.
+
 ### 4.2 What pqthreshold adds
 
 - `DistributedKeyGeneration` / ceremony sessions  

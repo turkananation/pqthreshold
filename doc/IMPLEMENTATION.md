@@ -117,9 +117,16 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 
 ### 4.7 Phase 1 done when
 
-- [ ] `dart run tool/verify.dart full` passes
-- [ ] Params reject invalid `t`/`n` per [PARAMS.md](PARAMS.md) §3.2
-- [ ] Header round-trip tests pass
+- [x] `dart run tool/verify.dart full` passes
+- [x] Params reject invalid `t`/`n` per [PARAMS.md](PARAMS.md) §3.2
+- [x] Header round-trip tests pass
+
+### 4.8 Phase 1 CLI slice (`bin/pqthreshold.dart`)
+
+- `params validate` / `params export` — [TERMINAL.md](TERMINAL.md) §7
+- `inspect` — PQTH header + ThresholdParams; wrapped JSON metadata (no unwrap)
+- Tests: `test/cli/pqthreshold_cli_test.dart`
+- Version: `dart run tool/version/generate_version.dart` (from `pubspec.yaml`)
 
 ---
 

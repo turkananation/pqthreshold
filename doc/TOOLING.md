@@ -27,6 +27,7 @@ dart run tool/verify.dart quick
 | ------- | ---- |
 | `dart analyze` | After every edit |
 | `dart test` | After every behavioral change |
+| `dart run pqthreshold --help` | After CLI changes |
 | `dart run tool/verify.dart quick` | Before every PR (same as CI) |
 
 ---
@@ -62,6 +63,7 @@ If a required doc is removed or renamed, update **`tool/verify.dart`** and [INDE
 | Directory | ROADMAP phase |
 | --------- | ------------- |
 | `test/serialization/` | Phase 1 |
+| `test/cli/` | Phase 1 (CLI) |
 | `test/sharing/` | Phase 2 |
 | `test/dkg/` | Phase 3 |
 | `test/signing/` | Phase 4 |
@@ -96,6 +98,7 @@ Future: add `full` on release tags or nightly once Phase 2+ tests exist.
 
 | Tool | Phase | Purpose |
 | ---- | ----- | ------- |
+| `bin/pqthreshold.dart` | 1+ (partial) | Operator CLI — `params`, `inspect`; see [TERMINAL.md](../doc/TERMINAL.md) |
 | `tool/generate_vectors.dart` | 2+ | Regenerate JSON under `test/vectors/` |
 | `tool/bench_dkg.dart` | 3+ | Web `n` limit benchmarks |
 
