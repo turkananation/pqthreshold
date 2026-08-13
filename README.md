@@ -10,7 +10,7 @@
 
 > Zero native dependencies. Verifiable secret sharing, distributed key generation (DKG), threshold signatures, and multi-party ceremony building blocks for organizational roots, enclave recovery, and self-custodial multi-device setups.
 
-**Documentation** · [Website](https://turkananation.github.io/pqthreshold/) · [Wiki](https://github.com/turkananation/pqthreshold/wiki) · [API reference](https://pub.dev/documentation/pqthreshold/latest/) · [Security model](doc/SECURITY.md)
+**Documentation** · [Getting started](doc/GETTING_STARTED.md) · [Website](https://turkananation.github.io/pqthreshold/) · [Wiki](https://github.com/turkananation/pqthreshold/wiki) · [API reference](https://pub.dev/documentation/pqthreshold/latest/) · [Security model](doc/SECURITY.md)
 
 ---
 
@@ -221,6 +221,7 @@ pqthreshold inspect --in ceremony/params.pqth
 | Document | Purpose |
 | ---------- | --------- |
 | [doc/INDEX.md](doc/INDEX.md) | **Reading order and phase map** |
+| [doc/GETTING_STARTED.md](doc/GETTING_STARTED.md) | **Run tests, example, ceremony flows** |
 | [README.md](README.md) | This file |
 | [SECURITY.md](SECURITY.md) | Vulnerability reporting |
 | [doc/SECURITY.md](doc/SECURITY.md) | Threat model & claim boundaries |

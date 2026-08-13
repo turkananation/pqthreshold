@@ -1,0 +1,115 @@
+// Copy to: serverpod_server/lib/src/endpoints/threshold_ceremony_endpoint.dart
+//
+// Requires: crypto_shared path dependency + generated Serverpod protocol types.
+// Replace Session/auth stubs with your officer identity model.
+
+import 'dart:typed_data';
+
+import 'package:crypto_shared/crypto_shared.dart';
+import 'package:serverpod/serverpod.dart';
+
+/// Coordinator endpoints — no share custody.
+///
+/// Delegates to [ThresholdCeremonyService]. Persist relay/outcomes with your
+/// DB-backed [CeremonyMessageRelay] in production (this sketch uses in-memory).
+class ThresholdCeremonyEndpoint extends Endpoint {
+  ThresholdCeremonyService get _service =>
+      session.serverpod.service<ThresholdCeremonyService>();
+
+  /// Officer posts one DKG wire envelope.
+  Future<void> submitDkgMessage(
+    Session session,
+    String ceremonyIdHex,
+    ByteData wireBytes,
+  ) async {
+    _requireOfficer(session);
+    await _service.submitDkgMessage(
+      ceremonyIdHex: ceremonyIdHex,
+      wireBytes: wireBytes.buffer.asUint8List(
+        wireBytes.offsetInBytes,
+        wireBytes.lengthInBytes,
+      ),
+    );
+  }
+
+  /// Officer polls DKG inbox for their participant index.
+  Future<List<ByteData>> fetchDkgInbox(
+    Session session,
+    String ceremonyIdHex,
+    int participantIndex,
+  ) async {
+    _requireOfficer(session);
+    final inbox = await _service.fetchDkgInbox(
+      ceremonyIdHex: ceremonyIdHex,
+      participantIndex: participantIndex,
+    );
+    return [
+      for (final bytes in inbox) ByteData.sublistView(bytes),
+    ];
+  }
+
+  /// After C1: publish joint public key + transcript (PQTH bytes only).
+  Future<void> publishCeremonyOutcome(
+    Session session,
+    String ceremonyIdHex,
+    ByteData publicKeyBytes,
+    ByteData transcriptBytes,
+  ) async {
+    _requireOfficer(session);
+    _service.publishPublicKey(
+      ceremonyIdHex: ceremonyIdHex,
+      publicKeyBytes: publicKeyBytes.buffer.asUint8List(),
+    );
+    _service.publishTranscript(
+      ceremonyIdHex: ceremonyIdHex,
+      transcriptBytes: transcriptBytes.buffer.asUint8List(),
+    );
+  }
+
+  /// C3: submit one partial signature for a signing job.
+  Future<void> submitPartial(
+    Session session,
+    String jobId,
+    ByteData partialBytes,
+  ) async {
+    _requireOfficer(session);
+    final partial = PartialSignature.fromBytes(
+      partialBytes.buffer.asUint8List(),
+    );
+    _service.signing.submitPartial(jobId: jobId, partial: partial);
+  }
+
+  /// C3: coordinator tries to combine when ≥ t partials exist.
+  Future<ByteData?> tryCombineSignature(Session session, String jobId) async {
+    _requireOfficer(session);
+    final sig = _service.signing.tryCombine(jobId);
+    return sig == null ? null : ByteData.sublistView(sig);
+  }
+
+  /// Optional verify helper for clients.
+  Future<bool> verifyThresholdSignature(
+    Session session,
+    ByteData publicKeyBytes,
+    ByteData message,
+    ByteData signature,
+  ) =>
+      _service.verifyThresholdSignature(
+        publicKeyBytes: publicKeyBytes.buffer.asUint8List(),
+        message: message.buffer.asUint8List(),
+        signature: signature.buffer.asUint8List(),
+      );
+
+  void _requireOfficer(Session session) {
+    // TODO: enforce authenticated officer; bind to participant list for ceremony.
+    if (session.userId == null) {
+      throw Exception('Authentication required');
+    }
+  }
+}
+
+/// Register in server.dart:
+///
+/// ```dart
+/// pod.registerService(ThresholdCeremonyService());
+/// pod.registerEndpoint(ThresholdCeremonyEndpoint());
+/// ```

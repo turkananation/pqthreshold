@@ -1,0 +1,20 @@
+{
+  "format": "pqthreshold-test-vector-v1",
+  "scheme": "frostEd25519V1",
+  "description": "2-of-3 rotation with continuity proof",
+  "params": {
+    "t": 2,
+    "n": 3
+  },
+  "ceremonyId": "0102030405060708090a0b0c0d0e0f10",
+  "inputs": {
+    "oldCeremonyId": "0102030405060708090a0b0c0d0e0f10",
+    "newCeremonyId": "6465666768696a6b6c6d6e6f70717273",
+    "signedAt": 1700000000
+  },
+  "expected": {
+    "oldJointPublicKey": "95d9204dee8c80b18a5c065e2fd271402a2b3eaa9f379b767ebdff33d8751efe",
+    "newJointPublicKey": "95d9204dee8c80b18a5c065e2fd271402a2b3eaa9f379b767ebdff33d8751efe",
+    "continuitySignature": "0ed1f67f32b421301396c014eb7bdf44b9ae75bde27fbc298213e7f61494673f2c993f76b1942b01a12fb9fe6467c4bb3c19dabe1f486a9824ddaa089634d404"
+  }
+}

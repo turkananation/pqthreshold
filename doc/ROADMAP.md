@@ -87,9 +87,11 @@ Docs: [CEREMONIES.md](CEREMONIES.md), [API.md](API.md) §4.4, [SERIALIZATION.md]
 
 ## Phase 6 — v1.0 readiness
 
-- [ ] All [TEST_VECTORS.md](TEST_VECTORS.md) acceptance criteria pass
-- [ ] Independent review checklist
-- [ ] CHANGELOG 1.0.0 when Tier 1 API is stable
+- [x] All [TEST_VECTORS.md](TEST_VECTORS.md) acceptance criteria pass
+- [x] Independent review checklist ([REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md))
+- [ ] CHANGELOG 1.0.0 when Tier 1 API is stable (version stays **0.6.0** until [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) sign-off)
+
+**Phase 6 implementation gates done.** Tag `1.0.0` only after independent review sign-off on [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ## v2 (deferred)
 

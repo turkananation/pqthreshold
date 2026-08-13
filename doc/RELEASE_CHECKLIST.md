@@ -2,40 +2,41 @@
 
 **pqthreshold** — Gate before tagging `1.0.0`
 
-Use with [ROADMAP.md](ROADMAP.md) Phase 6 and [TOOLING.md](TOOLING.md).
+Use with [ROADMAP.md](ROADMAP.md) Phase 6 and [TOOLING.md](TOOLING.md).  
+Independent review: [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ---
 
 ## Specification
 
-- [ ] All files in `tool/verify.dart` `_requiredDocs` manifest present
-- [ ] [INDEX.md](INDEX.md) reading order matches repository
-- [ ] [SECURITY.md](SECURITY.md) Appendix A accurate for shipped code
-- [ ] No open protocol ambiguities in [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md)
+- [x] All files in `tool/verify.dart` `_requiredDocs` manifest present
+- [x] [INDEX.md](INDEX.md) reading order matches repository
+- [ ] [SECURITY.md](SECURITY.md) Appendix A accurate for shipped code (reviewer sign-off)
+- [x] No open protocol ambiguities in [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md)
 
 ## Implementation
 
-- [ ] Phases 1–5 complete per [IMPLEMENTATION.md](IMPLEMENTATION.md)
-- [ ] Tier 1 API matches [API.md](API.md)
-- [ ] Tier 2 APIs live in `testing.dart` only
+- [x] Phases 1–5 complete per [IMPLEMENTATION.md](IMPLEMENTATION.md)
+- [x] Tier 1 API matches [API.md](API.md)
+- [x] Tier 2 APIs live in `testing.dart` only
 
 ## Tests
 
-- [ ] `dart run tool/verify.dart full` passes
-- [ ] All [TEST_VECTORS.md](TEST_VECTORS.md) §4 criteria pass
-- [ ] Property tests: `t-1` fails, `t` succeeds (VSS, signing)
-- [ ] DKG simulation: 2-of-3 and 3-of-5 consistent joint public key
+- [x] `dart run tool/verify.dart full` passes
+- [x] All [TEST_VECTORS.md](TEST_VECTORS.md) §4 criteria pass
+- [x] Property tests: `t-1` fails, `t` succeeds (VSS, signing)
+- [x] DKG simulation: 2-of-3 and 3-of-5 consistent joint public key
 
 ## Security
 
-- [ ] Independent cryptographic review completed
+- [ ] Independent cryptographic review completed ([REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md))
 - [ ] No secrets in git history (audit sample commits)
-- [ ] Claim boundaries in README match [SECURITY.md](SECURITY.md) §6
+- [x] Claim boundaries in README match [SECURITY.md](SECURITY.md) §6
 
 ## Release
 
-- [ ] CHANGELOG 1.0.0 entry
-- [ ] Version in `pubspec.yaml` bumped
+- [ ] CHANGELOG 1.0.0 entry finalized (draft under `Unreleased` until review sign-off)
+- [ ] Version in `pubspec.yaml` bumped to `1.0.0`
 - [ ] `doc/API.md` stability note updated for 1.0 freeze
 
 ---
@@ -45,3 +46,4 @@ Use with [ROADMAP.md](ROADMAP.md) Phase 6 and [TOOLING.md](TOOLING.md).
 | Version | Change |
 | ------- | ------ |
 | 2026-08-13 | Initial v1.0 checklist |
+| 2026-08-13 | Phase 6 implementation gates marked complete; review items remain operator |

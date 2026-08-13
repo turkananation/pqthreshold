@@ -1,0 +1,23 @@
+name: crypto_shared
+description: >
+  Shared threshold-crypto helpers for Flutter officer apps and Serverpod
+  coordinators — re-exports, hex codecs, DKG relay, signing job coordination.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  meta: ^1.16.0
+  pqforge: ^0.4.4
+  pqthreshold:
+    path: ../../
+
+dependency_overrides:
+  pqforge:
+    path: ../../../pqforge
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

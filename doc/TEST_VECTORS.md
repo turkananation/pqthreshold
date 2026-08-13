@@ -100,6 +100,17 @@ For each object in [SERIALIZATION.md](SERIALIZATION.md) §4:
 - `toBytes` → `fromBytes` → equal canonical bytes
 - Wrong `ceremonyId` on decode → `WrongCeremony`
 
+Covered in `test/serialization/pqth_roundtrip_test.dart`.
+
+### 4.5 Ceremony / rotation (`test/vectors/ceremony/`)
+
+| Test | Expected |
+| ---- | -------- |
+| `rotation_2of3` | Continuity signature matches `expected.continuitySignature`; verify under old key **true** |
+| New joint key | Matches `expected.newJointPublicKey` |
+
+Regenerate: `dart run tool/generate_rotation_vectors.dart`.
+
 ---
 
 ## 5. Generating vectors (implementers)

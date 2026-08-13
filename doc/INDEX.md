@@ -27,6 +27,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 
 | Step | Document | You should know after reading |
 | ---- | -------- | ----------------------------- |
+| 0 | [GETTING_STARTED.md](GETTING_STARTED.md) | **Run tests, example, and how ceremonies work** |
 | 1 | [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, boundaries, what is in / out of scope |
 | 2 | [SCHEMES.md](SCHEMES.md) | v1 algorithms: Feldman VSS, Gennaro DKG, FROST Ed25519 |
 | 3 | [PARAMS.md](PARAMS.md) | Valid `t`/`n`, indices, hard limits |
@@ -65,7 +66,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | **3** | DKG | PROTOCOL_MESSAGES §3, CEREMONIES C1, SWISSARMYKNIFE §3.5 | `dkg/`, `transcript/`, `scheme/dkg/` |
 | **4** | FROST signing | FROST_PROFILE, PROTOCOL_MESSAGES §5, SERIALIZATION §4.4 | `signing/`, `scheme/frost/` |
 | **5** | Ceremonies | CEREMONIES, API §4.4, SERIALIZATION §4.6 ContinuityProof | `ceremony/` |
-| **6** | Release | TEST_VECTORS, SECURITY Appendix A, ROADMAP Phase 6 | `tool/verify.dart`, CI |
+| **6** | Release | TEST_VECTORS, [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md), SECURITY Appendix A, ROADMAP Phase 6 | `tool/verify.dart`, CI |
 | **CLI** | Operator terminal | TERMINAL.md, pqforge CLI.md | `bin/pqthreshold.dart` (Phase 3–5) |
 
 ---

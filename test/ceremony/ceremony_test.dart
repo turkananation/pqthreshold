@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:pqforge/pqforge.dart' hide PublicKey;
@@ -8,7 +10,7 @@ import 'package:test/test.dart';
 Uint8List _deterministicRandom(int length) {
   final out = Uint8List(length);
   for (var i = 0; i < length; i++) {
-    out[i] = (i * 19 + length) & 0xFF;
+    out[i] = (i * 17 + length) & 0xFF;
   }
   return out;
 }
@@ -120,6 +122,42 @@ void main() {
       );
     });
 
+    test('vector rotation_2of3.json acceptance criteria', () async {
+      final vector = jsonDecode(
+        File('test/vectors/ceremony/rotation_2of3.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+
+      final params = ThresholdParams.tOfN(
+        t: vector['params']['t'] as int,
+        n: vector['params']['n'] as int,
+      );
+      final oldCeremonyId = _hexToBytes(vector['inputs']['oldCeremonyId'] as String);
+      final newCeremonyId = _hexToBytes(vector['inputs']['newCeremonyId'] as String);
+      final signedAt = vector['inputs']['signedAt'] as int;
+
+      final oldDkg = DkgSimulator.run(
+        params: params,
+        ceremonyId: oldCeremonyId,
+      );
+      final rotation = await RotationCeremony.simulate(
+        oldShares: oldDkg.shares,
+        oldPublicKey: oldDkg.publicKey,
+        newCeremonyId: newCeremonyId,
+        signedAtUnixSeconds: signedAt,
+      );
+
+      expect(_hex(oldDkg.publicKey.bytes), vector['expected']['oldJointPublicKey']);
+      expect(_hex(rotation.newPublicKey.bytes), vector['expected']['newJointPublicKey']);
+      expect(
+        _hex(rotation.continuityProof.thresholdSignature),
+        vector['expected']['continuitySignature'],
+      );
+      expect(
+        await rotation.continuityProof.verify(oldPublicKey: oldDkg.publicKey),
+        isTrue,
+      );
+    });
+
     test('verify rejects wrong old public key', () async {
       final params = ThresholdParams.tOfN(t: 2, n: 3);
       final oldDkg = DkgSimulator.run(params: params);
@@ -141,4 +179,15 @@ void main() {
       );
     });
   });
+}
+
+String _hex(Uint8List bytes) =>
+    bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+
+Uint8List _hexToBytes(String hex) {
+  final out = Uint8List(hex.length ~/ 2);
+  for (var i = 0; i < out.length; i++) {
+    out[i] = int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16);
+  }
+  return out;
 }

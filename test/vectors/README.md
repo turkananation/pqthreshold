@@ -11,19 +11,15 @@ JSON test vectors for `pqthreshold` live here, organized by protocol area.
 | `feldman/` | 2 | Feldman VSS split / verify / reconstruct |
 | `dkg/` | 3 | Simulated multi-party DKG outputs |
 | `frost/` | 4 | FROST signing round-trip + combined signature |
+| `ceremony/` | 5–6 | C5 rotation + continuity proof |
 
 ## Status
 
-Vector **files** are added when each phase is implemented. Until then, directories may be empty — tests use inline fixtures in Phase 1.
-
-## Rules
-
-- Format: `pqthreshold-test-vector-v1` JSON ([TEST_VECTORS.md](../../doc/TEST_VECTORS.md) §3).
-- Hex: lowercase, no `0x` prefix.
-- **Test-only secrets only** — never production key material.
-
-## Generate (future)
+All v1 vector files for `frostEd25519V1` are present. Regenerate with:
 
 ```bash
-dart run tool/generate_vectors.dart   # not yet implemented
+dart run tool/generate_feldman_vectors.dart   # if present
+dart run tool/generate_dkg_vectors.dart
+dart run tool/generate_frost_vectors.dart
+dart run tool/generate_rotation_vectors.dart
 ```

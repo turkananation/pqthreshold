@@ -11,6 +11,7 @@ import 'dart:io';
 
 const _requiredDocs = [
   'doc/INDEX.md',
+  'doc/GETTING_STARTED.md',
   'doc/ARCHITECTURE.md',
   'doc/SCHEMES.md',
   'doc/PARAMS.md',
@@ -23,6 +24,7 @@ const _requiredDocs = [
   'doc/TOOLING.md',
   'doc/IMPLEMENTATION.md',
   'doc/RELEASE_CHECKLIST.md',
+  'doc/REVIEW_CHECKLIST.md',
   'doc/SECURITY.md',
   'doc/CEREMONIES.md',
   'doc/INTEGRATION.md',
@@ -44,6 +46,7 @@ const _phaseTestDirs = [
   'test/dkg',
   'test/signing',
   'test/ceremony',
+  'test/example',
 ];
 
 Future<void> main(List<String> args) async {

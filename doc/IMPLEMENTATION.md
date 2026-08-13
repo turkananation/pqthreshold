@@ -230,6 +230,15 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 
 See [ROADMAP.md](ROADMAP.md) Phase 6 and [TEST_VECTORS.md](TEST_VECTORS.md) §4.
 
+### 9.1 Phase 6 done when
+
+- [x] `dart run tool/verify.dart full` passes
+- [x] All [TEST_VECTORS.md](TEST_VECTORS.md) §4 acceptance criteria (including serialization round-trips)
+- [x] [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) published for independent review
+- [ ] CHANGELOG 1.0.0 and Tier 1 API freeze per [API.md](API.md) §7 (at tag time)
+
+Operator gate before **1.0.0 tag**: cryptographic review sign-off on [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md). Shipped version remains **0.6.0** until then.
+
 ---
 
 ## 10. Document control

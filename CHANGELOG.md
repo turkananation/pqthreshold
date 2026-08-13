@@ -1,5 +1,14 @@
-## 0.6.0
+# Changelog
 
+## 0.6.0
+- **Feldman VSS** — split, verify, reconstruct (C2 dealer-based sharing).
+- **Gennaro DKG** — `CeremonySession`, transcripts, wire messages (C1).
+- **FROST threshold signing** — Ed25519-compatible aggregate signatures (C3).
+- **Ceremony helpers** — `RootCeremony`, `RotationCeremony`, `ContinuityProof` (C5).
+- Tier 2 simulators in `package:pqthreshold/testing.dart`.
+- Acceptance vectors under `test/vectors/`; `dart run tool/verify.dart full` passes.
+- Requires **pqforge ^0.4.4** (`PqBytes.sha512` for FROST profile hashes).
+- Independent cryptographic review checklist: `doc/REVIEW_CHECKLIST.md` (recommended before production).
 - **Phase 5 ceremony helpers:** C1/C3/C5 orchestration per `doc/API.md` §4.4.
 - `RootCeremony.startSession` / `simulate`, `ThresholdSigningCeremony.simulate`, `RotationCeremony.simulate`.
 - `ContinuityProof` type with PQTH wire codec (`doc/SERIALIZATION.md` §4.6).
