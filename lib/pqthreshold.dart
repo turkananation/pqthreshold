@@ -52,4 +52,5 @@ export 'src/scheme/ml_dsa/ml_dsa_profile.dart';
 export 'src/scheme/ml_dsa/ml_dsa_threshold_verifier.dart';
 export 'src/scheme/ml_dsa/ml_dsa_signing_message.dart'
     hide mlDsaMessagesFromWireSignJson;
+export 'src/scheme/ml_dsa/ml_dsa_signing_session.dart';
 export 'src/scheme/scheme_capabilities.dart';

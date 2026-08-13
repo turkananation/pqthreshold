@@ -160,5 +160,75 @@ void main() {
         share.disposeSecret();
       }
     }, skip: !mithrilBridgeAvailable(overridePath: bridgePath) ? 'no bridge' : false);
+
+    test('distributed three-round session matches signWithWire', () async {
+      final params = ThresholdParams.tOfN(
+        t: 2,
+        n: 3,
+        scheme: SchemeId.mlDsa44ThresholdV1,
+      );
+      final message = Uint8List.fromList('pqthreshold ml-dsa distributed'.codeUnits);
+      final root = await MlDsaRootCeremony.simulate(
+        params,
+        mithrilBridgePath: bridgePath,
+      );
+      final signers = root.shares.take(2).toList();
+      final active = signers.map((s) => s.mithrilPartyId).toList()..sort();
+
+      final round1 = <MlDsaSigningMessage>[];
+      final sessions = <MlDsaSigningSession>[];
+      for (final share in signers) {
+        final begun = await MlDsaSigningSession.begin(
+          share: share,
+          message: message,
+          publicKey: root.publicKey,
+          activePartyIdsZeroBased: active,
+          mithrilBridgePath: bridgePath,
+        );
+        round1.add(begun.round1);
+        sessions.add(begun.session);
+      }
+
+      final round2 = <MlDsaSigningMessage>[];
+      for (final session in sessions) {
+        round2.add(await session.completeRound2(round1Messages: round1));
+      }
+
+      final round3 = <MlDsaSigningMessage>[];
+      for (final session in sessions) {
+        round3.add(
+          await session.completeRound3(
+            round1Messages: round1,
+            round2Messages: round2,
+          ),
+        );
+      }
+
+      final signature = await combineMlDsaFromWire(
+        publicKey: root.publicKey,
+        message: message,
+        round2Messages: round2,
+        round3Messages: round3,
+        activePartyIdsZeroBased: active,
+        mithrilBridgePath: bridgePath,
+      );
+
+      expect(
+        MlDsaThresholdVerifier.verify(
+          scheme: params.scheme,
+          publicKey: root.publicKey.bytes,
+          message: message,
+          signature: signature,
+        ),
+        isTrue,
+      );
+
+      for (final session in sessions) {
+        session.dispose();
+      }
+      for (final share in root.shares) {
+        share.disposeSecret();
+      }
+    }, skip: !mithrilBridgeAvailable(overridePath: bridgePath) ? 'no bridge' : false);
   });
 }

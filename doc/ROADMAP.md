@@ -192,7 +192,8 @@ Requires new ADR(s) and new `SchemeId` values for PQ schemes — **not** a semve
 - [x] **`SchemeId` registry** (`0x0002`–`0x0006`), `SchemeCapabilities`, `MlDsaThresholdVerifier`
 - [x] **M2 beta** — `MlDsaThresholdSigner`, Mithril bridge (ML-DSA-44), 2-of-3 tests
 - [x] **M3 beta** — `MlDsaSigningMessage` wire kinds `0x20`–`0x22`, `signWithWire`, `sign ml-dsa run`
-- [ ] Per-officer ML-DSA signing sessions (no shared seed coordinator)
+- [x] **M3+ distributed** — `MlDsaSigningSession`, `sign ml-dsa partial|round2|round3|combine`
+- [ ] Per-party RSS shares without shared ceremony seed (production DKG)
 
 ### Planned
 - [ ] **M3** Pure Dart / ML-DSA-65 distributed C1+C3 wire rounds

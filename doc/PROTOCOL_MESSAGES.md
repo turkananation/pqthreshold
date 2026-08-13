@@ -298,7 +298,7 @@ payload:
 
 ```text
 payload:
-  || responseBytes (variable)    // FIPS 204 `pack_z` per slot: k_reps × (L × POLYZ_PACKEDBYTES)
+  || responseBytes (variable)    // k_reps × (L × N × int32_le) raw z coefficients per party
 ```
 
 ### 6.6 Combine (local / coordinator)

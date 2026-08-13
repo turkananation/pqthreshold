@@ -1,13 +1,18 @@
 //! JSON stdin/stdout bridge for pqthreshold M2/M3 (threshold ML-DSA-44 / Mithril).
 
+mod distributed;
+
 use base64::{engine::general_purpose::STANDARD as B64, Engine};
+use distributed::{
+    aggregate_wfinals_from_reveals, binding_from_b64, combine_wire, decode_blobs_b64,
+    decode_hashes_b64, pack_wfinals, round1_party, round2_party, round3_party,
+    session_id_from_b64, session_id_from_binding, unpack_wfinals, validate_active,
+};
 use rand::{rngs::StdRng, RngCore, SeedableRng};
 use serde::{Deserialize, Serialize};
-use sha3::digest::{ExtendableOutput, Update, XofReader};
-use sha3::Shake256;
 use threshold_ml_dsa::coordinator;
-use threshold_ml_dsa::params::{L, POLYZ_PACKEDBYTES};
-use threshold_ml_dsa::poly::{PolyVecK, PolyVecL};
+use threshold_ml_dsa::params::PK_BYTES;
+use threshold_ml_dsa::poly::PolyVecL;
 use threshold_ml_dsa::sdk::ThresholdMlDsa44Sdk;
 use threshold_ml_dsa::sign;
 use threshold_ml_dsa::verify;
@@ -34,6 +39,64 @@ enum Request {
         active: Vec<u8>,
         message_b64: String,
         rng_seed_hex: Option<String>,
+    },
+    #[serde(rename = "derive_session_id")]
+    DeriveSessionId {
+        t: u8,
+        n: u8,
+        public_key_b64: String,
+        active: Vec<u8>,
+        message_b64: String,
+        binding_b64: String,
+    },
+    #[serde(rename = "round1_party")]
+    Round1Party {
+        t: u8,
+        n: u8,
+        seed_hex: String,
+        party_id: u8,
+        active: Vec<u8>,
+        message_b64: String,
+        session_id_b64: String,
+    },
+    #[serde(rename = "round2_party")]
+    Round2Party {
+        t: u8,
+        n: u8,
+        seed_hex: String,
+        party_id: u8,
+        active: Vec<u8>,
+        message_b64: String,
+        session_id_b64: String,
+        round1_hashes_b64: Vec<String>,
+    },
+    #[serde(rename = "aggregate_wfinals")]
+    AggregateWfinals {
+        t: u8,
+        n: u8,
+        reveals_b64: Vec<String>,
+    },
+    #[serde(rename = "round3_party")]
+    Round3Party {
+        t: u8,
+        n: u8,
+        seed_hex: String,
+        party_id: u8,
+        active: Vec<u8>,
+        message_b64: String,
+        session_id_b64: String,
+        round1_hashes_b64: Vec<String>,
+        round2_reveals_b64: Vec<String>,
+        wfinals_b64: String,
+    },
+    #[serde(rename = "combine_wire")]
+    CombineWire {
+        t: u8,
+        n: u8,
+        public_key_b64: String,
+        message_b64: String,
+        wfinals_b64: String,
+        round3_responses_b64: Vec<String>,
     },
     #[serde(rename = "verify")]
     Verify {
@@ -84,6 +147,31 @@ struct WireSignResponse {
 }
 
 #[derive(Serialize)]
+struct SessionIdResponse {
+    session_id_b64: String,
+}
+
+#[derive(Serialize)]
+struct Round1PartyResponse {
+    hash_b64: String,
+}
+
+#[derive(Serialize)]
+struct Round2PartyResponse {
+    reveal_b64: String,
+}
+
+#[derive(Serialize)]
+struct AggregateWfinalsResponse {
+    wfinals_b64: String,
+}
+
+#[derive(Serialize)]
+struct Round3PartyResponse {
+    response_b64: String,
+}
+
+#[derive(Serialize)]
 struct VerifyResponse {
     valid: bool,
 }
@@ -119,49 +207,16 @@ fn make_rng(rng_seed_hex: Option<String>) -> StdRng {
 fn session_id_for(pk: &[u8], act: u8, msg: &[u8], rng: &mut StdRng) -> [u8; 32] {
     let mut session_entropy = [0u8; 32];
     rng.fill_bytes(&mut session_entropy);
-    let mut h = Shake256::default();
-    h.update(b"th-ml-dsa-session-v1");
-    h.update(&session_entropy);
-    h.update(pk);
-    h.update(&[act]);
-    h.update(msg);
-    let mut session_id = [0u8; 32];
-    h.finalize_xof().read(&mut session_id);
-    session_id
+    session_id_from_binding(pk, act, msg, &session_entropy)
 }
 
-fn validate_active(active: &[u8], n: u8) -> Result<u8, String> {
-    if active.len() < 2 {
-        return Err("need at least 2 active signers".into());
-    }
-    let mut act: u8 = 0;
-    let mut prev: Option<u8> = None;
-    for &id in active {
-        if id >= n {
-            return Err(format!("party id {id} >= n {n}"));
-        }
-        if let Some(p) = prev {
-            if id <= p {
-                return Err("active must be strictly sorted unique".into());
-            }
-        }
-        act |= 1 << id;
-        prev = Some(id);
-    }
-    Ok(act)
+fn load_sdk(seed_hex: &str, t: u8, n: u8) -> Result<ThresholdMlDsa44Sdk, String> {
+    let seed = hex32(seed_hex)?;
+    ThresholdMlDsa44Sdk::from_seed(&seed, t, n, 32).map_err(|e| format!("keygen: {e:?}"))
 }
 
 fn pack_z_response(zs: &[PolyVecL]) -> Vec<u8> {
-    let slot_size = L * POLYZ_PACKEDBYTES;
-    let mut buf = vec![0u8; zs.len() * slot_size];
-    for (i, z) in zs.iter().enumerate() {
-        let base = i * slot_size;
-        for (j, poly) in z.polys.iter().enumerate() {
-            let start = base + j * POLYZ_PACKEDBYTES;
-            poly.pack_z(&mut buf[start..start + POLYZ_PACKEDBYTES]);
-        }
-    }
-    buf
+    distributed::pack_z_response(zs)
 }
 
 fn run_wire_sign(
@@ -181,7 +236,8 @@ fn run_wire_sign(
 
     for &party_id in active {
         let sk = sdk.party_key(party_id as usize).ok_or("missing party key")?;
-        let (hash, st1) = sign::round1(sk, params, act, msg, &session_id, rng)
+        let mut party_rng = distributed::party_rng(&session_id, party_id);
+        let (hash, st1) = sign::round1(sk, params, act, msg, &session_id, &mut party_rng)
             .map_err(|e| format!("round1: {e:?}"))?;
         rd1_out.push(WireRound1 {
             sender_index: party_id,
@@ -217,21 +273,7 @@ fn run_wire_sign(
     }
 
     let active_ids: Vec<u8> = active.to_vec();
-    let packed_size = sign::pack_w_single_size();
-    let mut all_reveals: Vec<Vec<PolyVecK>> = Vec::new();
-    for reveal in &rd2_reveals {
-        let mut party_ws = Vec::with_capacity(k_reps);
-        for k in 0..k_reps {
-            let start = k * packed_size;
-            let end = start + packed_size;
-            if end <= reveal.len() {
-                party_ws.push(sign::unpack_w_single(&reveal[start..end]));
-            }
-        }
-        all_reveals.push(party_ws);
-    }
-    let wfinals = coordinator::aggregate_commitments(&all_reveals, k_reps)
-        .map_err(|e| format!("aggregate_commitments: {e:?}"))?;
+    let wfinals = aggregate_wfinals_from_reveals(&rd2_reveals, k_reps)?;
 
     let mut rd3_out = Vec::new();
     let mut all_responses: Vec<Vec<PolyVecL>> = Vec::new();
@@ -314,9 +356,7 @@ fn run() -> Result<(), String> {
             message_b64,
             rng_seed_hex,
         } => {
-            let seed = hex32(&seed_hex)?;
-            let sdk = ThresholdMlDsa44Sdk::from_seed(&seed, t, n, 32)
-                .map_err(|e| format!("keygen: {e:?}"))?;
+            let sdk = load_sdk(&seed_hex, t, n)?;
             let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
             let mut rng = make_rng(rng_seed_hex);
             let sig = sdk
@@ -335,12 +375,157 @@ fn run() -> Result<(), String> {
             message_b64,
             rng_seed_hex,
         } => {
-            let seed = hex32(&seed_hex)?;
-            let sdk = ThresholdMlDsa44Sdk::from_seed(&seed, t, n, 32)
-                .map_err(|e| format!("keygen: {e:?}"))?;
+            let sdk = load_sdk(&seed_hex, t, n)?;
             let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
             let mut rng = make_rng(rng_seed_hex);
             let resp = run_wire_sign(&sdk, &active, &msg, &mut rng)?;
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::DeriveSessionId {
+            t: _,
+            n,
+            public_key_b64,
+            active,
+            message_b64,
+            binding_b64,
+        } => {
+            let pk = B64.decode(public_key_b64.trim()).map_err(|e| e.to_string())?;
+            if pk.len() != PK_BYTES {
+                return Err(format!("public key length {} != {PK_BYTES}", pk.len()));
+            }
+            let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
+            let binding = binding_from_b64(&binding_b64)?;
+            let act = validate_active(&active, n)?;
+            let mut pk_arr = [0u8; PK_BYTES];
+            pk_arr.copy_from_slice(&pk);
+            let session_id = session_id_from_binding(&pk_arr, act, &msg, &binding);
+            let resp = SessionIdResponse {
+                session_id_b64: B64.encode(session_id),
+            };
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::Round1Party {
+            t,
+            n,
+            seed_hex,
+            party_id,
+            active,
+            message_b64,
+            session_id_b64,
+        } => {
+            let sdk = load_sdk(&seed_hex, t, n)?;
+            let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
+            let session_id = session_id_from_b64(&session_id_b64)?;
+            let act = validate_active(&active, n)?;
+            let hash = round1_party(&sdk, party_id, act, &msg, &session_id)?;
+            let resp = Round1PartyResponse {
+                hash_b64: B64.encode(hash),
+            };
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::Round2Party {
+            t,
+            n,
+            seed_hex,
+            party_id,
+            active,
+            message_b64,
+            session_id_b64,
+            round1_hashes_b64,
+        } => {
+            let sdk = load_sdk(&seed_hex, t, n)?;
+            let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
+            let session_id = session_id_from_b64(&session_id_b64)?;
+            let act = validate_active(&active, n)?;
+            let hashes = decode_hashes_b64(&round1_hashes_b64)?;
+            let reveal = round2_party(
+                &sdk,
+                party_id,
+                act,
+                &msg,
+                &session_id,
+                &active,
+                &hashes,
+            )?;
+            let resp = Round2PartyResponse {
+                reveal_b64: B64.encode(reveal),
+            };
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::AggregateWfinals {
+            t,
+            n,
+            reveals_b64,
+        } => {
+            let params = threshold_ml_dsa::params::get_threshold_params(t, n)
+                .ok_or_else(|| "invalid t/n".to_string())?;
+            let reveals = decode_blobs_b64(&reveals_b64)?;
+            let wfinals = aggregate_wfinals_from_reveals(&reveals, params.k_reps as usize)?;
+            let resp = AggregateWfinalsResponse {
+                wfinals_b64: B64.encode(pack_wfinals(&wfinals)),
+            };
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::Round3Party {
+            t,
+            n,
+            seed_hex,
+            party_id,
+            active,
+            message_b64,
+            session_id_b64,
+            round1_hashes_b64,
+            round2_reveals_b64,
+            wfinals_b64,
+        } => {
+            let sdk = load_sdk(&seed_hex, t, n)?;
+            let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
+            let session_id = session_id_from_b64(&session_id_b64)?;
+            let act = validate_active(&active, n)?;
+            let hashes = decode_hashes_b64(&round1_hashes_b64)?;
+            let reveals = decode_blobs_b64(&round2_reveals_b64)?;
+            let wfinals_bytes = B64.decode(wfinals_b64.trim()).map_err(|e| e.to_string())?;
+            let wfinals = unpack_wfinals(&wfinals_bytes, sdk.params().k_reps as usize)?;
+            let response = round3_party(
+                &sdk,
+                party_id,
+                act,
+                &msg,
+                &session_id,
+                &active,
+                &hashes,
+                &reveals,
+                &wfinals,
+            )?;
+            let resp = Round3PartyResponse {
+                response_b64: B64.encode(response),
+            };
+            println!("{}", serde_json::to_string(&resp).unwrap());
+        }
+        Request::CombineWire {
+            t,
+            n,
+            public_key_b64,
+            message_b64,
+            wfinals_b64,
+            round3_responses_b64,
+        } => {
+            let pk = B64.decode(public_key_b64.trim()).map_err(|e| e.to_string())?;
+            if pk.len() != PK_BYTES {
+                return Err(format!("public key length {} != {PK_BYTES}", pk.len()));
+            }
+            let msg = B64.decode(message_b64.trim()).map_err(|e| e.to_string())?;
+            let wfinals_bytes = B64.decode(wfinals_b64.trim()).map_err(|e| e.to_string())?;
+            let params = threshold_ml_dsa::params::get_threshold_params(t, n)
+                .ok_or_else(|| "invalid t/n".to_string())?;
+            let wfinals = unpack_wfinals(&wfinals_bytes, params.k_reps as usize)?;
+            let responses = decode_blobs_b64(&round3_responses_b64)?;
+            let mut pk_arr = [0u8; PK_BYTES];
+            pk_arr.copy_from_slice(&pk);
+            let sig = combine_wire(&pk_arr, &msg, t, n, &wfinals, &responses)?;
+            let resp = SignResponse {
+                signature_b64: B64.encode(sig),
+            };
             println!("{}", serde_json::to_string(&resp).unwrap());
         }
         Request::Verify {

@@ -292,6 +292,10 @@ final class SignVerifyCommand extends Command<void> {
 final class SignMlDsaCommand extends Command<void> {
   SignMlDsaCommand() {
     addSubcommand(SignMlDsaRunCommand());
+    addSubcommand(SignMlDsaPartialCommand());
+    addSubcommand(SignMlDsaRound2Command());
+    addSubcommand(SignMlDsaRound3Command());
+    addSubcommand(SignMlDsaCombineCommand());
     addSubcommand(SignMlDsaVerifyCommand());
   }
 
@@ -370,6 +374,197 @@ final class SignMlDsaRunCommand extends Command<void> {
       for (final share in shares) {
         share.disposeSecret();
       }
+    }
+  }
+}
+
+/// ML-DSA Round1 from one share (officer-local session checkpoint).
+final class SignMlDsaPartialCommand extends Command<void> {
+  SignMlDsaPartialCommand() {
+    argParser
+      ..addOption('share', mandatory: true, valueHelp: 'file')
+      ..addOption('public-key', mandatory: true, valueHelp: 'file')
+      ..addOption('message', mandatory: true, valueHelp: 'file')
+      ..addMultiOption('active-party', valueHelp: 'id', help: '0-based party ids (≥ t).')
+      ..addOption('out', mandatory: true, valueHelp: 'file')
+      ..addOption('session-out', mandatory: true, valueHelp: 'file');
+  }
+
+  @override
+  String get name => 'partial';
+
+  @override
+  String get description => 'ML-DSA Round1 wire + officer session checkpoint.';
+
+  @override
+  Future<void> run() async {
+    MlDsaSigningSession? session;
+    MlDsaShare? share;
+    try {
+      share = MlDsaShare.fromBytes(await readBytes(argResults!['share'] as String));
+      final publicKey = MlDsaPublicKey.fromBytes(
+        await readBytes(argResults!['public-key'] as String),
+      );
+      final message = await readBytes(argResults!['message'] as String);
+      final activeRaw = argResults!['active-party'] as List<String>;
+      if (activeRaw.isEmpty) {
+        throw ArgumentError('At least one --active-party id is required');
+      }
+      final active = activeRaw.map(int.parse).toList()..sort();
+      final begun = await MlDsaSigningSession.begin(
+        share: share,
+        message: message,
+        publicKey: publicKey,
+        activePartyIdsZeroBased: active,
+      );
+      session = begun.session;
+      await File(argResults!['out'] as String)
+          .writeAsBytes(begun.round1.wireBytes, flush: true);
+      await File(argResults!['session-out'] as String)
+          .writeAsBytes(session.toCheckpoint(), flush: true);
+      console.success('ML-DSA Round1 wire + session checkpoint written');
+      console.created(argResults!['out'] as String);
+      console.created(argResults!['session-out'] as String);
+    } on Object catch (error) {
+      handleCliError(error);
+    } finally {
+      session?.dispose();
+      share?.disposeSecret();
+    }
+  }
+}
+
+/// ML-DSA Round2 after collecting Round1 wire dir.
+final class SignMlDsaRound2Command extends Command<void> {
+  SignMlDsaRound2Command() {
+    argParser
+      ..addOption('session', mandatory: true, valueHelp: 'file')
+      ..addOption('round1-dir', mandatory: true, valueHelp: 'dir')
+      ..addOption('out', mandatory: true, valueHelp: 'file');
+  }
+
+  @override
+  String get name => 'round2';
+
+  @override
+  String get description => 'ML-DSA Round2 reveal from session + Round1 dir.';
+
+  @override
+  Future<void> run() async {
+    MlDsaSigningSession? session;
+    try {
+      session = MlDsaSigningSession.fromCheckpoint(
+        await readBytes(argResults!['session'] as String),
+      );
+      final round1 = loadMlDsaWireMessages(
+        Directory(argResults!['round1-dir'] as String),
+      ).where((m) => m.subKind == MlDsaWireSubKind.round1Commit).toList();
+      final wire = await session.completeRound2(round1Messages: round1);
+      await File(argResults!['out'] as String).writeAsBytes(wire.wireBytes, flush: true);
+      console.success('ML-DSA Round2 wire written');
+      console.created(argResults!['out'] as String);
+    } on Object catch (error) {
+      handleCliError(error);
+    } finally {
+      session?.dispose();
+    }
+  }
+}
+
+/// ML-DSA Round3 after collecting Round1 + Round2 dirs.
+final class SignMlDsaRound3Command extends Command<void> {
+  SignMlDsaRound3Command() {
+    argParser
+      ..addOption('session', mandatory: true, valueHelp: 'file')
+      ..addOption('round1-dir', mandatory: true, valueHelp: 'dir')
+      ..addOption('round2-dir', mandatory: true, valueHelp: 'dir')
+      ..addOption('out', mandatory: true, valueHelp: 'file');
+  }
+
+  @override
+  String get name => 'round3';
+
+  @override
+  String get description => 'ML-DSA Round3 response from session + wire dirs.';
+
+  @override
+  Future<void> run() async {
+    MlDsaSigningSession? session;
+    try {
+      session = MlDsaSigningSession.fromCheckpoint(
+        await readBytes(argResults!['session'] as String),
+      );
+      final round1 = loadMlDsaWireMessages(
+        Directory(argResults!['round1-dir'] as String),
+      ).where((m) => m.subKind == MlDsaWireSubKind.round1Commit).toList();
+      final round2 = loadMlDsaWireMessages(
+        Directory(argResults!['round2-dir'] as String),
+      ).where((m) => m.subKind == MlDsaWireSubKind.round2Reveal).toList();
+      final wire = await session.completeRound3(
+        round1Messages: round1,
+        round2Messages: round2,
+      );
+      await File(argResults!['out'] as String).writeAsBytes(wire.wireBytes, flush: true);
+      console.success('ML-DSA Round3 wire written');
+      console.created(argResults!['out'] as String);
+    } on Object catch (error) {
+      handleCliError(error);
+    } finally {
+      session?.dispose();
+    }
+  }
+}
+
+/// Combines ML-DSA Round2 + Round3 wire dirs into signature.
+final class SignMlDsaCombineCommand extends Command<void> {
+  SignMlDsaCombineCommand() {
+    argParser
+      ..addOption('public-key', mandatory: true, valueHelp: 'file')
+      ..addOption('message', mandatory: true, valueHelp: 'file')
+      ..addOption('round2-dir', mandatory: true, valueHelp: 'dir')
+      ..addOption('round3-dir', mandatory: true, valueHelp: 'dir')
+      ..addMultiOption('active-party', valueHelp: 'id')
+      ..addOption('out', mandatory: true, valueHelp: 'file');
+  }
+
+  @override
+  String get name => 'combine';
+
+  @override
+  String get description => 'Combine ML-DSA wire Round2+3 into signature.';
+
+  @override
+  Future<void> run() async {
+    try {
+      final publicKey = MlDsaPublicKey.fromBytes(
+        await readBytes(argResults!['public-key'] as String),
+      );
+      final message = await readBytes(argResults!['message'] as String);
+      final activeRaw = argResults!['active-party'] as List<String>;
+      if (activeRaw.isEmpty) {
+        throw ArgumentError('Provide --active-party ids (0-based, sorted)');
+      }
+      final active = activeRaw.map(int.parse).toList()..sort();
+      final round2 = loadMlDsaWireMessages(
+        Directory(argResults!['round2-dir'] as String),
+      ).where((m) => m.subKind == MlDsaWireSubKind.round2Reveal).toList();
+      final round3 = loadMlDsaWireMessages(
+        Directory(argResults!['round3-dir'] as String),
+      ).where((m) => m.subKind == MlDsaWireSubKind.round3Response).toList();
+      final signature = await combineMlDsaFromWire(
+        publicKey: publicKey,
+        message: message,
+        round2Messages: round2,
+        round3Messages: round3,
+        activePartyIdsZeroBased: active,
+      );
+      final out = argResults!['out'] as String;
+      await File(out).writeAsBytes(signature, flush: true);
+      console.success('Combined ML-DSA signature (${signature.length} bytes)');
+      console.detail('signature-hex', bytesToHex(signature));
+      console.created(out);
+    } on Object catch (error) {
+      handleCliError(error);
     }
   }
 }
