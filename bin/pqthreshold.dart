@@ -7,18 +7,24 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:pqthreshold/pqthreshold.dart';
 
+import 'src/commands/ceremony_commands.dart';
+import 'src/commands/dkg_commands.dart';
 import 'src/commands/inspect_command.dart';
 import 'src/commands/params_commands.dart';
+import 'src/commands/sign_commands.dart';
 import 'src/commands/version_command.dart';
+import 'src/commands/vss_commands.dart';
 import 'src/console.dart';
 import 'src/version.g.dart';
 
 const _description =
-    'Threshold cryptography for organizational roots — params, PQTH artifacts, '
-    'and (Phase 3+) DKG / threshold signing. Complements pqforge for device keys.';
+    'Threshold cryptography for organizational roots — params, DKG, VSS, '
+    'threshold signing, and PQTH artifacts. Complements pqforge for device keys.';
 
 const Map<String, List<String>> _groups = {
   'Parameters': ['params'],
+  'Ceremonies': ['ceremony', 'dkg', 'vss'],
+  'Signing': ['sign'],
   'Artifacts': ['inspect'],
   'Maintenance': ['version'],
 };
@@ -79,6 +85,10 @@ final class PqthresholdRunner extends CommandRunner<void> {
     addCommand(ParamsCommand());
     addCommand(InspectCommand());
     addCommand(VersionCommand());
+    addCommand(VssCommand());
+    addCommand(DkgCommand());
+    addCommand(CeremonyCommand());
+    addCommand(SignCommand());
   }
 
   @override

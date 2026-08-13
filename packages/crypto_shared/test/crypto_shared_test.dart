@@ -135,4 +135,40 @@ void main() {
       );
     });
   });
+
+  group('DistributedSigningCoordinator', () {
+    test('2-of-3 without SigningSimulator', () async {
+      final params = ThresholdParams.tOfN(t: 2, n: 3);
+      final dkg = DkgSimulator.run(params: params);
+      final message = Uint8List.fromList('distributed-c3'.codeUnits);
+      final sig = await DistributedSigningCoordinator.run(
+        shares: dkg.shares,
+        message: message,
+      );
+      expect(
+        await ThresholdSigner.verify(
+          publicKey: dkg.publicKey,
+          message: message,
+          signature: sig,
+        ),
+        isTrue,
+      );
+    });
+  });
+
+  group('share wrapping', () {
+    test('wrap and unwrap share', () {
+      final params = ThresholdParams.tOfN(t: 2, n: 3);
+      final dkg = DkgSimulator.run(params: params);
+      final wrapped = wrapShareWithPassphrase(
+        share: dkg.shares.first,
+        passphrase: 'test-passphrase',
+      );
+      final restored = unwrapShareWithPassphrase(
+        wrapped: wrapped,
+        passphrase: 'test-passphrase',
+      );
+      expect(restored.toBytes(), dkg.shares.first.toBytes());
+    });
+  });
 }

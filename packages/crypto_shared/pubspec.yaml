@@ -2,7 +2,7 @@ name: crypto_shared
 description: >
   Shared threshold-crypto helpers for Flutter officer apps and Serverpod
   coordinators — re-exports, hex codecs, DKG relay, signing job coordination.
-version: 0.1.0
+version: 1.0.0
 publish_to: none
 
 environment:

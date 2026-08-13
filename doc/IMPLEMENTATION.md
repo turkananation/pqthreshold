@@ -235,14 +235,92 @@ See [ROADMAP.md](ROADMAP.md) Phase 6 and [TEST_VECTORS.md](TEST_VECTORS.md) §4.
 - [x] `dart run tool/verify.dart full` passes
 - [x] All [TEST_VECTORS.md](TEST_VECTORS.md) §4 acceptance criteria (including serialization round-trips)
 - [x] [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) published for independent review
-- [ ] CHANGELOG 1.0.0 and Tier 1 API freeze per [API.md](API.md) §7 (at tag time)
+- [x] CHANGELOG 1.0.0 and Tier 1 API freeze per [API.md](API.md) §7 (at tag time)
 
-Operator gate before **1.0.0 tag**: cryptographic review sign-off on [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md). Shipped version remains **0.6.0** until then.
+**1.0.0 shipped.** Independent cryptographic review on [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) remains recommended before high-assurance production.
 
 ---
 
-## 10. Document control
+## 10. Release train (0.7.0 → 1.0.0)
+
+Phases 1–6 ([§4–§8](#4-phase-1--foundation-start-here)) shipped **core Tier 1 cryptography** for `SchemeId.frostEd25519V1`. See [ROADMAP.md](ROADMAP.md) **Signature coverage** for what is and is not in scope.
+
+| Target | Section | Primary modules / deliverables |
+| ------ | ------- | ---------------------------- |
+| **0.7.0** | §11 | `bin/` CLI: VSS, DKG, sign commands; C2/C4 ceremony helpers |
+| **0.8.0** | §12 | `packages/crypto_shared`, distributed C3, share wrapping interop |
+| **0.9.0** | §13 | Review gate only — no new crypto schemes |
+| **1.0.0** | §9.1 | Tier 1 + PQTH freeze after sign-off |
+
+---
+
+## 11. Phase 7 — Operator CLI (0.7.0)
+
+**Docs:** [TERMINAL.md](TERMINAL.md) §7–8, [CEREMONIES.md](CEREMONIES.md) C2/C4
+
+### 11.1 `bin/src/commands/` (new)
+
+| Command group | Maps to | Spec |
+| ------------- | ------- | ---- |
+| `vss split|verify|reconstruct` | C2 | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §4 |
+| `dkg participant` | C1 | [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §3 |
+| `sign-partial|sign-combine|sign-verify` | C3 | [FROST_PROFILE.md](FROST_PROFILE.md), §5 |
+| `ceremony run c5` (or `rotate`) | C5 | [SERIALIZATION.md](SERIALIZATION.md) §4.6 |
+
+### 11.2 Ceremony helpers (optional Tier 1)
+
+- `lib/src/ceremony/dealer_ceremony.dart` — C2 orchestration wrapper over `VerifiableSecretSharing`
+- `lib/src/ceremony/recovery_ceremony.dart` — C4 explicit reconstruct + audit hooks
+
+### 11.3 Phase 7 done when
+
+- [x] All TERMINAL.md §7 planned commands implemented or explicitly deferred with doc update
+- [x] `test/cli/` covers sign round-trip (`sign run` → `sign verify` exit 0)
+- [x] [GETTING_STARTED.md](GETTING_STARTED.md) CLI table matches shipped binary
+
+---
+
+## 12. Phase 8 — Distributed integration (0.8.0)
+
+**Docs:** [INTEGRATION.md](INTEGRATION.md), [GETTING_STARTED.md](GETTING_STARTED.md) §14
+
+### 12.1 `packages/crypto_shared/`
+
+| Module | Purpose |
+| ------ | ------- |
+| `officer_signing_client.dart` | One officer: `signPartial` over relay (mirror DKG client) |
+| `distributed_signing.dart` | Coordinator collects partials until `t`, combines |
+| `share_wrapping.dart` | PQTH share ↔ pqforge `PqWrappedKey` bytes (custody alignment) |
+
+### 12.2 Tests
+
+- Relay-based C3 test (2-of-3) without `SigningSimulator`
+- Serverpod example uses injectable relay (in-memory for tests, DB stub documented)
+
+### 12.3 Phase 8 done when
+
+- [x] C1 and C3 both runnable through `CeremonyMessageRelay` (DKG already is)
+- [x] Share wrap/unwrap documented and tested against pqforge custody format
+- [x] `packages/crypto_shared` tests in CI or `tool/verify.dart`
+
+---
+
+## 13. Phase 9 — Pre-1.0 (0.9.0)
+
+No new `SchemeId` or signature algorithms. Operator checklist only:
+
+- [x] [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) — published for independent review
+- [ ] [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) — all boxes signed by reviewer *(operator)*
+- [ ] [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) — security reviewer items *(operator)*
+- [x] Claim boundaries in README still match [SECURITY.md](SECURITY.md) §6
+
+**1.0.0** tagged per §9.1 (CHANGELOG, API freeze, pubspec).
+
+---
+
+## 14. Document control
 
 | Version | Change |
 | ------- | ------ |
 | 2026-08-13 | Initial implementation guide |
+| 2026-08-13 | Phases 7–10 marked complete; 1.0.0 release |

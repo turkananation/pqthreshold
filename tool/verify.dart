@@ -114,6 +114,12 @@ Future<void> _runPhaseTests(Directory root) async {
       stdout.writeln('Skipping (not yet present): $dir');
     }
   }
+  final cryptoShared = Directory('${root.path}/packages/crypto_shared');
+  if (cryptoShared.existsSync()) {
+    stdout.writeln('Running packages/crypto_shared tests');
+    await _runCommand(cryptoShared, 'dart', ['pub', 'get']);
+    await _runCommand(cryptoShared, 'dart', ['test']);
+  }
 }
 
 Future<void> _runCommand(Directory root, String executable, List<String> args) async {

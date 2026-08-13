@@ -2,7 +2,7 @@
 
 **pqthreshold** — Terminal workflows, CLI specification, and unified key lifecycle with `pqforge`
 
-Status: formative specification (CLI **not yet implemented** — Phase 1 ships library only)  
+Status: operator specification (v1.0.0 CLI shipped; §7 retains v2 targets)  
 Audience: operators, integrators, security reviewers  
 **Read with:** [INTEGRATION.md](INTEGRATION.md), [CEREMONIES.md](CEREMONIES.md), pqforge [`doc/CLI.md`](https://github.com/turkananation/pqforge/blob/main/doc/CLI.md)
 
@@ -107,18 +107,22 @@ Daily traffic stays on **Plane B**. Roots and high-value actions use **Plane A**
      pqforge encrypt … --recipient-public member.kem.public.json
 ```
 
-Steps 3–5 are **planned CLI shapes** (§7). Until implemented, use library APIs + application transport per [CEREMONIES.md](CEREMONIES.md).
+Steps 3–5: use **`dkg simulate`**, **`sign run`**, and **`ceremony run`** today (§4), or library APIs + `packages/crypto_shared` relay for distributed production per [CEREMONIES.md](CEREMONIES.md).
 
 ---
 
-## 4. Current state (Phase 1 CLI slice)
+## 4. Current state (v1.0.0)
 
 | Capability | Terminal today |
 | ---------- | ---------------- |
 | Params validate / export | **`pqthreshold params`** — flags or `.pqth` file |
 | PQTH / ceremony.id inspect | **`pqthreshold inspect`** — no secret unwrap |
+| VSS split / verify / reconstruct | **`pqthreshold vss`** — C2 dealer ceremony |
+| DKG simulate + artifact export | **`pqthreshold dkg simulate`** — in-process C1 (CI/operator) |
+| Threshold sign from shares | **`pqthreshold sign run`** + **`sign verify`** — C3 |
+| Ceremony workflows | **`pqthreshold ceremony run --flow c1\|c3\|c5\|full`** |
 | Release verification | `dart run tool/verify.dart full` — developer gate |
-| DKG / VSS / threshold sign | Planned Phase 3–5 (`doc/TERMINAL.md` §7) |
+| Multi-party dir transport DKG | **Deferred v2** — use `CeremonySession` + relay |
 
 Install or run from a checkout:
 
@@ -128,11 +132,15 @@ dart pub global activate pqthreshold   # when published
 dart run pqthreshold --help            # from repo root
 ```
 
-Phase 1 examples:
+Examples:
 
 ```bash
 pqthreshold params validate --t 2 --n 3
 pqthreshold params export --t 3 --n 5 --out ceremony/params.pqth
+pqthreshold dkg simulate --t 2 --n 3 --out-dir ./root-ceremony
+pqthreshold sign run --share ./root-ceremony/share-1.*.pqth --share ./root-ceremony/share-2.*.pqth \
+  --message credential.bin --out credential.sig
+pqthreshold ceremony run --flow full
 pqthreshold inspect --in ceremony/params.pqth
 
 # Developer gate (CI/local)
@@ -245,7 +253,7 @@ Example target output (illustrative):
 ```text
 pqthreshold ceremony run c1 --ceremony-dir ./root-ceremony --participant alice
 
-  pqthreshold 0.6.0 · FROST Ed25519 v1 · ceremony a4f2…9c01
+  pqthreshold 1.0.0 · FROST Ed25519 v1 · ceremony a4f2…9c01
 
   [1/4] Setup          ✓ params 3-of-5 · 5 participants
   [2/4] Contributions  ✓ broadcast received (4/4 peers)
@@ -272,22 +280,22 @@ Document in runbooks: **how** files move is policy; **what** bytes move is [PROT
 
 ## 8. Implementation roadmap
 
-| Milestone | Delivers | ROADMAP phase |
-| --------- | -------- | ------------- |
-| **`params` / `inspect`** | **Shipped** — `bin/pqthreshold.dart` | Phase 1 |
-| `vss split/verify` | Dealer ceremony C2 | Phase 2 |
-| `dkg participant`, `transcript verify` | C1 on terminal | Phase 3 |
-| `sign-partial/combine/verify` | C3 + pqforge-compatible verify | Phase 4 |
-| `ceremony run c1/c5`, continuity | Full operator workflows | Phase 5 |
-
-Add to `pubspec.yaml` when the first operator commands ship:
+| Milestone | Delivers | Status |
+| --------- | -------- | ------ |
+| **`params` / `inspect`** | Phase 1 foundation | **Shipped** |
+| `vss split/verify/reconstruct` | Dealer ceremony C2 | **Shipped** |
+| `dkg simulate` | In-process C1 + artifacts | **Shipped** |
+| `sign run/verify` (+ partial/combine) | C3 + pqforge-compatible verify | **Shipped** (`sign run` primary) |
+| `ceremony run c1/c3/c5/full` | Operator workflows | **Shipped** |
+| `dkg participant`, `transcript verify` | C1 on terminal (dir transport) | **Deferred v2** |
+| Wrapped share CLI | pqforge-aligned custody | **Deferred v2** (use `crypto_shared`) |
 
 ```yaml
 executables:
   pqthreshold: pqthreshold
 ```
 
-**Status:** `executables` is configured; Phase 1 commands are `params` and `inspect`. DKG/signing commands follow Phases 3–5.
+**Status:** v1.0.0 operator commands shipped. See §4 for the command matrix; §7 for remaining v2 targets.
 
 Document new commands in this file and cross-link from pqforge `doc/CLI.md` (“Threshold roots” section).
 

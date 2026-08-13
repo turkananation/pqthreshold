@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.0.0
+
+**Stable Tier 1 release** — `frostEd25519V1` only; PQTH `ver=0x01` frozen per [doc/API.md](doc/API.md) §7.
+
+### Operator CLI (0.7.0 scope)
+- **`vss split|verify|reconstruct`** — C2 dealer ceremony on terminal.
+- **`dkg simulate`** — in-process C1 DKG with PQTH artifact export (CI/operator).
+- **`sign run|partial|combine|verify`** — C3 threshold signing; `sign run` is the primary path from share files.
+- **`ceremony run --flow c1|c3|c5|full`** — orchestrated in-process ceremony workflows.
+- Tier 1 **`DealerCeremony`** (C2) and **`RecoveryCeremony`** (C4) helpers.
+
+### Distributed integration (0.8.0 scope)
+- **`packages/crypto_shared`** — relay, `OfficerDkgClient`, `DistributedDkgCoordinator`, `OfficerSigningClient`, `DistributedSigningCoordinator`, share wrap/unwrap aligned with pqforge `PqWrappedKey`.
+- **`example/serverpod_integration/`** — Serverpod endpoint sketch with `ThresholdCeremonyService`.
+- **`PublicKey.fromShareSet()`** — public API for joint key derivation from shares.
+- Relay-based C3 tests without `SigningSimulator`; `crypto_shared` tests in `tool/verify.dart full`.
+
+### Pre-1.0 hardening (0.9.0 scope)
+- **77 tests** in main package + **6** in `crypto_shared`; `dart run tool/verify.dart full` passes.
+- [REVIEW_CHECKLIST.md](doc/REVIEW_CHECKLIST.md) published — independent cryptographic sign-off recommended before high-assurance deployment.
+
+### Deferred to v2+
+- **`dkg participant`** multi-round dir transport CLI.
+- **Disk round-trip** for `sign partial` → `sign combine` (FROST binding-factor round requires live coordinator).
+- ML-DSA / SLH-DSA threshold schemes (new `SchemeId` + ADR).
+
+Requires **pqforge ^0.4.4**.
+
 ## 0.6.0
 - **Feldman VSS** — split, verify, reconstruct (C2 dealer-based sharing).
 - **Gennaro DKG** — `CeremonySession`, transcripts, wire messages (C1).

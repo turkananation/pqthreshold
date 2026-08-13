@@ -9,8 +9,12 @@ export 'package:pqforge/pqforge.dart'
 export 'package:pqthreshold/pqthreshold.dart';
 
 export 'src/ceremony_relay.dart';
+export 'src/directory_ceremony_relay.dart';
 export 'src/distributed_dkg.dart';
+export 'src/distributed_signing.dart';
 export 'src/hex_codec.dart';
 export 'src/officer_dkg_client.dart';
+export 'src/officer_signing_client.dart';
+export 'src/share_wrapping.dart';
 export 'src/signing_job_coordinator.dart';
 export 'src/threshold_ceremony_service.dart';

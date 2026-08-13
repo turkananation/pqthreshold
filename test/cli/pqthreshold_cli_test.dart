@@ -89,7 +89,7 @@ void main() {
     test('version prints package version', () async {
       final result = await _cli(['version']);
       expect(result.exitCode, 0);
-      expect(result.stdout, contains('0.6.0'));
+      expect(result.stdout, contains('1.0.0'));
     });
   });
 }

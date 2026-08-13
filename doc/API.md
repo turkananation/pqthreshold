@@ -277,13 +277,13 @@ Internal modules under `lib/src/` remain private.
 
 ---
 
-## 7. Stability guarantees (target for 1.0)
+## 7. Stability guarantees (1.0.0)
 
-| Before 1.0 (current) | At 1.0 |
-| -------------------- | ------ |
-| API may change with minor version bumps | Tier 1 surface frozen except additive changes |
-| Serialization format may iterate with `ver` byte | `ver=0x01` frozen; new versions additive |
-| Simulation APIs may move packages | `testing.dart` stable for test consumers |
+| At 1.0 (current) | After 1.0 |
+| ---------------- | --------- |
+| Tier 1 surface frozen except additive changes | Breaking changes only in major semver |
+| PQTH `ver=0x01` frozen; new versions additive | New `ver` bytes additive only |
+| `testing.dart` stable for test consumers | Tier 2 may gain simulators; not for production |
 
 ---
 

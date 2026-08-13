@@ -106,6 +106,17 @@ String bytesToHex(Uint8List bytes) {
   return buffer.toString();
 }
 
+Uint8List hexToBytes(String hex) {
+  if (hex.length.isOdd) {
+    throw FormatException('hex string must have even length');
+  }
+  final out = Uint8List(hex.length ~/ 2);
+  for (var i = 0; i < out.length; i++) {
+    out[i] = int.parse(hex.substring(i * 2, i * 2 + 2), radix: 16);
+  }
+  return out;
+}
+
 void printThresholdParams(ThresholdParams params) {
   console.detail('threshold', '${params.t}-of-${params.n}');
   console.detail('scheme', schemeDisplayName(params.scheme));

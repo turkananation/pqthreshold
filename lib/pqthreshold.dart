@@ -33,6 +33,8 @@ export 'src/signing/threshold_signer.dart';
 
 /// Ceremony orchestration (Phase 5+).
 export 'src/ceremony/continuity_proof.dart';
+export 'src/ceremony/dealer_ceremony.dart';
+export 'src/ceremony/recovery_ceremony.dart';
 export 'src/ceremony/root_ceremony.dart';
 export 'src/ceremony/rotation_ceremony.dart';
 export 'src/ceremony/threshold_signing_ceremony.dart';

@@ -67,6 +67,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | **4** | FROST signing | FROST_PROFILE, PROTOCOL_MESSAGES §5, SERIALIZATION §4.4 | `signing/`, `scheme/frost/` |
 | **5** | Ceremonies | CEREMONIES, API §4.4, SERIALIZATION §4.6 ContinuityProof | `ceremony/` |
 | **6** | Release | TEST_VECTORS, [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md), SECURITY Appendix A, ROADMAP Phase 6 | `tool/verify.dart`, CI |
+| **7–10** | 0.7.0→1.0.0 | [ROADMAP.md](ROADMAP.md) release train, [TERMINAL.md](TERMINAL.md), [GETTING_STARTED.md](GETTING_STARTED.md) §14 | `bin/`, `packages/crypto_shared/` |
 | **CLI** | Operator terminal | TERMINAL.md, pqforge CLI.md | `bin/pqthreshold.dart` (Phase 3–5) |
 
 ---

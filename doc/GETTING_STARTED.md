@@ -2,7 +2,7 @@
 
 **pqthreshold** — How to run, test, and understand the library
 
-Status: operator guide (v0.6.0; 1.0.0 pending review sign-off)  
+Status: operator guide (v1.0.0)  
 Audience: developers evaluating or integrating the library  
 Prerequisites: Dart SDK ^3.12, sibling [pqforge](https://pub.dev/packages/pqforge) ^0.4.4 for local dev (see §2)
 
@@ -119,9 +119,9 @@ Source: `example/pqthreshold_example.dart` — DKG root → threshold-sign a cre
 
 ---
 
-## 5. CLI — what exists today vs what is planned
+## 5. CLI — operator commands (v1.0.0)
 
-The **`pqthreshold` executable is not a full ceremony operator tool yet.** At v0.6.0 it is a **Phase 1 slice**: validate/export parameters and inspect public artifacts. All DKG, signing, and rotation run through the **Dart library** (or Tier 2 simulators in tests).
+The **`pqthreshold` executable** covers params, inspect, VSS, in-process DKG/signing, and ceremony workflows. **Multi-party dir-transport** (`dkg participant`) is deferred to v2 — use the library (`CeremonySession`) or `packages/crypto_shared` relay for production C1.
 
 ### 5.1 Commands you can run today
 
@@ -133,24 +133,33 @@ The **`pqthreshold` executable is not a full ceremony operator tool yet.** At v0
 | `pqthreshold params export --t 2 --n 3 --out params.pqth` | Write 16-byte PQTH ThresholdParams file |
 | `pqthreshold params validate --in params.pqth` | Validate an on-disk params file |
 | `pqthreshold inspect --in <file>` | Describe PQTH objects, 16-byte ceremony.id, or wrapped-share JSON **without decrypting** |
+| `pqthreshold vss split\|verify\|reconstruct` | C2 dealer ceremony ([CEREMONIES.md](CEREMONIES.md)) |
+| `pqthreshold dkg simulate --t 2 --n 3 --out-dir ./dkg` | In-process C1 DKG + PQTH artifacts (CI/operator) |
+| `pqthreshold sign run --share … --message … --out sig.bin` | Threshold-sign from ≥ t share files (primary C3 path) |
+| `pqthreshold sign verify --public-key … --message … --signature …` | Ed25519 verify exit code |
+| `pqthreshold ceremony run --flow c1\|c3\|c5\|full` | Orchestrated in-process ceremonies |
 
 Examples:
 
 ```bash
 dart run pqthreshold --help
 dart run pqthreshold params validate --t 2 --n 3
-dart run pqthreshold params export --t 2 --n 3 -o params.pqth
+dart run pqthreshold dkg simulate --t 2 --n 3 --out-dir ./dkg-out
+dart run pqthreshold sign run \
+  --share ./dkg-out/share-1.participant-1.pqth \
+  --share ./dkg-out/share-2.participant-2.pqth \
+  --message ./credential.bin --out ./credential.sig
+dart run pqthreshold ceremony run --flow full
 dart run pqthreshold inspect --in params.pqth
 ```
 
-### 5.2 What the CLI does **not** do (use the library)
+### 5.2 What the CLI does **not** do yet (use the library)
 
-| Planned in [TERMINAL.md](TERMINAL.md) | Library API today |
-| ------------------------------------- | ----------------- |
-| `pqthreshold dkg participant …` | `CeremonySession` + your transport |
-| `pqthreshold sign-partial …` | `ThresholdSigner.signPartial` |
-| `pqthreshold sign-combine …` | `ThresholdSigner.combine` |
-| `pqthreshold ceremony run c1/c5 …` | `RootCeremony` / `RotationCeremony` + transport |
+| Deferred (v2 or app layer) | Library / package today |
+| -------------------------- | ----------------------- |
+| `pqthreshold dkg participant …` (dir transport) | `CeremonySession` + `packages/crypto_shared` relay |
+| `sign partial` → `sign combine` from disk (FROST round 2) | `sign run` (in-process) or `DistributedSigningCoordinator` |
+| Wrapped share CLI (`*.share.wrapped.json`) | `packages/crypto_shared` `share_wrapping.dart` |
 
 **Real-world ceremonies** require you to:
 
@@ -388,15 +397,13 @@ dart run example/pqthreshold_example.dart && echo "Example OK"
 dart run tool/verify.dart full
 ```
 
-Expected: **71 tests** pass, analyze clean, `verify: OK`.
+Expected: **77 tests** pass in main package, **6** in `crypto_shared`, analyze clean, `verify: OK`.
 
-Before production deployment:
+Before high-assurance production deployment:
 
 - Complete [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) (independent cryptographic review).
 - Publish **pqforge 0.4.4+** and drop local `dependency_overrides` if used.
 - Never store all shares on one server or one device.
-
-Expected: **72 tests** pass (includes example subprocess test), analyze clean, `verify: OK`.
 
 ---
 
@@ -440,7 +447,7 @@ Typical pattern: **each officer runs a Flutter app on their own device**; the ap
 ```yaml
 # pubspec.yaml (Flutter officer app or shared package)
 dependencies:
-  pqthreshold: ^0.6.0
+  pqthreshold: ^1.0.0
   pqforge: ^0.4.4          # verify, wrap shares (optional)
   flutter_secure_storage: ^9.0.0
 ```
@@ -622,4 +629,4 @@ Same result as pqforge `PqClassical.provider.ed25519Verify` on the joint key byt
 | ------- | ------ |
 | 2026-08-13 | Initial getting started guide (run, test, ceremony flows) |
 | 2026-08-13 | CLI reality table; Flutter/Serverpod integration; fix example PqRandom note |
-| 2026-08-13 | `packages/crypto_shared` + `example/serverpod_integration/` sketches |
+| 2026-08-13 | v1.0.0 CLI table; 77+6 tests; operator commands documented |

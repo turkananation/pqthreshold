@@ -125,6 +125,16 @@ final class PublicKey {
   /// Parses a public key.
   factory PublicKey.fromBytes(Uint8List bytes) => PublicKeyCodec.decode(bytes);
 
+  /// Derives the joint public key from a consistent [shares] set (C3/C5).
+  factory PublicKey.fromShareSet(List<Share> shares) {
+    assertShareSetConsistent(shares);
+    return PublicKey.create(
+      params: shares.first.params,
+      ceremonyId: shares.first.ceremonyId,
+      publicKeyBytes: shares.first.verificationData,
+    );
+  }
+
   /// Internal construction.
   @internal
   factory PublicKey.create({

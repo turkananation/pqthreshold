@@ -16,7 +16,7 @@ Independent review: [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ## Implementation
 
-- [x] Phases 1–5 complete per [IMPLEMENTATION.md](IMPLEMENTATION.md)
+- [x] Phases 1–10 complete per [IMPLEMENTATION.md](IMPLEMENTATION.md) (except operator review sign-off)
 - [x] Tier 1 API matches [API.md](API.md)
 - [x] Tier 2 APIs live in `testing.dart` only
 
@@ -35,9 +35,9 @@ Independent review: [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 
 ## Release
 
-- [ ] CHANGELOG 1.0.0 entry finalized (draft under `Unreleased` until review sign-off)
-- [ ] Version in `pubspec.yaml` bumped to `1.0.0`
-- [ ] `doc/API.md` stability note updated for 1.0 freeze
+- [x] CHANGELOG 1.0.0 entry finalized
+- [x] Version in `pubspec.yaml` bumped to `1.0.0`
+- [x] `doc/API.md` stability note updated for 1.0 freeze
 
 ---
 
@@ -46,4 +46,4 @@ Independent review: [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md).
 | Version | Change |
 | ------- | ------ |
 | 2026-08-13 | Initial v1.0 checklist |
-| 2026-08-13 | Phase 6 implementation gates marked complete; review items remain operator |
+| 2026-08-13 | 1.0.0 release items complete; operator review items remain |
