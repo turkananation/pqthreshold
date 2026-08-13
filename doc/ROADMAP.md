@@ -188,12 +188,18 @@ Requires new ADR(s) and new `SchemeId` values for PQ schemes — **not** a semve
 - [x] `dkg participant step` — dir-transport C1 CLI
 - [x] FROST two-round wire + `SigningSession` + `sign round2`
 - [x] `CeremonySession` checkpoint for multi-step DKG
+- [x] **ADR-004** + [PQ_SCHEMES.md](PQ_SCHEMES.md) + ML/SLH profile docs
+- [x] **`SchemeId` registry** (`0x0002`–`0x0006`), `SchemeCapabilities`, `MlDsaThresholdVerifier`
+- [x] **M2 beta** — `MlDsaThresholdSigner`, Mithril bridge (ML-DSA-44), 2-of-3 tests
+- [x] **M3 beta** — `MlDsaSigningMessage` wire kinds `0x20`–`0x22`, `signWithWire`, `sign ml-dsa run`
+- [ ] Per-officer ML-DSA signing sessions (no shared seed coordinator)
 
 ### Planned
+- [ ] **M3** Pure Dart / ML-DSA-65 distributed C1+C3 wire rounds
 - [ ] C6 proactive share refresh
 - [ ] C4-B re-share without full reconstruct
 - [ ] Pedersen VSS
-- [ ] **Post-quantum threshold schemes** (ML-DSA, SLH-DSA, or hybrid threshold profiles) when standards and review bar are met
+- [ ] SLH-DSA threshold + `hybridFrostMlDsa65V1` (M5+)
 - [ ] Wrapped share CLI; persistent Serverpod relay
 
 ---
@@ -202,5 +208,5 @@ Requires new ADR(s) and new `SchemeId` values for PQ schemes — **not** a semve
 
 | Version | Change |
 | ------- | ------ |
-| 2026-08-13 | Initial phase checklist |
-| 2026-08-13 | Phases 7–10 complete; 1.0.0 tagged; dkg participant deferred v2 |
+| 2026-08-13 | Phases 7–10 complete; 1.0.0 tagged |
+| 2026-08-13 | v2 PQ M1: ADR-004, SchemeId registry, ML-DSA verify wrapper |

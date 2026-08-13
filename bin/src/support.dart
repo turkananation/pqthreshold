@@ -15,12 +15,13 @@ import 'console.dart';
 const Map<String, SchemeId> schemeIdsByCliName = {
   'frost-ed25519-v1': SchemeId.frostEd25519V1,
   'frostEd25519V1': SchemeId.frostEd25519V1,
+  'ml-dsa-44-threshold-v1': SchemeId.mlDsa44ThresholdV1,
+  'ml-dsa-65-threshold-v1': SchemeId.mlDsa65ThresholdV1,
+  'ml-dsa-87-threshold-v1': SchemeId.mlDsa87ThresholdV1,
 };
 
 /// Human-readable scheme label for inspect output.
-String schemeDisplayName(SchemeId scheme) => switch (scheme) {
-      SchemeId.frostEd25519V1 => 'FROST Ed25519 v1',
-    };
+String schemeDisplayName(SchemeId scheme) => SchemeCapabilities.displayName(scheme);
 
 /// Kind label for inspect output.
 String kindDisplayName(PqthObjectKind kind) => switch (kind) {
@@ -30,6 +31,9 @@ String kindDisplayName(PqthObjectKind kind) => switch (kind) {
       PqthObjectKind.partialSignature => 'PartialSignature',
       PqthObjectKind.transcript => 'Transcript',
       PqthObjectKind.continuityProof => 'ContinuityProof',
+      PqthObjectKind.mlDsaPublicKey => 'MlDsaPublicKey',
+      PqthObjectKind.mlDsaPartialSignature => 'MlDsaPartialSignature',
+      PqthObjectKind.mlDsaShare => 'MlDsaShare',
     };
 
 void addSchemeOption(ArgParser parser) {

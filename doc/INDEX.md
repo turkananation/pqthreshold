@@ -30,6 +30,7 @@ ADRs in `doc/adr/` record *why* a decision was made; they do not override protoc
 | 0 | [GETTING_STARTED.md](GETTING_STARTED.md) | **Run tests, example, and how ceremonies work** |
 | 1 | [ARCHITECTURE.md](ARCHITECTURE.md) | Modules, boundaries, what is in / out of scope |
 | 2 | [SCHEMES.md](SCHEMES.md) | v1 algorithms: Feldman VSS, Gennaro DKG, FROST Ed25519 |
+| 2b | [PQ_SCHEMES.md](PQ_SCHEMES.md) | v2 PQ threshold registry (ML-DSA, SLH-DSA, hybrid) |
 | 3 | [PARAMS.md](PARAMS.md) | Valid `t`/`n`, indices, hard limits |
 | 4 | [SERIALIZATION.md](SERIALIZATION.md) | `PQTH` header, durable objects, domain strings |
 | 5 | [FROST_PROFILE.md](FROST_PROFILE.md) | FROST ciphersuite pin, rounds, combined sig = Ed25519 |

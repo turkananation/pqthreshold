@@ -15,19 +15,27 @@ This document is the **single source of truth** for numeric and structural const
 
 ---
 
-## 2. SchemeId (v1)
+## 2. SchemeId
+
+### v1 production
 
 | Ordinal (uint16 BE) | Name | Status |
 | ------------------- | ---- | ------ |
-| `0x0001` | `frostEd25519V1` | Only production scheme in v1 |
+| `0x0001` | `frostEd25519V1` | Production (v1 Tier 1) |
 
-Unknown ordinals → `SerializationError` on decode.
+### v2 registry (ADR-004)
 
-```dart
-enum SchemeId {
-  frostEd25519V1, // ordinal 1
-}
-```
+| Ordinal | Name | Max `n` | Status |
+| ------- | ---- | ------- | ------ |
+| `0x0002` | `mlDsa44ThresholdV1` | 8 | M1 alpha (verify only) |
+| `0x0003` | `mlDsa65ThresholdV1` | 8 | M1 alpha → M2 signing |
+| `0x0004` | `mlDsa87ThresholdV1` | 8 | Planned M4 |
+| `0x0005` | `slhDsa128fThresholdV1` | 8 | Planned M5+ |
+| `0x0006` | `hybridFrostMlDsa65V1` | 8 | Planned M5+ |
+
+Ordinals `0x0007`–`0x00FF` reserved. Unknown ordinals → `SerializationError` on decode.
+
+See [PQ_SCHEMES.md](PQ_SCHEMES.md) and [adr/004-pq-threshold-schemes.md](adr/004-pq-threshold-schemes.md).
 
 ---
 
@@ -39,7 +47,7 @@ enum SchemeId {
 | ----- | ---- | ----------- |
 | `t` | `int` | Quorum size; minimum honest shares to sign or reconstruct |
 | `n` | `int` | Number of participants / shares |
-| `scheme` | `SchemeId` | Must be `frostEd25519V1` in v1 |
+| `scheme` | `SchemeId` | v1 production: `frostEd25519V1`; v2 registry in §2 |
 
 ### 3.2 Hard limits (`frostEd25519V1`)
 
@@ -53,16 +61,28 @@ enum SchemeId {
 
 Production deployments should use **`t ≥ 2`** (see [SECURITY.md](SECURITY.md) §7).
 
-### 3.3 Soft limits (documentation only, not enforced)
+### 3.3 Hard limits (v2 PQ small-set schemes)
+
+Applies to `mlDsa*ThresholdV1`, `slhDsa128fThresholdV1`, and `hybridFrostMlDsa65V1` (ADR-004):
+
+| Rule | Value | Error |
+| ---- | ----- | ----- |
+| Minimum `t` | `1` | `InvalidParams` — tests only |
+| Maximum `n` | **`8`** | `InvalidParams` — lattice MPC small-set |
+| `t` ≤ `n` | required | `InvalidParams` |
+
+Field `maxParticipants` in serialized params is **`8`** for these schemes.
+
+### 3.4 Soft limits (documentation only, not enforced)
 
 | Context | Recommendation |
 | ------- | -------------- |
 | Web DKG | Prefer `n ≤ 7` ([SCHEMES.md](SCHEMES.md) §6) |
 | High-value roots | Common `(t,n)`: (2,3), (3,5), (3,7) ([CEREMONIES.md](CEREMONIES.md)) |
 
-### 3.4 Serialized form
+### 3.5 Serialized form
 
-See [SERIALIZATION.md](SERIALIZATION.md) §4.1. Field `maxParticipants` in the blob is **`255`** for `frostEd25519V1`.
+See [SERIALIZATION.md](SERIALIZATION.md) §4.1. Field `maxParticipants` in the blob matches `SchemeId.maxParticipants` (255 for FROST, 8 for v2 PQ schemes).
 
 ---
 

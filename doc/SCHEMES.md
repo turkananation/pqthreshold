@@ -35,11 +35,15 @@ Design constraint: **minimal crypto deps, explicit structure**. Cryptography is 
 | Serialization pipelines | Staged encode/decode | `CodecPipeline` (**swissarmyknife**) |
 | Secret lifecycle | Wipe on abort/finalize | `Disposable`, `DisposeBag` (**swissarmyknife**) |
 
-### Scheme identifier (v1)
+### Scheme identifier
+
+v1 production: `frostEd25519V1` (ordinal `0x0001`). v2 adds PQ threshold schemes — see [PQ_SCHEMES.md](PQ_SCHEMES.md) and [adr/004-pq-threshold-schemes.md](adr/004-pq-threshold-schemes.md).
 
 ```dart
 enum SchemeId {
-  frostEd25519V1, // sole production scheme in v1
+  frostEd25519V1,        // v1 production
+  mlDsa65ThresholdV1,    // v2 primary PQ target (M2)
+  // … see PARAMS.md §2
 }
 ```
 

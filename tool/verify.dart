@@ -30,9 +30,13 @@ const _requiredDocs = [
   'doc/INTEGRATION.md',
   'doc/TERMINAL.md',
   'doc/ROADMAP.md',
+  'doc/PQ_SCHEMES.md',
+  'doc/ML_DSA_THRESHOLD_PROFILE.md',
+  'doc/SLH_DSA_THRESHOLD_PROFILE.md',
   'doc/adr/001-scheme-selection.md',
   'doc/adr/002-runtime-dependencies.md',
   'doc/adr/003-serialization-format.md',
+  'doc/adr/004-pq-threshold-schemes.md',
   'test/vectors/README.md',
   'CONTRIBUTING.md',
   'SECURITY.md',
@@ -46,6 +50,7 @@ const _phaseTestDirs = [
   'test/dkg',
   'test/signing',
   'test/ceremony',
+  'test/scheme',
   'test/example',
 ];
 
@@ -81,8 +86,28 @@ Directory _repoRoot() {
 
 Future<void> _runQuick(Directory root) async {
   await _runCommand(root, 'dart', ['pub', 'get']);
+  await _buildMithrilBridgeIfNeeded(root);
   await _runCommand(root, 'dart', ['analyze', '--fatal-infos']);
   await _runCommand(root, 'dart', ['test']);
+}
+
+Future<void> _buildMithrilBridgeIfNeeded(Directory root) async {
+  final bridgeDir = Directory('${root.path}/tool/mithril_bridge');
+  final binary = File('${bridgeDir.path}/target/release/mithril_bridge');
+  if (binary.existsSync()) {
+    stdout.writeln('  mithril_bridge already built.');
+    return;
+  }
+  if (Process.runSync('which', ['cargo']).exitCode != 0) {
+    stdout.writeln('  Skipping mithril_bridge (cargo not installed).');
+    return;
+  }
+  stdout.writeln('Building mithril_bridge (ML-DSA M2 tests)...');
+  await _runCommand(
+    bridgeDir,
+    'cargo',
+    ['build', '--release'],
+  );
 }
 
 void _runDocsCheck(Directory root) {

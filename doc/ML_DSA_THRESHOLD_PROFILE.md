@@ -2,7 +2,7 @@
 
 **pqthreshold** — Threshold ML-DSA profile (v2, formative)
 
-Status: M1 specification (signing **not implemented**)  
+Status: M2 beta (ML-DSA-44 simulate via Mithril bridge)  
 Audience: implementers, cryptographic reviewers  
 Prerequisites: [ADR-004](adr/004-pq-threshold-schemes.md), [PQ_SCHEMES.md](PQ_SCHEMES.md), FIPS 204
 

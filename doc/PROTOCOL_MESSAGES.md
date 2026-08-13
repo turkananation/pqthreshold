@@ -12,7 +12,7 @@ Prerequisites: [INDEX.md](INDEX.md), [SERIALIZATION.md](SERIALIZATION.md) §3, [
 
 [SERIALIZATION.md](SERIALIZATION.md) defines **stored objects** (`Share`, `PublicKey`, …). **This document** defines **messages exchanged during protocols** (DKG rounds, FROST signing, Feldman distribution).
 
-Every protocol message uses the global **`PQTH` header** ([SERIALIZATION.md](SERIALIZATION.md) §3.1) with **`kind` in `0x10`–`0x1F`**. A **subKind** byte immediately after the header selects the message type.
+Every protocol message uses the global **`PQTH` header** ([SERIALIZATION.md](SERIALIZATION.md) §3.1) with **`kind` in `0x10`–`0x1F`** for Ed25519/FROST/DKG, and **`0x20`–`0x22`** for ML-DSA threshold signing (v2). A **subKind** byte immediately after the header selects the message type.
 
 ---
 
@@ -243,7 +243,79 @@ Persist coordinator result as needed; store partials in `PartialSignature` ([SER
 
 ---
 
-## 6. Continuity proof (C5 rotation)
+## 6. ML-DSA threshold signing (C3-PQ, v2)
+
+See [ML_DSA_THRESHOLD_PROFILE.md](ML_DSA_THRESHOLD_PROFILE.md) for cryptography and domain separation.
+
+**Signing session id** (32 bytes, carried in every ML-DSA wire envelope):
+
+```text
+sessionId = SHAKE256("th-ml-dsa-session-v1" || sessionEntropy || pk || act || message)[0..32]
+```
+
+(`sessionEntropy` is coordinator-generated; M3 beta uses Mithril bridge `wire_sign`.)
+
+### 6.1 Envelope extension
+
+ML-DSA signing messages extend §2 with **`sessionId (32)`** before the length-prefixed payload:
+
+```text
+PQTH (4)
+ver  (1)  = 0x01
+kind (1)  = 0x20..0x22
+scheme (2) = ML-DSA threshold wire ordinal (see PARAMS.md)
+subKind (1)
+ceremonyId (16)
+senderIndex (uint16_be)   // 1..n
+sessionId (32)
+payloadLen (uint32_be)
+payload
+```
+
+### 6.2 SubKind table — ML-DSA
+
+| subKind | Name | kind byte |
+| ------- | ---- | --------- |
+| `0x01` | `MlDsaSigningRound1` (commitment hash) | `0x20` |
+| `0x02` | `MlDsaSigningRound2` (reveal) | `0x21` |
+| `0x03` | `MlDsaSigningRound3` (response) | `0x22` |
+
+### 6.3 MlDsaSigningRound1 (subKind 0x01, kind 0x20)
+
+```text
+payload:
+  || commitmentHash (32 bytes)   // Round1 hash from Mithril sign::round1
+```
+
+### 6.4 MlDsaSigningRound2 (subKind 0x02, kind 0x21)
+
+```text
+payload:
+  || revealBytes (variable)      // packed w commitments per Mithril sign::round2
+```
+
+### 6.5 MlDsaSigningRound3 (subKind 0x03, kind 0x22)
+
+```text
+payload:
+  || responseBytes (variable)    // FIPS 204 `pack_z` per slot: k_reps × (L × POLYZ_PACKEDBYTES)
+```
+
+### 6.6 Combine (local / coordinator)
+
+Not a wire message in M3 beta. Coordinator aggregates Round2 reveals and Round3 responses, then combines per Mithril `coordinator::combine`. Output: **FIPS 204 ML-DSA signature** → verify with `MlDsaThresholdVerifier` / pqforge.
+
+Dir-transport filenames (CLI `sign ml-dsa run --wire-dir`):
+
+```text
+wire-dir/round1/from-{senderIndex}.wire
+wire-dir/round2/from-{senderIndex}.wire
+wire-dir/round3/from-{senderIndex}.wire
+```
+
+---
+
+## 7. Continuity proof (C5 rotation)
 
 Stored object and optional wire artifact. Uses **`kind = 0x06`** (durable object, not `0x10` range):
 
@@ -265,7 +337,7 @@ Threshold-sign `continuityPayload` with **old** key shares; embed **64-byte** si
 
 ---
 
-## 7. Message flow diagrams
+## 8. Message flow diagrams
 
 ### C1 DKG (simplified)
 
@@ -286,9 +358,20 @@ Each signer:  FrostSigningRound2 ───────────────�
 Coordinator:  combine → Ed25519 signature → verify
 ```
 
+### C3-PQ ML-DSA (M3 beta — coordinator exports wire)
+
+```text
+Each signer:  MlDsaSigningRound1 ────────────────► coordinator
+Coordinator:  aggregate Round1 hashes
+Each signer:  MlDsaSigningRound2 ────────────────► coordinator
+Coordinator:  aggregate commitments → w finals
+Each signer:  MlDsaSigningRound3 ────────────────► coordinator
+Coordinator:  aggregate responses → combine → ML-DSA signature → verify
+```
+
 ---
 
-## 8. Implementation checklist
+## 9. Implementation checklist
 
 - [ ] Parse envelope before crypto ([SWISSARMYKNIFE.md](SWISSARMYKNIFE.md) `CodecPipeline`)
 - [ ] Reject duplicate Round1 from same `senderIndex`
@@ -298,8 +381,9 @@ Coordinator:  combine → Ed25519 signature → verify
 
 ---
 
-## 9. Document control
+## 10. Document control
 
 | Version | Change |
 | ------- | ------ |
+| 2026-08-13 | ML-DSA threshold wire messages §6 (`0x20`–`0x22`) |
 | 2026-08-13 | Initial DKG, Feldman, FROST, continuity payload |

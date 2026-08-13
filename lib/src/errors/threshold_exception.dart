@@ -63,3 +63,9 @@ final class SerializationError extends ThresholdException {
   /// Creates a serialization error.
   const SerializationError(super.message);
 }
+
+/// [SchemeId] is registered but ceremony/signing is not implemented yet (v2 M1+).
+final class SchemeNotImplemented extends ThresholdException {
+  /// Creates a not-implemented error for [scheme].
+  const SchemeNotImplemented(super.message);
+}

@@ -46,8 +46,8 @@ v2 ML-DSA threshold therefore requires a **lattice-specific protocol** (see ML-D
 | Scheme | C1 DKG | C3 sign | M milestone |
 | ------ | ------ | ------- | ----------- |
 | `frostEd25519V1` | ✅ | ✅ | shipped (v1) |
-| `mlDsa65ThresholdV1` | 🔲 M2 | 🔲 M2 | v2.0-beta |
-| `mlDsa44ThresholdV1` | 🔲 M3 | 🔲 M3 | v2.0 |
+| `mlDsa44ThresholdV1` | ✅ simulate | ✅ simulate | v2.0-beta (Mithril bridge) |
+| `mlDsa65ThresholdV1` | 🔲 M3 | 🔲 M3 | v2.0-beta target |
 | `mlDsa87ThresholdV1` | 🔲 M4 | 🔲 M4 | v2.1 |
 | `slhDsa128fThresholdV1` | 🔲 M5 | 🔲 M5 | v2.2+ |
 | `hybridFrostMlDsa65V1` | 🔲 M5 | 🔲 M5 | v2.2 |

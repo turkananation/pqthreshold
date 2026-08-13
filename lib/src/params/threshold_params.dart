@@ -46,6 +46,17 @@ final class ThresholdParams {
           ),
           scheme,
         ),
+      SchemeId.mlDsa44ThresholdV1 ||
+      SchemeId.mlDsa65ThresholdV1 ||
+      SchemeId.mlDsa87ThresholdV1 ||
+      SchemeId.slhDsa128fThresholdV1 ||
+      SchemeId.hybridFrostMlDsa65V1 =>
+        _fromValidated(
+          unwrapParamsValidation(
+            pqThresholdSmallSetParamsValidator(scheme).validate((t, n)),
+          ),
+          scheme,
+        ),
     };
   }
 

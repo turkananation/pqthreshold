@@ -19,6 +19,7 @@ final class SignCommand extends Command<void> {
     addSubcommand(SignRound2Command());
     addSubcommand(SignCombineCommand());
     addSubcommand(SignVerifyCommand());
+    addSubcommand(SignMlDsaCommand());
   }
 
   @override
@@ -279,6 +280,134 @@ final class SignVerifyCommand extends Command<void> {
         exitCode = 0;
       } else {
         console.failure('Signature invalid');
+        exitCode = 1;
+      }
+    } on Object catch (error) {
+      handleCliError(error);
+    }
+  }
+}
+
+/// Parent command for ML-DSA threshold signing (v2 M3 beta).
+final class SignMlDsaCommand extends Command<void> {
+  SignMlDsaCommand() {
+    addSubcommand(SignMlDsaRunCommand());
+    addSubcommand(SignMlDsaVerifyCommand());
+  }
+
+  @override
+  String get name => 'ml-dsa';
+
+  @override
+  String get description => 'ML-DSA threshold signing (C3-PQ, Mithril beta).';
+}
+
+/// One-shot ML-DSA threshold sign with optional wire dir export.
+final class SignMlDsaRunCommand extends Command<void> {
+  SignMlDsaRunCommand() {
+    argParser
+      ..addMultiOption('share', valueHelp: 'file')
+      ..addOption('message', mandatory: true, valueHelp: 'file')
+      ..addOption('out', mandatory: true, valueHelp: 'file')
+      ..addOption(
+        'wire-dir',
+        valueHelp: 'dir',
+        help: 'Export Round1/2/3 wire messages under round1/, round2/, round3/.',
+      );
+  }
+
+  @override
+  String get name => 'run';
+
+  @override
+  String get description =>
+      'Threshold-sign with ≥ t ML-DSA shares (Mithril bridge, ML-DSA-44).';
+
+  @override
+  Future<void> run() async {
+    final shares = <MlDsaShare>[];
+    try {
+      if (!mithrilBridgeAvailable()) {
+        throw SchemeNotImplemented(
+          'mithril_bridge not found; build tool/mithril_bridge with cargo',
+        );
+      }
+      final paths = argResults!['share'] as List<String>;
+      if (paths.isEmpty) {
+        throw ArgumentError('At least one --share file is required');
+      }
+      shares.addAll([
+        for (final path in paths) MlDsaShare.fromBytes(await readBytes(path)),
+      ]);
+      final message = await readBytes(argResults!['message'] as String);
+      final params = shares.first.params;
+
+      final outcome = await MlDsaThresholdSigner.signWithWire(
+        shares: shares,
+        message: message,
+      );
+      final wireDir = argResults!['wire-dir'] as String?;
+      if (wireDir != null) {
+        await writeMlDsaWireMessages(
+          baseDir: Directory(wireDir),
+          messages: outcome.wireMessages,
+        );
+        console.detail('wire-messages', '${outcome.wireMessages.length}');
+        console.created(wireDir);
+      }
+
+      final out = argResults!['out'] as String;
+      await File(out).writeAsBytes(outcome.signature, flush: true);
+      console.success(
+        'ML-DSA threshold signature written (${outcome.signature.length} bytes)',
+      );
+      console.detail('scheme', params.scheme.name);
+      console.detail('signature-hex', bytesToHex(outcome.signature));
+      console.created(out);
+    } on Object catch (error) {
+      handleCliError(error);
+    } finally {
+      for (final share in shares) {
+        share.disposeSecret();
+      }
+    }
+  }
+}
+
+/// Verifies ML-DSA threshold signature (exit 0/1).
+final class SignMlDsaVerifyCommand extends Command<void> {
+  SignMlDsaVerifyCommand() {
+    argParser
+      ..addOption('public-key', mandatory: true, valueHelp: 'file')
+      ..addOption('message', mandatory: true, valueHelp: 'file')
+      ..addOption('signature', mandatory: true, valueHelp: 'file');
+  }
+
+  @override
+  String get name => 'verify';
+
+  @override
+  String get description => 'Verify ML-DSA threshold signature via pqforge.';
+
+  @override
+  Future<void> run() async {
+    try {
+      final publicKey = MlDsaPublicKey.fromBytes(
+        await readBytes(argResults!['public-key'] as String),
+      );
+      final message = await readBytes(argResults!['message'] as String);
+      final signature = await readBytes(argResults!['signature'] as String);
+      final ok = MlDsaThresholdVerifier.verify(
+        scheme: publicKey.params.scheme,
+        publicKey: publicKey.bytes,
+        message: message,
+        signature: signature,
+      );
+      if (ok) {
+        console.success('ML-DSA signature valid');
+        exitCode = 0;
+      } else {
+        console.failure('ML-DSA signature invalid');
         exitCode = 1;
       }
     } on Object catch (error) {

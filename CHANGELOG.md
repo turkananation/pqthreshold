@@ -5,9 +5,11 @@
 ### Operator CLI
 - [x] **`dkg participant step`** — multi-round C1 over `--ceremony-dir` with `transport/` inbox/outbox.
 - [x] **`sign partial` → `sign round2` → `sign combine`** — disk round-trip for distributed FROST (binding-factor round).
+- [x] **`sign ml-dsa run|verify`** — ML-DSA-44 threshold sign + optional `--wire-dir` export (M3 beta).
 
 ### Tier 1 API
 - [x] **`FrostSigningMessage`** wire codec (`doc/PROTOCOL_MESSAGES.md` §5).
+- [x] **`MlDsaSigningMessage`** wire codec (`doc/PROTOCOL_MESSAGES.md` §6).
 - [x] **`SigningSession`** — two-round FROST with officer-local checkpoint.
 - [x] **`CeremonySession.exportCheckpoint` / `fromCheckpoint`** — DKG dir-transport persistence.
 
@@ -15,9 +17,15 @@
 - [ ] **C6** proactive share refresh.
 - [ ] **C4-B** re-share without full reconstruct.
 
-### Cryptography (planned)
+### Cryptography (v2 PQ — M2 beta)
+- [x] **ADR-004** + profiles + `SchemeId` registry (M1)
+- [x] **`MlDsaShare` / `MlDsaPublicKey`** PQTH kinds `0x07`–`0x09`
+- [x] **`MlDsaThresholdSigner`** + `MlDsaRootCeremony` / `MlDsaThresholdSigningCeremony` (Tier 2 simulate)
+- [x] **`tool/mithril_bridge`** — Mithril ML-DSA-44 threshold via [threshold-ml-dsa](https://github.com/lattice-safe/threshold-ml-dsa)
+- [x] **`MlDsaSigningMessage`** wire codec + **`signWithWire`** / `sign ml-dsa run` (M3 beta — Mithril coordinator exports rounds)
+- [ ] Per-party distributed ML-DSA rounds without shared ceremony seed (M3+)
+- [ ] Pure Dart ML-DSA-65 lattice MPC (M4)
 - [ ] **Pedersen VSS** (new verification mode).
-- [ ] **Post-quantum threshold schemes** — ML-DSA, SLH-DSA, or hybrid threshold profiles (new `SchemeId` + ADR).
 
 ### Integration (planned)
 - [ ] Wrapped share CLI (`*.share.wrapped.json`) aligned with pqforge custody.

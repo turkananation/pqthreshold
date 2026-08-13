@@ -21,7 +21,16 @@ enum PqthObjectKind {
   transcript(0x05),
 
   /// ContinuityProof (`0x06`) — Phase 5.
-  continuityProof(0x06);
+  continuityProof(0x06),
+
+  /// ML-DSA threshold public key (`0x07`) — v2.
+  mlDsaPublicKey(0x07),
+
+  /// ML-DSA threshold partial / round material (`0x08`) — v2.
+  mlDsaPartialSignature(0x08),
+
+  /// ML-DSA threshold share (`0x09`) — v2 simulate / DKG.
+  mlDsaShare(0x09);
 
   const PqthObjectKind(this.wireValue);
 
