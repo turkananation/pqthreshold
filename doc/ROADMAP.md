@@ -70,10 +70,12 @@ Docs: [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §3, [CEREMONIES.md](CEREMONI
 
 Docs: [FROST_PROFILE.md](FROST_PROFILE.md), [PROTOCOL_MESSAGES.md](PROTOCOL_MESSAGES.md) §5, [TEST_VECTORS.md](TEST_VECTORS.md) §4.3
 
-- [ ] `lib/src/signing/` — FROST partial sign, combine, verify
-- [ ] `lib/src/scheme/frost/` — protocol math
-- [ ] Combined signature verifies via `PqClassical.provider.ed25519Verify`
-- [ ] Vectors under `test/vectors/frost/`
+- [x] `lib/src/signing/` — FROST partial sign, combine, verify
+- [x] `lib/src/scheme/frost/` — protocol math (H1/H3/H4/H5 + Ed25519 challenge)
+- [x] Combined signature verifies via `PqClassical.provider.ed25519Verify`
+- [x] Vectors under `test/vectors/frost/`
+
+**Phase 4 complete.** Begin Phase 5 per [IMPLEMENTATION.md](IMPLEMENTATION.md) §8.
 
 ## Phase 5 — Ceremony helpers
 

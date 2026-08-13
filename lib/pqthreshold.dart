@@ -26,3 +26,7 @@ export 'src/sharing/verifiable_secret_sharing.dart';
 export 'src/dkg/ceremony_session.dart';
 export 'src/dkg/dkg_message.dart';
 export 'src/transcript/transcript.dart';
+
+/// Threshold signing (Phase 4+).
+export 'src/signing/partial_signature.dart';
+export 'src/signing/threshold_signer.dart';

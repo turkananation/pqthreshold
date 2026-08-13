@@ -1,3 +1,13 @@
+## 0.5.0
+
+- **Phase 4 FROST threshold signing:** Ed25519-compatible aggregate signatures (C3).
+- `ThresholdSigner.signPartial`, `combine`, `verify` per `doc/API.md` §4.3.
+- `PartialSignature` type with PQTH wire codec (`doc/SERIALIZATION.md` §4.4).
+- FROST core under `lib/src/scheme/frost/` (binding factors, group commitment, Lagrange shares).
+- Challenge hash uses RFC 8032 FROST-Ed25519 H2 so `PqClassical.provider.ed25519Verify` succeeds.
+- FROST acceptance vector in `test/vectors/frost/`; `tool/generate_frost_vectors.dart` for regeneration.
+- Five signing tests in `test/signing/frost_test.dart`; `dart run tool/verify.dart full` passes.
+
 ## 0.4.0
 
 - **Phase 3 distributed key generation:** Gennaro DKG over Ed25519 (C1).

@@ -1,0 +1,17 @@
+{
+  "format": "pqthreshold-test-vector-v1",
+  "scheme": "frostEd25519V1",
+  "description": "2-of-3 FROST signing over DKG key",
+  "params": {
+    "t": 2,
+    "n": 3
+  },
+  "ceremonyId": "0102030405060708090a0b0c0d0e0f10",
+  "inputs": {
+    "message": "74657374"
+  },
+  "expected": {
+    "signature": "3bf98ecce168700f5efe5e99bfc1f81cf20889ec7239f4bc21e4fce110d51410d3801e38540116d8fc15192f5fa00246bbd0bcac4031b03a616328be44568709",
+    "jointPublicKey": "95d9204dee8c80b18a5c065e2fd271402a2b3eaa9f379b767ebdff33d8751efe"
+  }
+}

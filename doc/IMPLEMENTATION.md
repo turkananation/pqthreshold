@@ -200,6 +200,14 @@ import 'package:swissarmyknife/swissarmyknife.dart';
 
 - [API.md](API.md) §4.3; verify via `PqClassical.provider.ed25519Verify`.
 
+### 7.3 Phase 4 done when
+
+- [x] `dart run tool/verify.dart full` passes
+- [x] `ThresholdSigner.signPartial` / `combine` / `verify` per [API.md](API.md) §4.3
+- [x] `PartialSignature` wire codec round-trip
+- [x] FROST vectors under `test/vectors/frost/`; regenerate via `dart run tool/generate_frost_vectors.dart`
+- [x] Combined signatures verify via pqforge Ed25519 (challenge uses RFC 8032 FROST-Ed25519 H2)
+
 ---
 
 ## 8. Phase 5 — Ceremonies
