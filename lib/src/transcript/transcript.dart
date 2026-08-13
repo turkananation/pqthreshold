@@ -4,6 +4,7 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import 'package:pqforge/pqforge.dart' hide PublicKey;
 
 import '../errors/threshold_exception.dart';
@@ -248,6 +249,81 @@ final class Transcript {
       throw TranscriptMismatch('Transcript hash chain invalid');
     }
     return transcript;
+  }
+
+  /// In-progress checkpoint for DKG dir transport (v2).
+  @internal
+  Uint8List exportWorkingCheckpoint() {
+    final writer = BinaryWriter()
+      ..writeBytes(ceremonyId)
+      ..writeBytes(params.toBytes());
+    for (final id in _participantIds) {
+      writer.writeBytes(
+        PqBytes.lengthPrefixed([Uint8List.fromList(id.codeUnits)]),
+      );
+    }
+    writer
+      ..writeUint32Be(_entries.length)
+      ..writeBytes(_encodeEntries())
+      ..writeBytes(_prevHash)
+      ..writeUint8(_sealed ? 1 : 0)
+      ..writeUint8(_outcome)
+      ..writeBytes(
+        PqBytes.lengthPrefixed([Uint8List.fromList(_abortReason.codeUnits)]),
+      );
+    return writer.toBytes();
+  }
+
+  /// Restores [exportWorkingCheckpoint] bytes.
+  @internal
+  factory Transcript.fromWorkingCheckpoint(Uint8List bytes) {
+    final reader = BinaryReader(bytes);
+    final ceremonyId = reader.readBytes(16);
+    final params = ThresholdParams.fromBytes(
+      reader.readBytes(thresholdParamsEncodedLength),
+    );
+    final participantIds = <String>[];
+    for (var i = 0; i < params.n; i++) {
+      participantIds.add(_readLengthPrefixedUtf8(reader));
+    }
+    final entryCount = reader.readUint32Be();
+    final entries = <_TranscriptEntry>[];
+    for (var i = 0; i < entryCount; i++) {
+      final round = reader.readUint8();
+      final senderIndex = reader.readUint16Be();
+      final messageHash = reader.readBytes(32);
+      final storedPrev = reader.readBytes(32);
+      final entryHash = _hashEntry(
+        prevHash: storedPrev,
+        round: round,
+        senderIndex: senderIndex,
+        messageHash: messageHash,
+      );
+      entries.add(
+        _TranscriptEntry(
+          round: round,
+          senderIndex: senderIndex,
+          messageHash: messageHash,
+          prevHash: storedPrev,
+          entryHash: entryHash,
+        ),
+      );
+    }
+    final prevHash = reader.readBytes(32);
+    final sealed = reader.readUint8() == 1;
+    final outcome = reader.readUint8();
+    final abortReason = _readLengthPrefixedUtf8(reader);
+    reader.expectEnd();
+    return Transcript._(
+      ceremonyId: ceremonyId,
+      params: params,
+      participantIds: participantIds,
+      entries: entries,
+      prevHash: prevHash,
+      sealed: sealed,
+      outcome: outcome,
+      abortReason: abortReason,
+    );
   }
 
   Uint8List _encodeEntries() {

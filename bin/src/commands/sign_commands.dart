@@ -8,6 +8,7 @@ import 'package:pqthreshold/pqthreshold.dart';
 import 'package:pqthreshold/testing.dart';
 
 import '../console.dart';
+import '../dkg_transport.dart';
 import '../support.dart';
 
 /// Parent command for threshold signing.
@@ -15,6 +16,7 @@ final class SignCommand extends Command<void> {
   SignCommand() {
     addSubcommand(SignRunCommand());
     addSubcommand(SignPartialCommand());
+    addSubcommand(SignRound2Command());
     addSubcommand(SignCombineCommand());
     addSubcommand(SignVerifyCommand());
   }
@@ -75,13 +77,19 @@ final class SignRunCommand extends Command<void> {
   }
 }
 
-/// Partial FROST signature from one share.
+/// Round-one FROST commitments from one share (v2 dir transport).
 final class SignPartialCommand extends Command<void> {
   SignPartialCommand() {
     argParser
       ..addOption('share', mandatory: true, valueHelp: 'file')
       ..addOption('message', mandatory: true, valueHelp: 'file')
-      ..addOption('out', mandatory: true, valueHelp: 'file');
+      ..addOption('out', mandatory: true, valueHelp: 'file', help: 'Round1 wire message.')
+      ..addOption(
+        'session-out',
+        mandatory: true,
+        valueHelp: 'file',
+        help: 'Officer-local checkpoint (secrets — do not publish).',
+      );
   }
 
   @override
@@ -89,35 +97,95 @@ final class SignPartialCommand extends Command<void> {
 
   @override
   String get description =>
-      'Export round-1 commitments (combine in-process or use sign run).';
+      'FROST Round1: export wire commitments and local session checkpoint.';
 
   @override
   Future<void> run() async {
     try {
       final share = Share.fromBytes(await readBytes(argResults!['share'] as String));
       final message = await readBytes(argResults!['message'] as String);
-      final partial = await ThresholdSigner.signPartial(
-        share: share,
-        message: message,
-      );
+      final begun = await SigningSession.begin(share: share, message: message);
       final out = argResults!['out'] as String;
-      await File(out).writeAsBytes(partial.toBytes(), flush: true);
-      console.success('Round-1 partial material from index ${share.index}');
+      await File(out).writeAsBytes(begun.round1.wireBytes, flush: true);
+      final sessionOut = argResults!['session-out'] as String;
+      await File(sessionOut).writeAsBytes(begun.session.toCheckpoint(), flush: true);
+      console.success('Round1 wire + session checkpoint written');
+      console.detail('signerIndex', '${share.index}');
       console.created(out);
+      console.created(sessionOut);
     } on Object catch (error) {
       handleCliError(error);
     }
   }
 }
 
-/// Combines in-memory partials (same process as partial generation).
+/// Round-two partial scalar after collecting Round1 wire messages.
+final class SignRound2Command extends Command<void> {
+  SignRound2Command() {
+    argParser
+      ..addOption('session', mandatory: true, valueHelp: 'file')
+      ..addOption('public-key', mandatory: true, valueHelp: 'file')
+      ..addOption('round1-dir', mandatory: true, valueHelp: 'dir')
+      ..addOption('out', mandatory: true, valueHelp: 'file', help: 'Round2 wire message.')
+      ..addOption('partial-out', valueHelp: 'file', help: 'Optional PQTH partial for combine.');
+  }
+
+  @override
+  String get name => 'round2';
+
+  @override
+  String get description =>
+      'FROST Round2: complete partial scalar from Round1 dir + session checkpoint.';
+
+  @override
+  Future<void> run() async {
+    SigningSession? session;
+    try {
+      session = SigningSession.fromCheckpoint(
+        await readBytes(argResults!['session'] as String),
+      );
+      final publicKey = PublicKey.fromBytes(
+        await readBytes(argResults!['public-key'] as String),
+      );
+      final round1Dir = Directory(argResults!['round1-dir'] as String);
+      final round1 = loadFrostMessages(round1Dir)
+          .where((m) => m.subKind == FrostWireSubKind.round1)
+          .toList();
+      final partial = session.completeRound2(
+        round1Messages: round1,
+        publicKey: publicKey,
+      );
+      final wire = frostRound2WireFromPartial(partial: partial, params: publicKey.params);
+      final out = argResults!['out'] as String;
+      await File(out).writeAsBytes(wire.wireBytes, flush: true);
+      final partialOut = argResults!['partial-out'] as String?;
+      if (partialOut != null) {
+        await File(partialOut).writeAsBytes(partial.toBytes(), flush: true);
+      }
+      console.success('Round2 wire written');
+      console.created(out);
+      session.dispose();
+    } on Object catch (error) {
+      session?.dispose();
+      handleCliError(error);
+    }
+  }
+}
+
+/// Combines Round2 wire messages (or in-memory partials) into Ed25519 signature.
 final class SignCombineCommand extends Command<void> {
   SignCombineCommand() {
     argParser
       ..addMultiOption('partial', valueHelp: 'file')
       ..addOption('public-key', mandatory: true, valueHelp: 'file')
       ..addOption('message', mandatory: true, valueHelp: 'file')
-      ..addOption('out', mandatory: true, valueHelp: 'file');
+      ..addOption('out', mandatory: true, valueHelp: 'file')
+      ..addOption(
+        'round1-dir',
+        valueHelp: 'dir',
+        help: 'With --round2-dir: combine distributed FROST wire messages.',
+      )
+      ..addOption('round2-dir', valueHelp: 'dir');
   }
 
   @override
@@ -125,23 +193,42 @@ final class SignCombineCommand extends Command<void> {
 
   @override
   String get description =>
-      'Combine partials that still hold ephemeral material (prefer sign run).';
+      'Combine partials or Round1+Round2 wire dirs into Ed25519 signature.';
 
   @override
   Future<void> run() async {
     try {
-      final paths = argResults!['partial'] as List<String>;
-      if (paths.isEmpty) {
-        throw ArgumentError('At least one --partial file is required');
-      }
-      final partials = [
-        for (final path in paths)
-          PartialSignature.fromBytes(await readBytes(path)),
-      ];
       final publicKey = PublicKey.fromBytes(
         await readBytes(argResults!['public-key'] as String),
       );
       final message = await readBytes(argResults!['message'] as String);
+
+      final List<PartialSignature> partials;
+      final round1Dir = argResults!['round1-dir'] as String?;
+      final round2Dir = argResults!['round2-dir'] as String?;
+      if (round1Dir != null && round2Dir != null) {
+        final round1 = loadFrostMessages(Directory(round1Dir));
+        final round2 = loadFrostMessages(Directory(round2Dir))
+            .where((m) => m.subKind == FrostWireSubKind.round2)
+            .toList();
+        partials = partialsFromRound2Messages(
+          round1Messages: round1,
+          round2Messages: round2,
+          publicKey: publicKey,
+        );
+      } else {
+        final paths = argResults!['partial'] as List<String>;
+        if (paths.isEmpty) {
+          throw ArgumentError(
+            'Provide --partial files or both --round1-dir and --round2-dir',
+          );
+        }
+        partials = [
+          for (final path in paths)
+            PartialSignature.fromBytes(await readBytes(path)),
+        ];
+      }
+
       final signature = ThresholdSigner.combine(
         partials: partials,
         publicKey: publicKey,

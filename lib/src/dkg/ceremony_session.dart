@@ -11,6 +11,7 @@ import '../params/threshold_params.dart';
 import '../scheme/dkg/dkg_crypto.dart';
 import '../scheme/feldman/ed25519_scalar.dart';
 import '../scheme/feldman/feldman_vss.dart';
+import '../serialization/binary_codec.dart';
 import '../sharing/share.dart';
 import '../transcript/transcript.dart';
 import '../util/ceremony_id.dart';
@@ -49,6 +50,13 @@ abstract interface class CeremonySession {
 
   /// Final share, joint public key, and sealed transcript.
   ({Share share, PublicKey publicKey, Transcript transcript}) finalize();
+
+  /// Serializes in-progress state for dir-transport CLI (v2).
+  Uint8List exportCheckpoint();
+
+  /// Restores a session saved with [exportCheckpoint].
+  factory CeremonySession.fromCheckpoint(Uint8List bytes) =>
+      _CeremonySessionImpl._fromCheckpoint(bytes);
 }
 
 final class _CeremonySessionImpl implements CeremonySession {
@@ -362,5 +370,160 @@ final class _CeremonySessionImpl implements CeremonySession {
     );
     _transcript.seal(finalPublicKey: publicKey, success: true);
     return (share: share, publicKey: publicKey, transcript: _transcript);
+  }
+
+  @override
+  Uint8List exportCheckpoint() {
+    final writer = BinaryWriter()
+      ..writeBytes(Uint8List.fromList('PQDK'.codeUnits))
+      ..writeUint8(1)
+      ..writeBytes(_params.toBytes())
+      ..writeBytes(_ceremonyId)
+      ..writeBytes(PqBytes.lengthPrefixed([Uint8List.fromList(_participantId.codeUnits)]))
+      ..writeUint16Be(_participantIndex)
+      ..writeUint8(_machine.currentState.index)
+      ..writeUint8(_round1Emitted ? 1 : 0)
+      ..writeUint8(_round2Emitted ? 1 : 0)
+      ..writeUint8(_localCoeffs.length)
+      ..writeBytes(PqBytes.concat([
+        for (final c in _localCoeffs) scalarToLeBytes(c),
+      ]))
+      ..writeUint8(_round1BySender.length);
+    for (final entry in _round1BySender.entries) {
+      writer
+        ..writeUint16Be(entry.key)
+        ..writeBytes(PqBytes.concat(entry.value));
+    }
+    writer.writeUint8(_round2BySender.length);
+    for (final entry in _round2BySender.entries) {
+      writer
+        ..writeUint16Be(entry.key)
+        ..writeBytes(entry.value);
+    }
+    if (_jointPublicKey != null) {
+      writer
+        ..writeUint8(1)
+        ..writeBytes(_jointPublicKey!);
+    } else {
+      writer.writeUint8(0);
+    }
+    if (_finalShareScalar != null) {
+      writer
+        ..writeUint8(1)
+        ..writeBytes(scalarToLeBytes(_finalShareScalar!));
+    } else {
+      writer.writeUint8(0);
+    }
+    if (_abortReason != null) {
+      writer.writeBytes(
+        PqBytes.lengthPrefixed([Uint8List.fromList(_abortReason!.codeUnits)]),
+      );
+    } else {
+      writer.writeBytes(PqBytes.lengthPrefixed([Uint8List(0)]));
+    }
+    writer.writeBytes(_transcript.exportWorkingCheckpoint());
+    return writer.toBytes();
+  }
+
+  static _CeremonySessionImpl _fromCheckpoint(Uint8List bytes) {
+    final reader = BinaryReader(bytes);
+    final magic = String.fromCharCodes(reader.readBytes(4));
+    if (magic != 'PQDK') {
+      throw SerializationError('Invalid DKG checkpoint magic');
+    }
+    final version = reader.readUint8();
+    if (version != 1) {
+      throw SerializationError('Unsupported DKG checkpoint version: $version');
+    }
+    final params = ThresholdParams.fromBytes(reader.readBytes(16));
+    final ceremonyId = reader.readBytes(16);
+    final participantId = String.fromCharCodes(_readLp(reader));
+    final participantIndex = reader.readUint16Be();
+    final stateIndex = reader.readUint8();
+    final round1Emitted = reader.readUint8() == 1;
+    final round2Emitted = reader.readUint8() == 1;
+    final coeffCount = reader.readUint8();
+    final coeffs = <BigInt>[
+      for (var i = 0; i < coeffCount; i++)
+        scalarFromLeBytes(reader.readBytes(32)),
+    ];
+    final round1Count = reader.readUint8();
+    final round1BySender = <int, List<Uint8List>>{};
+    for (var i = 0; i < round1Count; i++) {
+      final sender = reader.readUint16Be();
+      round1BySender[sender] = [
+        for (var j = 0; j < params.t; j++) reader.readBytes(32),
+      ];
+    }
+    final round2Count = reader.readUint8();
+    final round2BySender = <int, Uint8List>{};
+    for (var i = 0; i < round2Count; i++) {
+      final sender = reader.readUint16Be();
+      round2BySender[sender] = reader.readBytes(32);
+    }
+    Uint8List? jointPk;
+    if (reader.readUint8() == 1) {
+      jointPk = reader.readBytes(32);
+    }
+    BigInt? finalShare;
+    if (reader.readUint8() == 1) {
+      finalShare = scalarFromLeBytes(reader.readBytes(32));
+    }
+    final abortText = _readLp(reader);
+    final abortReason = abortText.isEmpty ? null : String.fromCharCodes(abortText);
+    final transcriptBytes = reader.readBytes(reader.remaining);
+    final transcript = Transcript.fromWorkingCheckpoint(transcriptBytes);
+
+    final session = _CeremonySessionImpl._restore(
+      params: params,
+      ceremonyId: ceremonyId,
+      participantId: participantId,
+      participantIndex: participantIndex,
+      machineState: DkgState.values[stateIndex],
+      round1Emitted: round1Emitted,
+      round2Emitted: round2Emitted,
+      localCoeffs: coeffs,
+      round1BySender: round1BySender,
+      round2BySender: round2BySender,
+      jointPublicKey: jointPk,
+      finalShareScalar: finalShare,
+      abortReason: abortReason,
+      transcript: transcript,
+    );
+    return session;
+  }
+
+  _CeremonySessionImpl._restore({
+    required this._params,
+    required Uint8List ceremonyId,
+    required this._participantId,
+    required this._participantIndex,
+    required DkgState machineState,
+    required bool round1Emitted,
+    required bool round2Emitted,
+    required List<BigInt> localCoeffs,
+    required Map<int, List<Uint8List>> round1BySender,
+    required Map<int, Uint8List> round2BySender,
+    Uint8List? jointPublicKey,
+    BigInt? finalShareScalar,
+    String? abortReason,
+    required this._transcript,
+  })  : _ceremonyId = Uint8List.fromList(ceremonyId),
+        _machine = _buildMachine() {
+    _machine.reset(machineState, clearHistory: true);
+    _localCoeffs = localCoeffs;
+    _localCommitments = FeldmanVss.commitmentsFromCoefficients(localCoeffs);
+    _round1BySender.addAll(round1BySender);
+    _round2BySender.addAll(round2BySender);
+    _jointPublicKey = jointPublicKey;
+    _finalShareScalar = finalShareScalar;
+    _abortReason = abortReason;
+    _round1Emitted = round1Emitted;
+    _round2Emitted = round2Emitted;
+  }
+
+  static Uint8List _readLp(BinaryReader reader) {
+    final length = reader.readUint32Be();
+    return reader.readBytes(length);
   }
 }

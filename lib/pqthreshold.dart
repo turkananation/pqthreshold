@@ -28,7 +28,9 @@ export 'src/dkg/dkg_message.dart';
 export 'src/transcript/transcript.dart';
 
 /// Threshold signing (Phase 4+).
+export 'src/signing/frost_signing_message.dart';
 export 'src/signing/partial_signature.dart';
+export 'src/signing/signing_session.dart';
 export 'src/signing/threshold_signer.dart';
 
 /// Ceremony orchestration (Phase 5+).

@@ -180,14 +180,21 @@ Docs: [INTEGRATION.md](INTEGRATION.md), [GETTING_STARTED.md](GETTING_STARTED.md)
 
 ---
 
-## v2 (deferred — new signature schemes & ceremonies)
+## v2 (in progress)
 
-Requires new ADR(s) and new `SchemeId` values — **not** a semver minor on v1.
+Requires new ADR(s) and new `SchemeId` values for PQ schemes — **not** a semver minor on v1.
 
-- C6 proactive share refresh
-- C4-B re-share without full reconstruct
-- Pedersen VSS
-- **Post-quantum threshold schemes** (ML-DSA, SLH-DSA, or hybrid threshold profiles) when standards and review bar are met
+### Shipped in Unreleased
+- [x] `dkg participant step` — dir-transport C1 CLI
+- [x] FROST two-round wire + `SigningSession` + `sign round2`
+- [x] `CeremonySession` checkpoint for multi-step DKG
+
+### Planned
+- [ ] C6 proactive share refresh
+- [ ] C4-B re-share without full reconstruct
+- [ ] Pedersen VSS
+- [ ] **Post-quantum threshold schemes** (ML-DSA, SLH-DSA, or hybrid threshold profiles) when standards and review bar are met
+- [ ] Wrapped share CLI; persistent Serverpod relay
 
 ---
 

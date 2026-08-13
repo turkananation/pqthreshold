@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased (v2)
+
+### Operator CLI
+- [x] **`dkg participant step`** — multi-round C1 over `--ceremony-dir` with `transport/` inbox/outbox.
+- [x] **`sign partial` → `sign round2` → `sign combine`** — disk round-trip for distributed FROST (binding-factor round).
+
+### Tier 1 API
+- [x] **`FrostSigningMessage`** wire codec (`doc/PROTOCOL_MESSAGES.md` §5).
+- [x] **`SigningSession`** — two-round FROST with officer-local checkpoint.
+- [x] **`CeremonySession.exportCheckpoint` / `fromCheckpoint`** — DKG dir-transport persistence.
+
+### Ceremonies (planned)
+- [ ] **C6** proactive share refresh.
+- [ ] **C4-B** re-share without full reconstruct.
+
+### Cryptography (planned)
+- [ ] **Pedersen VSS** (new verification mode).
+- [ ] **Post-quantum threshold schemes** — ML-DSA, SLH-DSA, or hybrid threshold profiles (new `SchemeId` + ADR).
+
+### Integration (planned)
+- [ ] Wrapped share CLI (`*.share.wrapped.json`) aligned with pqforge custody.
+- [ ] Persistent Serverpod relay (beyond in-memory sketch).
+
 ## 1.0.0
 
 **Stable Tier 1 release** — `frostEd25519V1` only; PQTH `ver=0x01` frozen per [doc/API.md](doc/API.md) §7.
@@ -20,11 +43,6 @@
 ### Pre-1.0 hardening (0.9.0 scope)
 - **77 tests** in main package + **6** in `crypto_shared`; `dart run tool/verify.dart full` passes.
 - [REVIEW_CHECKLIST.md](doc/REVIEW_CHECKLIST.md) published — independent cryptographic sign-off recommended before high-assurance deployment.
-
-### Deferred to v2+
-- **`dkg participant`** multi-round dir transport CLI.
-- **Disk round-trip** for `sign partial` → `sign combine` (FROST binding-factor round requires live coordinator).
-- ML-DSA / SLH-DSA threshold schemes (new `SchemeId` + ADR).
 
 Requires **pqforge ^0.4.4**.
 
