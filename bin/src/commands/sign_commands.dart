@@ -102,20 +102,24 @@ final class SignPartialCommand extends Command<void> {
 
   @override
   Future<void> run() async {
+    SigningSession? session;
     try {
       final share = Share.fromBytes(await readBytes(argResults!['share'] as String));
       final message = await readBytes(argResults!['message'] as String);
       final begun = await SigningSession.begin(share: share, message: message);
+      session = begun.session;
       final out = argResults!['out'] as String;
       await File(out).writeAsBytes(begun.round1.wireBytes, flush: true);
       final sessionOut = argResults!['session-out'] as String;
-      await File(sessionOut).writeAsBytes(begun.session.toCheckpoint(), flush: true);
+      await File(sessionOut).writeAsBytes(session.toCheckpoint(), flush: true);
       console.success('Round1 wire + session checkpoint written');
       console.detail('signerIndex', '${share.index}');
       console.created(out);
       console.created(sessionOut);
     } on Object catch (error) {
       handleCliError(error);
+    } finally {
+      session?.dispose();
     }
   }
 }
