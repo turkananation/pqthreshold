@@ -4,7 +4,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:pqforge/pqforge.dart' hide PublicKey;
+import 'package:pqforge/pqforge.dart';
 
 import '../errors/threshold_exception.dart';
 import '../serialization/continuity_proof_codec.dart';

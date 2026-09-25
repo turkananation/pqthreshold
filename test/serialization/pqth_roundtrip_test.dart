@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:pqforge/pqforge.dart' hide PublicKey;
+import 'package:pqforge/pqforge.dart';
 import 'package:pqthreshold/pqthreshold.dart';
 import 'package:pqthreshold/testing.dart';
 import 'package:test/test.dart';

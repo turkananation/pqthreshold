@@ -27,7 +27,8 @@ platforms:
 dependencies:
   args: ^2.7.0
   meta: ^1.16.0
-  pqforge: ^0.4.4
+  pqforge: ^0.4.5
+  zeroize: ^0.1.0
   swissarmyknife: ^0.1.0
 
 dependency_overrides:

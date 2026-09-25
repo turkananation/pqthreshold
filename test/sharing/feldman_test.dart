@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:pqforge/pqforge.dart' hide PublicKey;
+import 'package:pqforge/pqforge.dart';
 import 'package:pqthreshold/pqthreshold.dart';
 import 'package:pqthreshold/src/scheme/feldman/ed25519_scalar.dart';
 import 'package:test/test.dart';

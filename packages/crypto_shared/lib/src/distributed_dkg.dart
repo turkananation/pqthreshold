@@ -3,7 +3,7 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:pqforge/pqforge.dart' hide PublicKey;
+import 'package:pqforge/pqforge.dart';
 import 'package:pqthreshold/pqthreshold.dart';
 
 import 'ceremony_relay.dart';

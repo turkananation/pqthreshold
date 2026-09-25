@@ -3,7 +3,7 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:pqforge/pqforge.dart' hide PublicKey;
+import 'package:pqforge/pqforge.dart';
 
 import '../dkg/dkg_simulator.dart';
 import '../errors/threshold_exception.dart';

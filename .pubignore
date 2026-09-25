@@ -3,3 +3,5 @@ AGENTS.md
 CLAUDE.md
 GEMINI.md
 pubspec.lock
+.github
+tool/
