@@ -1,6 +1,6 @@
 # pqthreshold
 
-**High-assurance pure-Dart threshold cryptography & distributed key-management primitives**
+High-assurance pure-Dart threshold cryptography and distributed key-management primitives
 
 [![pub package](https://img.shields.io/pub/v/pqthreshold.svg)](https://pub.dev/packages/pqthreshold)
 [![likes](https://img.shields.io/pub/likes/pqthreshold)](https://pub.dev/packages/pqthreshold/score)
@@ -85,7 +85,7 @@ It is designed as the natural companion to [`pqcrypto`](https://pub.dev/packages
 import 'package:pqthreshold/pqthreshold.dart';
 
 Future<void> main() async {
-  // Example: 3-of-5 threshold setup (intended API shape)
+  // Example: 3-of-5 threshold setup using the in-process simulator.
   final params = ThresholdParams.tOfN(t: 3, n: 5);
 
   // In-process simulation — NOT for production multi-device ceremonies
@@ -113,7 +113,9 @@ Future<void> main() async {
 }
 ```
 
-> Types above are specified in `doc/API.md`; they are not yet implemented in code.
+> The simulator is useful for tests and demonstrations. Production ceremonies
+> use per-participant `CeremonySession` state machines with application-provided
+> transport; see [`doc/API.md`](doc/API.md).
 
 ---
 
@@ -176,8 +178,8 @@ When **not** to use it:
 
 | Area | Status |
 | ------ | -------- |
-| Specification (Phase 0) | **Complete** — [doc/INDEX.md](doc/INDEX.md) |
-| Implementation (Phase 1 foundation + CLI slice) | **Landed** — params, PQTH serialization, `pqthreshold params` / `inspect` |
+| Specification | **Complete** — [doc/INDEX.md](doc/INDEX.md) |
+| Implementation | **Stable Tier 1** — VSS, DKG, FROST signing, ceremony helpers, PQTH serialization, and CLI |
 | Verify locally | `dart run tool/verify.dart full` |
 | CI | `.github/workflows/ci.yml` → `verify quick` |
 
@@ -189,7 +191,7 @@ The package follows the same evidence-oriented style as `pqcrypto`: clear docume
 
 ```yaml
 dependencies:
-  pqthreshold: ^0.2.0
+  pqthreshold: ^1.0.0
 ```
 
 ```bash
@@ -200,7 +202,7 @@ flutter pub get
 
 ### Terminal (CLI)
 
-Phase 1 ships `params` and `inspect`. Pair with [`pqforge`](https://pub.dev/packages/pqforge) for device keys — see [doc/TERMINAL.md](doc/TERMINAL.md).
+The CLI ships parameter, inspection, VSS, DKG, signing, and ceremony workflows. Pair with [`pqforge`](https://pub.dev/packages/pqforge) for device keys — see [doc/TERMINAL.md](doc/TERMINAL.md).
 
 ```bash
 dart pub global activate pqthreshold   # when published

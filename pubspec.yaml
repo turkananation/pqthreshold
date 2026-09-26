@@ -31,10 +31,6 @@ dependencies:
   zeroize: ^0.1.0
   swissarmyknife: ^0.1.0
 
-dependency_overrides:
-  pqforge:
-    path: ../pqforge
-
 executables:
   pqthreshold: pqthreshold
 

@@ -68,6 +68,30 @@ void main() {
       );
     });
 
+    test('signature verifies through pqforge classical provider', () async {
+      final partials = <PartialSignature>[];
+      for (final share in shares.take(2)) {
+        partials.add(
+          await ThresholdSigner.signPartial(share: share, message: message),
+        );
+      }
+
+      final signature = ThresholdSigner.combine(
+        partials: partials,
+        publicKey: publicKey,
+        message: message,
+      );
+
+      expect(
+        await PqClassical.provider.ed25519Verify(
+          publicKey: publicKey.bytes,
+          message: message,
+          signature: signature,
+        ),
+        isTrue,
+      );
+    });
+
     test('combine with t-1 partials throws InvalidPartialSignature', () async {
       final partial = await ThresholdSigner.signPartial(
         share: shares.first,
@@ -118,9 +142,11 @@ void main() {
     });
 
     test('vector signing_2of3.json acceptance criteria', () async {
-      final vector = jsonDecode(
-        File('test/vectors/frost/signing_2of3.json').readAsStringSync(),
-      ) as Map<String, dynamic>;
+      final vector =
+          jsonDecode(
+                File('test/vectors/frost/signing_2of3.json').readAsStringSync(),
+              )
+              as Map<String, dynamic>;
 
       final params = ThresholdParams.tOfN(
         t: vector['params']['t'] as int,

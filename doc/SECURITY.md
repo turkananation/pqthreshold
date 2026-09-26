@@ -168,7 +168,14 @@ Wrong parameters are a policy failure, not a library failure. The library only v
 ### 8.3 Use
 
 - Load shares only for the duration of a signing or recovery operation  
-- Prefer in-memory use with explicit zeroization best-effort after use  
+- Prefer `SecretBuffer` for temporary sensitive byte buffers and call
+    `dispose()` in a `finally` block
+- `SecretBuffer` takes ownership of its input, delegates wiping to
+    `zeroize.SecretBytes`, and returns copies; callers must also dispose any
+    sensitive copies they create
+- Zeroization is best-effort in pure Dart: garbage-collector copies,
+    immutable `BigInt` values, serialized buffers, and native/provider internals
+    may retain material outside the managed buffer
 
 ### 8.4 Distribution and backup
 

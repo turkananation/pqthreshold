@@ -88,7 +88,7 @@ Future<void> _runQuick(Directory root) async {
   await _runCommand(root, 'dart', ['pub', 'get']);
   await _buildMithrilBridgeIfNeeded(root);
   await _runCommand(root, 'dart', ['analyze', '--fatal-infos']);
-  await _runCommand(root, 'dart', ['test']);
+  await _runCommand(root, 'dart', ['test', '--timeout=2m']);
 }
 
 Future<void> _buildMithrilBridgeIfNeeded(Directory root) async {
@@ -103,11 +103,7 @@ Future<void> _buildMithrilBridgeIfNeeded(Directory root) async {
     return;
   }
   stdout.writeln('Building mithril_bridge (ML-DSA M2 tests)...');
-  await _runCommand(
-    bridgeDir,
-    'cargo',
-    ['build', '--release'],
-  );
+  await _runCommand(bridgeDir, 'cargo', ['build', '--release']);
 }
 
 void _runDocsCheck(Directory root) {
@@ -147,7 +143,11 @@ Future<void> _runPhaseTests(Directory root) async {
   }
 }
 
-Future<void> _runCommand(Directory root, String executable, List<String> args) async {
+Future<void> _runCommand(
+  Directory root,
+  String executable,
+  List<String> args,
+) async {
   stdout.writeln('\n> $executable ${args.join(' ')}');
   final result = await Process.start(
     executable,

@@ -32,12 +32,7 @@ class Ed25519Point {
   Ed25519Point(this.x, this.y, this.z, this.w);
 
   Ed25519Point.zero()
-      : this(
-          Register25519(),
-          Register25519(),
-          Register25519(),
-          Register25519(),
-        );
+    : this(Register25519(), Register25519(), Register25519(), Register25519());
 
   bool equals(Ed25519Point other) {
     final v0 = Register25519();
@@ -113,7 +108,7 @@ class Register25519 {
     ..data.setAll(0, P.data)
     ..data[0] -= 2;
 
-  /// Constant `2^255 - 19`
+  /// Constant `2^255 - 19`.
   // ignore: non_constant_identifier_names
   static final _P = BigInt.two.pow(255) - BigInt.from(19);
 
@@ -174,29 +169,9 @@ class Register25519 {
 
   /// Replaces the value with `a^b mod (2^255 - 19)`.
   void pow(Register25519 base, Register25519 exponent) {
-    // TODO: Improve performance by eliminating use of BigInt here.
-    setBigInt(base.toBigInt().modPow(exponent.toBigInt(), _P));
-
-    // For some reason the below doesn't work with very large exponents:
-//    if (exponent.isZero) {
-//      data.setAll(0, one.data);
-//      return;
-//    }
-//    final result = Register25519.from(one);
-//    final tmp = Register25519.from(base);
-//    exponent = Register25519.from(exponent);
-//    for (var i = 0; i < 256; i++) {
-//      final b = 0x1 & (exponent.data[i ~/ 16] >> (i % 16));
-//      if (b == 1) {
-//        result.mul(result, tmp);
-//      }
-//      tmp.mul(tmp, tmp);
-//    }
-//    assert(
-//      result.toBigInt() ==
-//          base.toBigInt().modPow(exponent.toBigInt(), _PBigInt),
-//    );
-//    data.setAll(0, result.data);
+    final baseValue = base.toBigInt();
+    final exponentValue = exponent.toBigInt();
+    setBigInt(baseValue.modPow(exponentValue, _P));
   }
 
   /// Replaces the value with `a`.
@@ -252,14 +227,10 @@ class Register25519 {
     for (var i = 0; i < 16; i++) {
       final v = list[i];
       if (v < 0) {
-        throw StateError(
-          'Invalid integer: $list',
-        );
+        throw StateError('Invalid integer: $list');
       }
       if (v >= 0x10000) {
-        throw StateError(
-          'Invalid integer: $list',
-        );
+        throw StateError('Invalid integer: $list');
       }
       result |= (BigInt.from(v) << (i * 16));
     }

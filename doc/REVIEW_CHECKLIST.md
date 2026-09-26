@@ -43,11 +43,11 @@ Tier 2 simulators in `lib/testing.dart` are **test harness only** — not in sco
 ## 4. Implementation review
 
 - [ ] No secret scalars in transcripts or logs ([SECURITY.md](SECURITY.md) §9)
-- [ ] `SecretBuffer` wipe on combine / dispose paths
+- [ ] `SecretBuffer` wipe on combine / dispose paths; see `test/util/secret_buffer_test.dart`
 - [ ] Fail-closed: `t-1` shares, wrong ceremony, bad partials throw before leaking material
 - [ ] Constant-time comparisons for fingerprints and ceremony IDs where specified
 - [ ] Randomness from `PqRandom.generator` (document FIPS/module override if required)
-- [ ] Dependencies: only `pqforge` + `swissarmyknife` at runtime ([adr/002-runtime-dependencies.md](adr/002-runtime-dependencies.md))
+- [ ] Dependencies: `pqforge`, `swissarmyknife`, and `zeroize` are reviewed at runtime ([adr/002-runtime-dependencies.md](adr/002-runtime-dependencies.md))
 
 ---
 
