@@ -34,7 +34,9 @@ final class InMemoryCeremonyRelay implements CeremonyMessageRelay {
     required Uint8List wireBytes,
     int? recipientIndex,
   }) async {
-    _messages.putIfAbsent(ceremonyId, () => []).add(
+    _messages
+        .putIfAbsent(ceremonyId, () => [])
+        .add(
           _RelayEntry(
             senderIndex: senderIndex,
             recipientIndex: recipientIndex,

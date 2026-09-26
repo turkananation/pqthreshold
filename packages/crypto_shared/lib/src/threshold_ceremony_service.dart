@@ -12,8 +12,8 @@ import 'signing_job_coordinator.dart';
 /// Coordinator-side API (no share custody).
 final class ThresholdCeremonyService {
   ThresholdCeremonyService({CeremonyMessageRelay? relay})
-      : relay = relay ?? InMemoryCeremonyRelay(),
-        signing = SigningJobCoordinator();
+    : relay = relay ?? InMemoryCeremonyRelay(),
+      signing = SigningJobCoordinator();
 
   /// Message relay backing DKG rounds.
   final CeremonyMessageRelay relay;
@@ -42,11 +42,10 @@ final class ThresholdCeremonyService {
   Future<List<Uint8List>> fetchDkgInbox({
     required String ceremonyIdHex,
     required int participantIndex,
-  }) =>
-      relay.fetchInbox(
-        ceremonyId: ceremonyIdHex,
-        recipientIndex: participantIndex,
-      );
+  }) => relay.fetchInbox(
+    ceremonyId: ceremonyIdHex,
+    recipientIndex: participantIndex,
+  );
 
   /// Stores published joint public key (PQTH bytes).
   void publishPublicKey({

@@ -15,7 +15,8 @@ final class SigningJobCoordinator {
     required Uint8List message,
     Uint8List? context,
   }) {
-    final jobId = 'sign-${_jobs.length + 1}-${DateTime.now().microsecondsSinceEpoch}';
+    final jobId =
+        'sign-${_jobs.length + 1}-${DateTime.now().microsecondsSinceEpoch}';
     _jobs[jobId] = _SigningJob(
       publicKey: publicKey,
       message: Uint8List.fromList(message),

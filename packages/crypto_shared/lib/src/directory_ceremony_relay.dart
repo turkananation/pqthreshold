@@ -11,10 +11,7 @@ import 'ceremony_relay.dart';
 
 /// Persists DKG wire bytes under [rootDir]/messages/ for sneakernet workflows.
 final class DirectoryCeremonyRelay implements CeremonyMessageRelay {
-  DirectoryCeremonyRelay({
-    required this.rootDir,
-    required this.ceremonyIdHex,
-  });
+  DirectoryCeremonyRelay({required this.rootDir, required this.ceremonyIdHex});
 
   final Directory rootDir;
   final String ceremonyIdHex;

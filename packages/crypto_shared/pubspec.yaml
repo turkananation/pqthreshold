@@ -3,16 +3,25 @@ description: >
   Shared threshold-crypto helpers for Flutter officer apps and Serverpod
   coordinators — re-exports, hex codecs, DKG relay, signing job coordination.
 version: 1.0.0
-publish_to: none
+repository: https://github.com/turkananation/pqthreshold
+homepage: https://github.com/turkananation/pqthreshold/tree/main/packages/crypto_shared
+documentation: https://github.com/turkananation/pqthreshold/blob/main/doc/serverpod_integration/README.md
+issue_tracker: https://github.com/turkananation/pqthreshold/issues
 
 environment:
   sdk: ^3.12.2
 
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+
 dependencies:
   meta: ^1.16.0
   pqforge: ^0.4.5
-  pqthreshold:
-    path: ../../
+  pqthreshold: ^1.0.1
 
 dev_dependencies:
   lints: ^6.0.0

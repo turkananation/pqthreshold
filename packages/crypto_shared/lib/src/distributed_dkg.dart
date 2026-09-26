@@ -14,11 +14,9 @@ import 'officer_dkg_client.dart';
 abstract final class DistributedDkgCoordinator {
   /// Executes DKG until all [params.n] participants finalize.
   static Future<
-      ({
-        List<Share> shares,
-        PublicKey publicKey,
-        List<Transcript> transcripts,
-      })> run({
+    ({List<Share> shares, PublicKey publicKey, List<Transcript> transcripts})
+  >
+  run({
     required ThresholdParams params,
     required CeremonyMessageRelay relay,
     Uint8List? ceremonyId,
@@ -27,7 +25,8 @@ abstract final class DistributedDkgCoordinator {
     final cid = ceremonyId ?? generateCeremonyId();
     validateCeremonyId(cid);
     final cidHex = ceremonyIdToHex(cid);
-    final ids = participantIds ??
+    final ids =
+        participantIds ??
         List.generate(params.n, (i) => 'participant-${i + 1}');
 
     final clients = [

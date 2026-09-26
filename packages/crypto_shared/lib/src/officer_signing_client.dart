@@ -9,10 +9,7 @@ import 'signing_job_coordinator.dart';
 
 /// Officer-side C3 helper when partials are collected by a coordinator service.
 final class OfficerSigningClient {
-  OfficerSigningClient({
-    required this.share,
-    required this.coordinator,
-  });
+  OfficerSigningClient({required this.share, required this.coordinator});
 
   final Share share;
   final SigningJobCoordinator coordinator;

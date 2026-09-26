@@ -4,8 +4,7 @@
 /// `example/serverpod_integration/` for a Serverpod wiring sketch.
 library;
 
-export 'package:pqforge/pqforge.dart'
-    show PqBytes, PqClassical, PqRandom;
+export 'package:pqforge/pqforge.dart' show PqBytes, PqClassical, PqRandom;
 export 'package:pqthreshold/pqthreshold.dart';
 
 export 'src/ceremony_relay.dart';
