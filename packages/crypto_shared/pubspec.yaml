@@ -10,13 +10,9 @@ environment:
 
 dependencies:
   meta: ^1.16.0
-  pqforge: ^0.4.4
+  pqforge: ^0.4.5
   pqthreshold:
     path: ../../
-
-dependency_overrides:
-  pqforge:
-    path: ../../../pqforge
 
 dev_dependencies:
   lints: ^6.0.0

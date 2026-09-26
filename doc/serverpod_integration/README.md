@@ -6,7 +6,7 @@ This folder shows how to wire **pqthreshold** ceremonies into a [Serverpod](http
 
 | Path | Purpose |
 | ---- | ------- |
-| [`packages/crypto_shared/`](../packages/crypto_shared/) | Shared Dart package — re-exports, hex codecs, DKG relay, signing jobs, [`ThresholdCeremonyService`](../packages/crypto_shared/lib/src/threshold_ceremony_service.dart) |
+| [`crypto_shared` on GitHub](https://github.com/turkananation/pqthreshold/tree/main/packages/crypto_shared) | Shared companion package — re-exports, hex codecs, DKG relay, signing jobs, and `ThresholdCeremonyService` |
 | `threshold_ceremony_endpoint.dart.example` | Copy into your Serverpod server and adapt auth |
 
 ## Principles
@@ -42,7 +42,7 @@ Tests exercise `DistributedDkgCoordinator`, `ThresholdCeremonyService`, and `Sig
 
 4. Generate protocol and add **authentication** — map `Session` user id to `participantId` / officer role. pqthreshold does not provide identity.
 
-5. Flutter officer app: depend on the same `crypto_shared`, use [`OfficerDkgClient`](../packages/crypto_shared/lib/src/officer_dkg_client.dart) + secure storage for `Share`.
+5. Flutter officer app: depend on the same `crypto_shared`, use `OfficerDkgClient` + secure storage for `Share`. See the [companion package on GitHub](https://github.com/turkananation/pqthreshold/tree/main/packages/crypto_shared).
 
 ## Related docs
 

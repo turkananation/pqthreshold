@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+
+- Exclude the unpublished `crypto_shared` companion package from the pub.dev
+  archive.
+- Move ML-DSA and Mithril APIs behind explicit experimental library barrels.
+- Document the stable FROST-only API boundary and companion package location.
+
 ## Unreleased (v2)
 
 ### Operator CLI

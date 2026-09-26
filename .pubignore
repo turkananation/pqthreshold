@@ -5,3 +5,4 @@ GEMINI.md
 pubspec.lock
 .github
 tool/
+packages/

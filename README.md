@@ -176,6 +176,12 @@ When **not** to use it:
 
 ## Package status
 
+The stable `pqthreshold` barrel is the FROST Ed25519 v1 API. ML-DSA threshold
+experiments are available through
+`package:pqthreshold/pqthreshold_experimental.dart` and are not part of the
+stable 1.0 contract. The companion `crypto_shared` package is maintained in
+the GitHub repository and is not bundled in this pub package.
+
 | Area | Status |
 | ------ | -------- |
 | Specification | **Complete** — [doc/INDEX.md](doc/INDEX.md) |
@@ -202,7 +208,9 @@ flutter pub get
 
 ### Terminal (CLI)
 
-The CLI ships parameter, inspection, VSS, DKG, signing, and ceremony workflows. Pair with [`pqforge`](https://pub.dev/packages/pqforge) for device keys — see [doc/TERMINAL.md](doc/TERMINAL.md).
+The stable CLI ships parameter, inspection, VSS, DKG, FROST signing, and
+ceremony workflows. ML-DSA commands are experimental and require the Mithril
+bridge. Pair with [`pqforge`](https://pub.dev/packages/pqforge) for device keys — see [doc/TERMINAL.md](doc/TERMINAL.md).
 
 ```bash
 dart pub global activate pqthreshold   # when published

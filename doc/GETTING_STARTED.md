@@ -544,7 +544,7 @@ A full example lives in [`example/serverpod_integration/`](../example/serverpod_
 | File | Purpose |
 | ---- | ------- |
 | [`README.md`](../example/serverpod_integration/README.md) | Wiring steps |
-| [`threshold_ceremony_endpoint.dart.example`](../example/serverpod_integration/threshold_ceremony_endpoint.dart.example) | Serverpod `Endpoint` delegating to [`ThresholdCeremonyService`](../packages/crypto_shared/lib/src/threshold_ceremony_service.dart) |
+| [`threshold_ceremony_endpoint.dart.example`](../example/serverpod_integration/threshold_ceremony_endpoint.dart.example) | Serverpod `Endpoint` delegating to [`ThresholdCeremonyService`](https://github.com/turkananation/pqthreshold/tree/main/packages/crypto_shared) |
 
 The endpoint relays DKG wire bytes, stores public `PublicKey` / `Transcript`, and coordinates C3 partial collection — **never** share scalars.
 

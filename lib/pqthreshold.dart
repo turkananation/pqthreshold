@@ -1,8 +1,8 @@
 /// Threshold cryptography and distributed key-management for Dart.
 ///
-/// v1 schemes: FROST (Ed25519), Feldman VSS, Gennaro DKG — see `doc/SCHEMES.md`.
-/// v2 registry: ML-DSA / SLH-DSA threshold profiles — see `doc/PQ_SCHEMES.md`.
-///
+/// Stable v1 schemes: FROST (Ed25519), Feldman VSS, and Gennaro DKG — see
+/// `doc/SCHEMES.md`. Experimental post-quantum profiles are available from
+/// `package:pqthreshold/pqthreshold_experimental.dart`.
 /// Runtime dependencies:
 /// * [pqforge](https://pub.dev/packages/pqforge) — crypto
 /// * [swissarmyknife](https://pub.dev/packages/swissarmyknife) — structure
@@ -41,16 +41,3 @@ export 'src/ceremony/recovery_ceremony.dart';
 export 'src/ceremony/root_ceremony.dart';
 export 'src/ceremony/rotation_ceremony.dart';
 export 'src/ceremony/threshold_signing_ceremony.dart';
-
-/// Post-quantum scheme registry and verify helpers (v2 M1+).
-export 'src/ceremony/ml_dsa_root_ceremony.dart';
-export 'src/ceremony/ml_dsa_threshold_signing_ceremony.dart';
-export 'src/scheme/ml_dsa/ml_dsa_share.dart';
-export 'src/scheme/ml_dsa/ml_dsa_threshold_signer.dart';
-export 'src/scheme/ml_dsa/mithril_bridge.dart' show mithrilBridgeAvailable;
-export 'src/scheme/ml_dsa/ml_dsa_profile.dart';
-export 'src/scheme/ml_dsa/ml_dsa_threshold_verifier.dart';
-export 'src/scheme/ml_dsa/ml_dsa_signing_message.dart'
-    hide mlDsaMessagesFromWireSignJson;
-export 'src/scheme/ml_dsa/ml_dsa_signing_session.dart';
-export 'src/scheme/scheme_capabilities.dart';

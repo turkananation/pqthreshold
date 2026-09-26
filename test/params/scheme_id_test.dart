@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:pqforge/pqforge.dart';
-import 'package:pqthreshold/pqthreshold.dart';
+import 'package:pqthreshold/pqthreshold_experimental.dart';
 import 'package:test/test.dart';
 
 void main() {

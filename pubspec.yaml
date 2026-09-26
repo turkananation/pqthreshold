@@ -6,7 +6,7 @@ description: >
   organizational root keys, enclave recovery, and self-custodial multi-device
   setups. Zero native dependencies. Designed to complement pqcrypto/pqforge for
   hybrid post-quantum deployments where no single party ever holds the full secret.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/turkananation/pqthreshold
 homepage: https://turkananation.github.io/pqthreshold/
 documentation: https://github.com/turkananation/pqthreshold/wiki
@@ -20,7 +20,6 @@ platforms:
   macos: 
   windows:
   linux: 
-  web:
 
 # pqforge: crypto (pqforge-first; pointycastle last resort).
 # swissarmyknife: state machines, Result, validation, codecs — see doc/SWISSARMYKNIFE.md.

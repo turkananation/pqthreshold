@@ -6,7 +6,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:args/args.dart';
-import 'package:pqthreshold/pqthreshold.dart';
+import 'package:pqthreshold/pqthreshold_experimental.dart';
 import 'package:pqthreshold/src/serialization/pqth_kind.dart';
 
 import 'console.dart';
@@ -21,20 +21,21 @@ const Map<String, SchemeId> schemeIdsByCliName = {
 };
 
 /// Human-readable scheme label for inspect output.
-String schemeDisplayName(SchemeId scheme) => SchemeCapabilities.displayName(scheme);
+String schemeDisplayName(SchemeId scheme) =>
+    SchemeCapabilities.displayName(scheme);
 
 /// Kind label for inspect output.
 String kindDisplayName(PqthObjectKind kind) => switch (kind) {
-      PqthObjectKind.thresholdParams => 'ThresholdParams',
-      PqthObjectKind.share => 'Share',
-      PqthObjectKind.publicKey => 'PublicKey',
-      PqthObjectKind.partialSignature => 'PartialSignature',
-      PqthObjectKind.transcript => 'Transcript',
-      PqthObjectKind.continuityProof => 'ContinuityProof',
-      PqthObjectKind.mlDsaPublicKey => 'MlDsaPublicKey',
-      PqthObjectKind.mlDsaPartialSignature => 'MlDsaPartialSignature',
-      PqthObjectKind.mlDsaShare => 'MlDsaShare',
-    };
+  PqthObjectKind.thresholdParams => 'ThresholdParams',
+  PqthObjectKind.share => 'Share',
+  PqthObjectKind.publicKey => 'PublicKey',
+  PqthObjectKind.partialSignature => 'PartialSignature',
+  PqthObjectKind.transcript => 'Transcript',
+  PqthObjectKind.continuityProof => 'ContinuityProof',
+  PqthObjectKind.mlDsaPublicKey => 'MlDsaPublicKey',
+  PqthObjectKind.mlDsaPartialSignature => 'MlDsaPartialSignature',
+  PqthObjectKind.mlDsaShare => 'MlDsaShare',
+};
 
 void addSchemeOption(ArgParser parser) {
   parser.addOption(

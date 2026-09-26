@@ -4,7 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
-import 'package:pqthreshold/pqthreshold.dart';
+import 'package:pqthreshold/pqthreshold_experimental.dart';
 import 'package:pqthreshold/testing.dart';
 
 import '../console.dart';
@@ -69,7 +69,9 @@ final class SignRunCommand extends Command<void> {
       if (!ok) throw StateError('Generated signature failed verify');
       final out = argResults!['out'] as String;
       await File(out).writeAsBytes(signature, flush: true);
-      console.success('Threshold signature written (${signature.length} bytes)');
+      console.success(
+        'Threshold signature written (${signature.length} bytes)',
+      );
       console.detail('signature-hex', bytesToHex(signature));
       console.created(out);
     } on Object catch (error) {
@@ -84,7 +86,12 @@ final class SignPartialCommand extends Command<void> {
     argParser
       ..addOption('share', mandatory: true, valueHelp: 'file')
       ..addOption('message', mandatory: true, valueHelp: 'file')
-      ..addOption('out', mandatory: true, valueHelp: 'file', help: 'Round1 wire message.')
+      ..addOption(
+        'out',
+        mandatory: true,
+        valueHelp: 'file',
+        help: 'Round1 wire message.',
+      )
       ..addOption(
         'session-out',
         mandatory: true,
@@ -104,7 +111,9 @@ final class SignPartialCommand extends Command<void> {
   Future<void> run() async {
     SigningSession? session;
     try {
-      final share = Share.fromBytes(await readBytes(argResults!['share'] as String));
+      final share = Share.fromBytes(
+        await readBytes(argResults!['share'] as String),
+      );
       final message = await readBytes(argResults!['message'] as String);
       final begun = await SigningSession.begin(share: share, message: message);
       session = begun.session;
@@ -131,8 +140,17 @@ final class SignRound2Command extends Command<void> {
       ..addOption('session', mandatory: true, valueHelp: 'file')
       ..addOption('public-key', mandatory: true, valueHelp: 'file')
       ..addOption('round1-dir', mandatory: true, valueHelp: 'dir')
-      ..addOption('out', mandatory: true, valueHelp: 'file', help: 'Round2 wire message.')
-      ..addOption('partial-out', valueHelp: 'file', help: 'Optional PQTH partial for combine.');
+      ..addOption(
+        'out',
+        mandatory: true,
+        valueHelp: 'file',
+        help: 'Round2 wire message.',
+      )
+      ..addOption(
+        'partial-out',
+        valueHelp: 'file',
+        help: 'Optional PQTH partial for combine.',
+      );
   }
 
   @override
@@ -153,14 +171,17 @@ final class SignRound2Command extends Command<void> {
         await readBytes(argResults!['public-key'] as String),
       );
       final round1Dir = Directory(argResults!['round1-dir'] as String);
-      final round1 = loadFrostMessages(round1Dir)
-          .where((m) => m.subKind == FrostWireSubKind.round1)
-          .toList();
+      final round1 = loadFrostMessages(
+        round1Dir,
+      ).where((m) => m.subKind == FrostWireSubKind.round1).toList();
       final partial = session.completeRound2(
         round1Messages: round1,
         publicKey: publicKey,
       );
-      final wire = frostRound2WireFromPartial(partial: partial, params: publicKey.params);
+      final wire = frostRound2WireFromPartial(
+        partial: partial,
+        params: publicKey.params,
+      );
       final out = argResults!['out'] as String;
       await File(out).writeAsBytes(wire.wireBytes, flush: true);
       final partialOut = argResults!['partial-out'] as String?;
@@ -213,9 +234,9 @@ final class SignCombineCommand extends Command<void> {
       final round2Dir = argResults!['round2-dir'] as String?;
       if (round1Dir != null && round2Dir != null) {
         final round1 = loadFrostMessages(Directory(round1Dir));
-        final round2 = loadFrostMessages(Directory(round2Dir))
-            .where((m) => m.subKind == FrostWireSubKind.round2)
-            .toList();
+        final round2 = loadFrostMessages(
+          Directory(round2Dir),
+        ).where((m) => m.subKind == FrostWireSubKind.round2).toList();
         partials = partialsFromRound2Messages(
           round1Messages: round1,
           round2Messages: round2,
@@ -320,7 +341,8 @@ final class SignMlDsaRunCommand extends Command<void> {
       ..addOption(
         'wire-dir',
         valueHelp: 'dir',
-        help: 'Export Round1/2/3 wire messages under round1/, round2/, round3/.',
+        help:
+            'Export Round1/2/3 wire messages under round1/, round2/, round3/.',
       );
   }
 
@@ -389,7 +411,11 @@ final class SignMlDsaPartialCommand extends Command<void> {
       ..addOption('share', mandatory: true, valueHelp: 'file')
       ..addOption('public-key', mandatory: true, valueHelp: 'file')
       ..addOption('message', mandatory: true, valueHelp: 'file')
-      ..addMultiOption('active-party', valueHelp: 'id', help: '0-based party ids (≥ t).')
+      ..addMultiOption(
+        'active-party',
+        valueHelp: 'id',
+        help: '0-based party ids (≥ t).',
+      )
       ..addOption('out', mandatory: true, valueHelp: 'file')
       ..addOption('session-out', mandatory: true, valueHelp: 'file');
   }
@@ -405,7 +431,9 @@ final class SignMlDsaPartialCommand extends Command<void> {
     MlDsaSigningSession? session;
     MlDsaShare? share;
     try {
-      share = MlDsaShare.fromBytes(await readBytes(argResults!['share'] as String));
+      share = MlDsaShare.fromBytes(
+        await readBytes(argResults!['share'] as String),
+      );
       final publicKey = MlDsaPublicKey.fromBytes(
         await readBytes(argResults!['public-key'] as String),
       );
@@ -422,10 +450,12 @@ final class SignMlDsaPartialCommand extends Command<void> {
         activePartyIdsZeroBased: active,
       );
       session = begun.session;
-      await File(argResults!['out'] as String)
-          .writeAsBytes(begun.round1.wireBytes, flush: true);
-      await File(argResults!['session-out'] as String)
-          .writeAsBytes(session.toCheckpoint(), flush: true);
+      await File(
+        argResults!['out'] as String,
+      ).writeAsBytes(begun.round1.wireBytes, flush: true);
+      await File(
+        argResults!['session-out'] as String,
+      ).writeAsBytes(session.toCheckpoint(), flush: true);
       console.success('ML-DSA Round1 wire + session checkpoint written');
       console.created(argResults!['out'] as String);
       console.created(argResults!['session-out'] as String);
@@ -464,7 +494,9 @@ final class SignMlDsaRound2Command extends Command<void> {
         Directory(argResults!['round1-dir'] as String),
       ).where((m) => m.subKind == MlDsaWireSubKind.round1Commit).toList();
       final wire = await session.completeRound2(round1Messages: round1);
-      await File(argResults!['out'] as String).writeAsBytes(wire.wireBytes, flush: true);
+      await File(
+        argResults!['out'] as String,
+      ).writeAsBytes(wire.wireBytes, flush: true);
       console.success('ML-DSA Round2 wire written');
       console.created(argResults!['out'] as String);
     } on Object catch (error) {
@@ -508,7 +540,9 @@ final class SignMlDsaRound3Command extends Command<void> {
         round1Messages: round1,
         round2Messages: round2,
       );
-      await File(argResults!['out'] as String).writeAsBytes(wire.wireBytes, flush: true);
+      await File(
+        argResults!['out'] as String,
+      ).writeAsBytes(wire.wireBytes, flush: true);
       console.success('ML-DSA Round3 wire written');
       console.created(argResults!['out'] as String);
     } on Object catch (error) {
