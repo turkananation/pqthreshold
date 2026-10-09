@@ -1,5 +1,52 @@
 # Changelog
 
+## 1.1.0
+
+### Added
+
+- **`ShareMetadata`** and **`ShareMetadata.fromBytes`** — read a serialized
+  share's `threshold` (`t`), `totalParticipants` (`n`), `index`,
+  `participantId`, `ceremonyId`, `scheme` and `formatVersion` **without
+  materializing the secret scalar**.
+  - Previously the only way to read those fields was `Share.fromBytes`, which
+    fully decodes the 32-byte scalar into a live `SecretBuffer`. A third-party
+    key store holding shares as opaque sealed bytes could therefore not describe
+    or validate what it held without first exposing what it held — which
+    inverts the custody model `doc/TERMINAL.md` requires ("unwrap only in
+    process").
+  - The decoder stops at the end of the metadata prefix. The secret share and
+    the verification blob are never read, so the scalar never exists in the
+    reading process.
+  - **Reading metadata is not authentication.** It reports what the bytes claim
+    to be. A caller needing authenticity must unwrap and use
+    `VerifiableSecretSharing.verifyShare`. This type is for describing and
+    indexing shares, never for trusting them.
+- **`validateShareIndex(index, params)`** and **`validateParticipantId(id)`**
+  are now public, along with `maxParticipantIdCodeUnits`. Both checks previously
+  lived only inside `@internal Share.create`, so a caller could not validate a
+  participant index or label without constructing a `Share` — which requires the
+  secret.
+- **`Share.disposeSecret()`** is public. A custodian that unwraps a share to
+  hand it to a signing ceremony had no reachable way to wipe it. Metadata
+  (`params`, `ceremonyId`, `participantId`, `index`, `verificationData`) remains
+  readable afterwards; operations needing the scalar throw `StateError`.
+
+### Changed
+
+- **`SecretBuffer.use(fn)`** and **`SecretBuffer.mutate(fn)`** — read-only and
+  read/write windows onto the managed buffer, mirroring
+  `package:zeroize`'s `SecretBytes`.
+  - `SecretBuffer.bytes` returns a plain copy that nothing owns or wipes — the
+    exact pattern that makes a buffer survive in the heap until collection. It
+    remains for APIs that require a bare `Uint8List`, and its documentation now
+    says to wipe it.
+  - `use`/`mutate` hand out the managed backing store, so `dispose()` wipes
+    exactly what the caller was given.
+
+No wire-format change. `ShareMetadata` parses the existing PQTH layout and
+`Share.toBytes()` output is byte-identical. `t`/`n` are still re-validated on
+the wire path by `ThresholdParams.fromBytes`.
+
 ## 1.0.1
 
 - Exclude the unpublished `crypto_shared` companion package from the pub.dev

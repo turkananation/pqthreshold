@@ -103,6 +103,32 @@ header (kind=0x02)
 
 Shares deserialized with mismatched `ceremonyId`, `scheme`, or `params` → `WrongCeremony` / `InconsistentShares`.
 
+#### 4.2.1 Metadata-only decode
+
+The metadata prefix is everything up to and including `shareIndex`:
+
+```text
+metadata prefix = header || ceremonyId || params || participantId || shareIndex
+```
+
+`ShareMetadata.fromBytes` parses exactly that prefix and stops. `secretShare`
+and `verificationData` are never read, so a consumer that needs only `t`, `n`,
+`shareIndex`, `participantId`, `ceremonyId`, `scheme` or the format version never
+materializes the secret scalar. A third-party key store holding shares as opaque
+sealed bytes can therefore describe and index what it holds without unwrapping it,
+which is what `doc/TERMINAL.md` ("unwrap only in process") requires.
+
+Consequences of the early stop, both intentional and both tested:
+
+- A truncated tail after the prefix still decodes. A consumer needing metadata
+  does not care that the secret region is incomplete.
+- Metadata decode **does not authenticate anything**. It reports what the bytes
+  claim to be. Integrity requires a full `Share.fromBytes` plus
+  `VerifiableSecretSharing.verifyShare`.
+- Corrupting the entire `secretShare` region does not affect metadata decode,
+  while the same bytes are still rejected by `Share.fromBytes`. This is the
+  direct evidence that the secret is never parsed.
+
 ### 4.3 PublicKey
 
 ```text
