@@ -1,0 +1,105 @@
+name: Publish crypto_shared to pub.dev
+
+# crypto_shared is a SEPARATE published package that lives inside this
+# repository, at packages/crypto_shared. It versions independently of
+# pqthreshold itself and is published from its own tag.
+#
+# The root package's publish.yml deliberately does NOT cover it: `dart pub
+# publish` run from the repository root would publish pqthreshold, and a tag
+# like v1.1.0 is ambiguous between the two. This workflow removes the ambiguity
+# by requiring an explicit `crypto_shared-v*` tag.
+#
+# So:
+#   v1.1.0            -> pqthreshold   (publish.yml)
+#   crypto_shared-v1.0.1 -> crypto_shared (this workflow)
+#
+# One-time setup on https://pub.dev/packages/crypto_shared/admin
+# (Automated publishing → GitHub Actions):
+#   repository:  turkananation/pqthreshold
+#   tag-pattern: crypto_shared-v{{version}}
+#   push events: enabled
+#   workflow_dispatch: optional fallback (enabled below)
+#   Require GitHub Actions environment: pub.dev
+#
+# Also create the matching GitHub Environment (Settings → Environments →
+# New environment → name: pub.dev). It is shared with the root publish workflow.
+#
+# pub.dev only allows automated publishing after the package already exists.
+# crypto_shared 1.0.0 is live, so this is satisfied. After that, do not also run
+# `dart pub publish` by hand for a tagged release: this workflow is the
+# publisher.
+#
+# Do not add a `release` event trigger: a GitHub Release that creates a new tag
+# already fires this `push` event, and a second trigger would double-publish.
+
+on:
+  push:
+    tags:
+      - 'crypto_shared-v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag to publish (e.g. crypto_shared-v1.0.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for pub.dev; no long-lived pub credential
+
+jobs:
+  publish:
+    name: Publish crypto_shared to pub.dev
+    runs-on: ubuntu-latest
+    environment: pub.dev
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: packages/crypto_shared
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Print Dart version
+        run: dart --version
+
+      # A workflow_dispatch has no tag, so check out the requested ref.
+      - name: Check out requested ref
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+          path: dispatch
+
+      - name: Stage the requested ref in place
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          git -C dispatch archive "${{ inputs.ref }}" packages/crypto_shared \
+            | tar -x -C . --strip-components=2
+          rm -rf dispatch
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Assert tag matches pubspec version
+        if: startsWith(github.ref, 'refs/tags/crypto_shared-v')
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          ver="${tag#crypto_shared-v}"
+          pubspec_ver="$(python3 -c "import pathlib,re; t=pathlib.Path('pubspec.yaml').read_text(); print(re.search(r'^version:\s+(\S+)', t, re.M).group(1))")"
+          test "$ver" = "$pubspec_ver"
+
+      - name: Publish dry run
+        run: dart pub publish --dry-run
+
+      - name: Publish to pub.dev
+        run: dart pub publish --force
