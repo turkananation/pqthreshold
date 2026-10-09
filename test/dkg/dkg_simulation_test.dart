@@ -36,10 +36,7 @@ void main() {
 
     test('2-of-3 simulation derives consistent joint public key', () {
       final params = ThresholdParams.tOfN(t: 2, n: 3);
-      final outcome = DkgSimulator.run(
-        params: params,
-        ceremonyId: ceremonyId,
-      );
+      final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       expect(outcome.shares.length, 3);
       expect(outcome.publicKey.bytes.length, 32);
@@ -51,19 +48,13 @@ void main() {
       for (final transcript in outcome.transcripts) {
         expect(transcript.verify(), isTrue);
         expect(transcript.toBytes(), isNotEmpty);
-        expect(
-          Transcript.fromBytes(transcript.toBytes()).verify(),
-          isTrue,
-        );
+        expect(Transcript.fromBytes(transcript.toBytes()).verify(), isTrue);
       }
     });
 
     test('3-of-5 simulation succeeds', () {
       final params = ThresholdParams.tOfN(t: 3, n: 5);
-      final outcome = DkgSimulator.run(
-        params: params,
-        ceremonyId: ceremonyId,
-      );
+      final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       expect(outcome.shares.length, 5);
       final indices = outcome.shares.map((s) => s.index).toSet();
@@ -86,19 +77,18 @@ void main() {
     });
 
     test('vector 2of3_simulated.json acceptance criteria', () {
-      final vector = jsonDecode(
-        File('test/vectors/dkg/2of3_simulated.json').readAsStringSync(),
-      ) as Map<String, dynamic>;
+      final vector =
+          jsonDecode(
+                File('test/vectors/dkg/2of3_simulated.json').readAsStringSync(),
+              )
+              as Map<String, dynamic>;
 
       final params = ThresholdParams.tOfN(
         t: vector['params']['t'] as int,
         n: vector['params']['n'] as int,
       );
       final ceremonyId = _hexToBytes(vector['ceremonyId'] as String);
-      final outcome = DkgSimulator.run(
-        params: params,
-        ceremonyId: ceremonyId,
-      );
+      final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       expect(
         _hex(outcome.publicKey.bytes),
@@ -107,29 +97,29 @@ void main() {
     });
 
     test('vector 3of5_simulated.json acceptance criteria', () {
-      final vector = jsonDecode(
-        File('test/vectors/dkg/3of5_simulated.json').readAsStringSync(),
-      ) as Map<String, dynamic>;
+      final vector =
+          jsonDecode(
+                File('test/vectors/dkg/3of5_simulated.json').readAsStringSync(),
+              )
+              as Map<String, dynamic>;
 
       final params = ThresholdParams.tOfN(
         t: vector['params']['t'] as int,
         n: vector['params']['n'] as int,
       );
       final ceremonyId = _hexToBytes(vector['ceremonyId'] as String);
-      final outcome = DkgSimulator.run(
-        params: params,
-        ceremonyId: ceremonyId,
-      );
+      final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       expect(
         _hex(outcome.publicKey.bytes),
         vector['expected']['jointPublicKey'],
       );
-      final shareHexes = outcome.shares.map((s) => _hex(s.secretShareBytes())).toList()
-        ..sort();
-      final expectedShares = (vector['expected']['shares'] as List<dynamic>)
-          .cast<String>()
-        ..sort();
+      final shareHexes =
+          outcome.shares.map((s) => _hex(s.secretShareBytes())).toList()
+            ..sort();
+      final expectedShares =
+          (vector['expected']['shares'] as List<dynamic>).cast<String>()
+            ..sort();
       expect(shareHexes, expectedShares);
     });
   });

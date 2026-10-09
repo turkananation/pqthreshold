@@ -52,10 +52,7 @@ void main() {
       final recovered = RecoveryCeremony.reconstructSecret(
         shares: outcome.shares.take(2).toList(),
       );
-      expect(
-        recovered,
-        scalarToLeBytes(scalarFromLeBytes(secret)),
-      );
+      expect(recovered, scalarToLeBytes(scalarFromLeBytes(secret)));
     });
   });
 }

@@ -16,7 +16,8 @@ abstract final class DealerCeremony {
     List<Share> shares,
     PublicKey publicKey,
     List<Uint8List> verificationData,
-  }) split({
+  })
+  split({
     required ThresholdParams params,
     required Uint8List ceremonyId,
     required Uint8List secret,

@@ -68,24 +68,32 @@ final class MlDsaSigningMessage {
     if (kind != MlDsaWireKind.round1 &&
         kind != MlDsaWireKind.round2 &&
         kind != MlDsaWireKind.round3) {
-      throw SerializationError('Invalid ML-DSA wire kind: 0x${kind.toRadixString(16)}');
+      throw SerializationError(
+        'Invalid ML-DSA wire kind: 0x${kind.toRadixString(16)}',
+      );
     }
-    final schemeOrdinal =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(6, Endian.big);
+    final schemeOrdinal = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(6, Endian.big);
     final scheme = schemeIdFromWireOrdinal(schemeOrdinal);
     final subKind = bytes[8];
     final ceremonyId = Uint8List.sublistView(bytes, 9, 25);
-    final senderIndex =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(25, Endian.big);
+    final senderIndex = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(25, Endian.big);
     final sessionId = Uint8List.sublistView(bytes, 27, 59);
-    final payloadLen =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint32(59, Endian.big);
+    final payloadLen = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint32(59, Endian.big);
     const payloadStart = 63;
     if (bytes.length < payloadStart + payloadLen) {
       throw SerializationError('Truncated ML-DSA message payload');
     }
-    final payload =
-        Uint8List.sublistView(bytes, payloadStart, payloadStart + payloadLen);
+    final payload = Uint8List.sublistView(
+      bytes,
+      payloadStart,
+      payloadStart + payloadLen,
+    );
     return MlDsaSigningMessage._(
       kind: kind,
       subKind: subKind,
@@ -271,8 +279,9 @@ Future<void> writeMlDsaWireMessages({
     };
     final dir = Directory('${baseDir.path}/$sub');
     await dir.create(recursive: true);
-    await File('${dir.path}/from-${message.senderIndex}.wire')
-        .writeAsBytes(message.wireBytes, flush: true);
+    await File(
+      '${dir.path}/from-${message.senderIndex}.wire',
+    ).writeAsBytes(message.wireBytes, flush: true);
   }
 }
 

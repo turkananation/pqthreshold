@@ -44,8 +44,7 @@ enum MlDsaThresholdProfile {
     return switch (scheme) {
       SchemeId.mlDsa44ThresholdV1 ||
       SchemeId.mlDsa65ThresholdV1 ||
-      SchemeId.mlDsa87ThresholdV1 =>
-        true,
+      SchemeId.mlDsa87ThresholdV1 => true,
       _ => false,
     };
   }

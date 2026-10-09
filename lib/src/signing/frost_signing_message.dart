@@ -73,15 +73,18 @@ final class FrostSigningMessage {
       throw SerializationError('Unsupported FROST message version: $version');
     }
     final kind = bytes[5];
-    final schemeOrdinal =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(6, Endian.big);
+    final schemeOrdinal = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(6, Endian.big);
     final scheme = schemeIdFromWireOrdinal(schemeOrdinal);
     final subKind = bytes[8];
     final ceremonyId = Uint8List.sublistView(bytes, 9, 25);
-    final senderIndex =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(25, Endian.big);
-    final payloadLength =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint32(27, Endian.big);
+    final senderIndex = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(25, Endian.big);
+    final payloadLength = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint32(27, Endian.big);
     const payloadStart = 31;
     if (bytes.length != payloadStart + payloadLength) {
       throw SerializationError('FROST message length mismatch');
@@ -171,7 +174,8 @@ final class FrostSigningMessage {
     Uint8List messageBinding,
     Uint8List hidingCommitment,
     Uint8List bindingCommitment,
-  }) parseRound1Payload(Uint8List payload) {
+  })
+  parseRound1Payload(Uint8List payload) {
     if (payload.length != 96) {
       throw SerializationError('FROST Round1 payload must be 96 bytes');
     }
@@ -183,10 +187,8 @@ final class FrostSigningMessage {
   }
 
   /// Parses Round2 payload fields.
-  static ({
-    Uint8List messageBinding,
-    Uint8List partialScalarLe,
-  }) parseRound2Payload(Uint8List payload) {
+  static ({Uint8List messageBinding, Uint8List partialScalarLe})
+  parseRound2Payload(Uint8List payload) {
     if (payload.length != 64) {
       throw SerializationError('FROST Round2 payload must be 64 bytes');
     }

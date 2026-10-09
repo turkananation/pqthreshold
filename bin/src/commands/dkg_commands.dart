@@ -61,22 +61,22 @@ final class DkgSimulateCommand extends Command<void> {
         throw ArgumentError('ceremony-id-hex must be 32 hex chars');
       }
 
-      final outcome = DkgSimulator.run(
-        params: params,
-        ceremonyId: ceremonyId,
-      );
+      final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       final outDir = Directory(argResults!['out-dir'] as String);
       await outDir.create(recursive: true);
       final cid = outcome.publicKey.ceremonyId;
 
-      await File('${outDir.path}/params.pqth')
-          .writeAsBytes(params.toBytes(), flush: true);
+      await File(
+        '${outDir.path}/params.pqth',
+      ).writeAsBytes(params.toBytes(), flush: true);
       await File('${outDir.path}/ceremony.id').writeAsBytes(cid, flush: true);
-      await File('${outDir.path}/joint.public.pqth')
-          .writeAsBytes(outcome.publicKey.toBytes(), flush: true);
-      await File('${outDir.path}/transcript.pqth')
-          .writeAsBytes(outcome.transcripts.first.toBytes(), flush: true);
+      await File(
+        '${outDir.path}/joint.public.pqth',
+      ).writeAsBytes(outcome.publicKey.toBytes(), flush: true);
+      await File(
+        '${outDir.path}/transcript.pqth',
+      ).writeAsBytes(outcome.transcripts.first.toBytes(), flush: true);
 
       for (final share in outcome.shares) {
         final path =
@@ -175,13 +175,17 @@ final class DkgParticipantStepCommand extends Command<void> {
         throw ArgumentError('ceremony id must be 16 bytes');
       }
 
-      final officerDir = Directory('${ceremonyDir.path}/officers/$participantId');
+      final officerDir = Directory(
+        '${ceremonyDir.path}/officers/$participantId',
+      );
       await officerDir.create(recursive: true);
       final checkpointFile = File('${officerDir.path}/dkg.checkpoint');
 
       final CeremonySession session;
       if (await checkpointFile.exists()) {
-        session = CeremonySession.fromCheckpoint(await checkpointFile.readAsBytes());
+        session = CeremonySession.fromCheckpoint(
+          await checkpointFile.readAsBytes(),
+        );
       } else {
         session = CeremonySession.create(
           params: params,
@@ -218,19 +222,25 @@ final class DkgParticipantStepCommand extends Command<void> {
         }
       }
 
-      await checkpointFile.writeAsBytes(session.exportCheckpoint(), flush: true);
+      await checkpointFile.writeAsBytes(
+        session.exportCheckpoint(),
+        flush: true,
+      );
 
       console.detail('round', '${session.round}');
       console.detail('outbox', '${outbox.length} message(s)');
 
       if (session.isComplete) {
         final result = session.finalize();
-        await File('${officerDir.path}/share.pqth')
-            .writeAsBytes(result.share.toBytes(), flush: true);
-        await File('${ceremonyDir.path}/joint.public.pqth')
-            .writeAsBytes(result.publicKey.toBytes(), flush: true);
-        await File('${ceremonyDir.path}/transcript.pqth')
-            .writeAsBytes(result.transcript.toBytes(), flush: true);
+        await File(
+          '${officerDir.path}/share.pqth',
+        ).writeAsBytes(result.share.toBytes(), flush: true);
+        await File(
+          '${ceremonyDir.path}/joint.public.pqth',
+        ).writeAsBytes(result.publicKey.toBytes(), flush: true);
+        await File(
+          '${ceremonyDir.path}/transcript.pqth',
+        ).writeAsBytes(result.transcript.toBytes(), flush: true);
         console.success('DKG finalize complete for $participantId');
         console.detail('publicKey', bytesToHex(result.publicKey.bytes));
       } else {

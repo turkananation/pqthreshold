@@ -93,8 +93,7 @@ final class ShareMetadata {
     if (params.scheme != header.scheme) {
       throw SerializationError('Share scheme mismatch with header');
     }
-    final participantId =
-        String.fromCharCodes(_readLengthPrefixed(reader));
+    final participantId = String.fromCharCodes(_readLengthPrefixed(reader));
     final index = reader.readUint16Be();
 
     // Stop here. The secret share and verificationData that follow are never
@@ -124,7 +123,8 @@ final class ShareMetadata {
       reader.readBytes(reader.readUint32Be());
 
   @override
-  String toString() => 'ShareMetadata(scheme: ${params.scheme.name}, '
+  String toString() =>
+      'ShareMetadata(scheme: ${params.scheme.name}, '
       't: $threshold, n: $totalParticipants, index: $index, '
       'participantId: $participantId, version: $formatVersion)';
 
@@ -138,6 +138,11 @@ final class ShareMetadata {
       other.formatVersion == formatVersion;
 
   @override
-  int get hashCode =>
-      Object.hash(params, Object.hashAll(ceremonyId), participantId, index, formatVersion);
+  int get hashCode => Object.hash(
+    params,
+    Object.hashAll(ceremonyId),
+    participantId,
+    index,
+    formatVersion,
+  );
 }

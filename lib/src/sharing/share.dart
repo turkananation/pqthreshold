@@ -103,7 +103,8 @@ final class Share {
   }
 
   @override
-  int get hashCode => Object.hash(params, participantId, index, toBytes().hashCode);
+  int get hashCode =>
+      Object.hash(params, participantId, index, toBytes().hashCode);
 }
 
 /// Joint threshold public key material.

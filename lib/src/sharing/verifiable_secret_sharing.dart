@@ -19,7 +19,8 @@ abstract final class VerifiableSecretSharing {
     List<Share> shares,
     List<Uint8List> verificationData,
     PublicKey publicKey,
-  }) split({
+  })
+  split({
     required ThresholdParams params,
     required Uint8List ceremonyId,
     required Uint8List secret,
@@ -89,7 +90,9 @@ abstract final class VerifiableSecretSharing {
     }
     final decoded = FeldmanVss.decodeCommitments(share.verificationData);
     if (!_commitmentsEqual(decoded, verificationData)) {
-      throw InconsistentShares('Share verificationData does not match broadcast');
+      throw InconsistentShares(
+        'Share verificationData does not match broadcast',
+      );
     }
     FeldmanVss.verifyShareEquation(
       shareIndex: share.index,
@@ -112,15 +115,14 @@ abstract final class VerifiableSecretSharing {
     if (indices.toSet().length != indices.length) {
       throw InconsistentShares('Duplicate share indices in reconstruction set');
     }
-    final scalars = selected.map((s) => scalarFromLeBytes(s.secretShareBytes())).toList();
+    final scalars = selected
+        .map((s) => scalarFromLeBytes(s.secretShareBytes()))
+        .toList();
     final secret = lagrangeReconstructAtZero(indices, scalars);
     return scalarToLeBytes(secret);
   }
 
-  static bool _commitmentsEqual(
-    List<Uint8List> a,
-    List<Uint8List> b,
-  ) {
+  static bool _commitmentsEqual(List<Uint8List> a, List<Uint8List> b) {
     if (a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {
       if (!PqBytes.constantTimeEquals(a[i], b[i])) return false;

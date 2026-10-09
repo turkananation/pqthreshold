@@ -29,10 +29,7 @@ void main() {
       final params = ThresholdParams.tOfN(t: 2, n: 3);
       final ceremonyId = Uint8List.fromList(List.generate(16, (i) => i + 10));
 
-      final root = await RootCeremony.simulate(
-        params,
-        ceremonyId: ceremonyId,
-      );
+      final root = await RootCeremony.simulate(params, ceremonyId: ceremonyId);
       final dkg = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
 
       expect(root.shares.length, dkg.shares.length);
@@ -80,7 +77,9 @@ void main() {
     test('rotation simulate produces verifiable proof', () async {
       final params = ThresholdParams.tOfN(t: 2, n: 3);
       final oldCeremonyId = Uint8List.fromList(List.generate(16, (i) => i + 1));
-      final newCeremonyId = Uint8List.fromList(List.generate(16, (i) => i + 100));
+      final newCeremonyId = Uint8List.fromList(
+        List.generate(16, (i) => i + 100),
+      );
       final oldDkg = DkgSimulator.run(
         params: params,
         ceremonyId: oldCeremonyId,
@@ -115,24 +114,32 @@ void main() {
         rotation.continuityProof.toBytes(),
       );
       expect(decoded.oldCeremonyId, rotation.continuityProof.oldCeremonyId);
-      expect(decoded.newPublicKeyBytes, rotation.continuityProof.newPublicKeyBytes);
       expect(
-        await decoded.verify(oldPublicKey: oldDkg.publicKey),
-        isTrue,
+        decoded.newPublicKeyBytes,
+        rotation.continuityProof.newPublicKeyBytes,
       );
+      expect(await decoded.verify(oldPublicKey: oldDkg.publicKey), isTrue);
     });
 
     test('vector rotation_2of3.json acceptance criteria', () async {
-      final vector = jsonDecode(
-        File('test/vectors/ceremony/rotation_2of3.json').readAsStringSync(),
-      ) as Map<String, dynamic>;
+      final vector =
+          jsonDecode(
+                File(
+                  'test/vectors/ceremony/rotation_2of3.json',
+                ).readAsStringSync(),
+              )
+              as Map<String, dynamic>;
 
       final params = ThresholdParams.tOfN(
         t: vector['params']['t'] as int,
         n: vector['params']['n'] as int,
       );
-      final oldCeremonyId = _hexToBytes(vector['inputs']['oldCeremonyId'] as String);
-      final newCeremonyId = _hexToBytes(vector['inputs']['newCeremonyId'] as String);
+      final oldCeremonyId = _hexToBytes(
+        vector['inputs']['oldCeremonyId'] as String,
+      );
+      final newCeremonyId = _hexToBytes(
+        vector['inputs']['newCeremonyId'] as String,
+      );
       final signedAt = vector['inputs']['signedAt'] as int;
 
       final oldDkg = DkgSimulator.run(
@@ -146,8 +153,14 @@ void main() {
         signedAtUnixSeconds: signedAt,
       );
 
-      expect(_hex(oldDkg.publicKey.bytes), vector['expected']['oldJointPublicKey']);
-      expect(_hex(rotation.newPublicKey.bytes), vector['expected']['newJointPublicKey']);
+      expect(
+        _hex(oldDkg.publicKey.bytes),
+        vector['expected']['oldJointPublicKey'],
+      );
+      expect(
+        _hex(rotation.newPublicKey.bytes),
+        vector['expected']['newJointPublicKey'],
+      );
       expect(
         _hex(rotation.continuityProof.thresholdSignature),
         vector['expected']['continuitySignature'],

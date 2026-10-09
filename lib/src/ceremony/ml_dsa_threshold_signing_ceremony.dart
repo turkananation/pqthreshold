@@ -14,11 +14,10 @@ abstract final class MlDsaThresholdSigningCeremony {
     required Uint8List message,
     Uint8List? context,
     String? mithrilBridgePath,
-  }) =>
-      MlDsaThresholdSigner.sign(
-        shares: shares,
-        message: message,
-        context: context,
-        mithrilBridgePath: mithrilBridgePath,
-      );
+  }) => MlDsaThresholdSigner.sign(
+    shares: shares,
+    message: message,
+    context: context,
+    mithrilBridgePath: mithrilBridgePath,
+  );
 }

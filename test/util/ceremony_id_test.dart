@@ -41,10 +41,7 @@ void main() {
       expect(buffer.bytes, equals(copy));
       buffer.dispose();
       expect(material.every((b) => b == 0), isTrue);
-      expect(
-        () => buffer.bytes,
-        throwsA(isA<StateError>()),
-      );
+      expect(() => buffer.bytes, throwsA(isA<StateError>()));
     });
   });
 }

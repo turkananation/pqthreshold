@@ -128,7 +128,9 @@ abstract final class ThresholdSigner {
         final hiding = partial.hidingNonceScalar();
         final bindingNonce = partial.bindingNonceScalar();
         if (sk == null || hiding == null || bindingNonce == null) {
-          throw InvalidPartialSignature('Incomplete signing material in partial');
+          throw InvalidPartialSignature(
+            'Incomplete signing material in partial',
+          );
         }
         sharePk = Ed25519CurveOps.scalarBaseMult(scalarToLeBytes(sk));
         final nonces = FrostNonces(hiding: hiding, binding: bindingNonce);
@@ -216,7 +218,10 @@ abstract final class ThresholdSigner {
     Uint8List expectedBinding,
   ) {
     for (final partial in partials) {
-      if (!PqBytes.constantTimeEquals(partial.ceremonyId, publicKey.ceremonyId)) {
+      if (!PqBytes.constantTimeEquals(
+        partial.ceremonyId,
+        publicKey.ceremonyId,
+      )) {
         throw WrongCeremony('PartialSignature ceremonyId mismatch');
       }
       if (!PqBytes.constantTimeEquals(
@@ -227,11 +232,18 @@ abstract final class ThresholdSigner {
           'PartialSignature public key fingerprint mismatch',
         );
       }
-      if (!PqBytes.constantTimeEquals(partial.messageBinding, expectedBinding)) {
-        throw InvalidPartialSignature('PartialSignature message binding mismatch');
+      if (!PqBytes.constantTimeEquals(
+        partial.messageBinding,
+        expectedBinding,
+      )) {
+        throw InvalidPartialSignature(
+          'PartialSignature message binding mismatch',
+        );
       }
       if (partial.signerIndex < 1 || partial.signerIndex > publicKey.params.n) {
-        throw InvalidPartialSignature('PartialSignature signer index out of range');
+        throw InvalidPartialSignature(
+          'PartialSignature signer index out of range',
+        );
       }
     }
   }

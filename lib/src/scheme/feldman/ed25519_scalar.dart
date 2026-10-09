@@ -66,10 +66,7 @@ BigInt lagrangeCoefficientAtZero(int index, List<int> indices) {
 }
 
 /// Reconstructs f(0) from share scalars at [indices].
-BigInt lagrangeReconstructAtZero(
-  List<int> indices,
-  List<BigInt> shareScalars,
-) {
+BigInt lagrangeReconstructAtZero(List<int> indices, List<BigInt> shareScalars) {
   if (indices.length != shareScalars.length) {
     throw ArgumentError('indices and shareScalars length mismatch');
   }

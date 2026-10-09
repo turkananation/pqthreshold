@@ -40,10 +40,8 @@ final class MlDsaSigningSession {
   final SecretBuffer _ceremonySeed;
 
   /// Starts Round1 for [share] against [publicKey] and [activePartyIdsZeroBased].
-  static Future<({
-    MlDsaSigningMessage round1,
-    MlDsaSigningSession session,
-  })> begin({
+  static Future<({MlDsaSigningMessage round1, MlDsaSigningSession session})>
+  begin({
     required MlDsaShare share,
     required Uint8List message,
     required MlDsaPublicKey publicKey,
@@ -54,14 +52,20 @@ final class MlDsaSigningSession {
       throw WrongCeremony('Share/publicKey ceremony mismatch');
     }
     if (share.params.scheme != SchemeId.mlDsa44ThresholdV1) {
-      throw SchemeNotImplemented('Distributed ML-DSA supports mlDsa44ThresholdV1');
+      throw SchemeNotImplemented(
+        'Distributed ML-DSA supports mlDsa44ThresholdV1',
+      );
     }
     final active = [...activePartyIdsZeroBased]..sort();
     if (active.length < share.params.t) {
-      throw InvalidParams('active set must have at least t=${share.params.t} parties');
+      throw InvalidParams(
+        'active set must have at least t=${share.params.t} parties',
+      );
     }
     if (!active.contains(share.mithrilPartyId)) {
-      throw InvalidParams('Share party ${share.mithrilPartyId} not in active set');
+      throw InvalidParams(
+        'Share party ${share.mithrilPartyId} not in active set',
+      );
     }
 
     final binding = mlDsaMessageBinding(
@@ -223,7 +227,9 @@ final class MlDsaSigningSession {
         throw InvalidPartialSignature('Round1 hash must be 32 bytes');
       }
       if (!seen.add(wire.senderIndex)) {
-        throw InvalidPartialSignature('Duplicate Round1 sender ${wire.senderIndex}');
+        throw InvalidPartialSignature(
+          'Duplicate Round1 sender ${wire.senderIndex}',
+        );
       }
     }
     if (seen.length != activePartyIdsZeroBased.length) {
@@ -243,7 +249,9 @@ final class MlDsaSigningSession {
     for (final wire in messages) {
       _assertWire(wire, MlDsaWireKind.round2, MlDsaWireSubKind.round2Reveal);
       if (!seen.add(wire.senderIndex)) {
-        throw InvalidPartialSignature('Duplicate Round2 sender ${wire.senderIndex}');
+        throw InvalidPartialSignature(
+          'Duplicate Round2 sender ${wire.senderIndex}',
+        );
       }
     }
     if (seen.length != activePartyIdsZeroBased.length) {
@@ -269,22 +277,22 @@ final class MlDsaSigningSession {
   }
 
   List<Uint8List> _orderedRound1Hashes(Iterable<MlDsaSigningMessage> messages) {
-    final bySender = {
-      for (final m in messages) m.senderIndex: m.payload,
-    };
+    final bySender = {for (final m in messages) m.senderIndex: m.payload};
     return [
       for (final id in activePartyIdsZeroBased)
-        bySender[id + 1] ?? (throw InvalidPartialSignature('missing round1 $id')),
+        bySender[id + 1] ??
+            (throw InvalidPartialSignature('missing round1 $id')),
     ];
   }
 
-  List<Uint8List> _orderedRound2Reveals(Iterable<MlDsaSigningMessage> messages) {
-    final bySender = {
-      for (final m in messages) m.senderIndex: m.payload,
-    };
+  List<Uint8List> _orderedRound2Reveals(
+    Iterable<MlDsaSigningMessage> messages,
+  ) {
+    final bySender = {for (final m in messages) m.senderIndex: m.payload};
     return [
       for (final id in activePartyIdsZeroBased)
-        bySender[id + 1] ?? (throw InvalidPartialSignature('missing round2 $id')),
+        bySender[id + 1] ??
+            (throw InvalidPartialSignature('missing round2 $id')),
     ];
   }
 
@@ -304,8 +312,16 @@ Future<Uint8List> combineMlDsaFromWire({
   String? mithrilBridgePath,
 }) async {
   final active = [...activePartyIdsZeroBased]..sort();
-  final reveals = _orderedPayloads(round2Messages, active, MlDsaWireKind.round2);
-  final responses = _orderedPayloads(round3Messages, active, MlDsaWireKind.round3);
+  final reveals = _orderedPayloads(
+    round2Messages,
+    active,
+    MlDsaWireKind.round2,
+  );
+  final responses = _orderedPayloads(
+    round3Messages,
+    active,
+    MlDsaWireKind.round3,
+  );
   final wfinals = await mithrilAggregateWfinals(
     t: publicKey.params.t,
     n: publicKey.params.n,
@@ -336,6 +352,8 @@ List<Uint8List> _orderedPayloads(
   return [
     for (final id in active)
       bySender[id + 1] ??
-          (throw InvalidPartialSignature('missing wire message for party ${id + 1}')),
+          (throw InvalidPartialSignature(
+            'missing wire message for party ${id + 1}',
+          )),
   ];
 }

@@ -59,10 +59,7 @@ final class SigningSession {
   final SecretBuffer _secretShare;
 
   /// Starts Round1: returns wire message and local session for Round2.
-  static Future<({
-    FrostSigningMessage round1,
-    SigningSession session,
-  })> begin({
+  static Future<({FrostSigningMessage round1, SigningSession session})> begin({
     required Share share,
     required Uint8List message,
     Uint8List? context,
@@ -144,7 +141,9 @@ final class SigningSession {
         throw InvalidPartialSignature('Round1 messageBinding mismatch');
       }
       if (!seen.add(wire.senderIndex)) {
-        throw InvalidPartialSignature('Duplicate Round1 sender ${wire.senderIndex}');
+        throw InvalidPartialSignature(
+          'Duplicate Round1 sender ${wire.senderIndex}',
+        );
       }
       commitments.add(
         FrostCommitment(
@@ -161,7 +160,8 @@ final class SigningSession {
       );
     }
 
-    final selected = [...commitments]..sort((a, b) => a.index.compareTo(b.index));
+    final selected = [...commitments]
+      ..sort((a, b) => a.index.compareTo(b.index));
     final signerIndices = selected.take(params.t).map((c) => c.index).toList();
     if (!signerIndices.contains(signerIndex)) {
       throw InvalidPartialSignature(
@@ -301,7 +301,10 @@ List<PartialSignature> partialsFromRound2Messages({
 
   final partials = <PartialSignature>[];
   for (final msg in round2Messages) {
-    msg.assertBinding(params: publicKey.params, ceremonyId: publicKey.ceremonyId);
+    msg.assertBinding(
+      params: publicKey.params,
+      ceremonyId: publicKey.ceremonyId,
+    );
     if (msg.subKind != FrostWireSubKind.round2) {
       throw SerializationError('Expected FROST Round2 message');
     }

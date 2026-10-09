@@ -18,22 +18,19 @@ abstract final class RootCeremony {
     required String participantId,
     required int participantIndex,
     List<String>? participantIds,
-  }) =>
-      CeremonySession.create(
-        params: params,
-        ceremonyId: ceremonyId,
-        participantId: participantId,
-        participantIndex: participantIndex,
-        participantIds: participantIds,
-      );
+  }) => CeremonySession.create(
+    params: params,
+    ceremonyId: ceremonyId,
+    participantId: participantId,
+    participantIndex: participantIndex,
+    participantIds: participantIds,
+  );
 
   /// In-process C1 simulation — prefer `package:pqthreshold/testing.dart`.
   static Future<
-      ({
-        List<Share> shares,
-        PublicKey publicKey,
-        Transcript transcript,
-      })> simulate(
+    ({List<Share> shares, PublicKey publicKey, Transcript transcript})
+  >
+  simulate(
     ThresholdParams params, {
     Uint8List? ceremonyId,
     List<String>? participantIds,

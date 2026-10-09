@@ -81,9 +81,7 @@ class Console {
 
   String _compactBanner() {
     final mark = ansi.bold(ansi.brightCyan('pqthreshold'));
-    final tag = ansi.dim(
-      '· threshold crypto CLI · v$pqthresholdCliVersion',
-    );
+    final tag = ansi.dim('· threshold crypto CLI · v$pqthresholdCliVersion');
     return '$mark $tag';
   }
 

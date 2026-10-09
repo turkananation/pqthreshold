@@ -68,7 +68,9 @@ final class VssSplitCommand extends Command<void> {
         throw ArgumentError('secret must be 32 bytes (64 hex chars)');
       }
 
-      final ceremonyId = cidHex == null ? generateCeremonyId() : hexToBytes(cidHex);
+      final ceremonyId = cidHex == null
+          ? generateCeremonyId()
+          : hexToBytes(cidHex);
       if (ceremonyId.length != 16) {
         throw ArgumentError('ceremony-id-hex must be 32 hex chars');
       }
@@ -80,24 +82,28 @@ final class VssSplitCommand extends Command<void> {
       );
 
       await outDir.create(recursive: true);
-      await File('${outDir.path}/params.pqth')
-          .writeAsBytes(params.toBytes(), flush: true);
-      await File('${outDir.path}/joint.public.pqth')
-          .writeAsBytes(outcome.publicKey.toBytes(), flush: true);
-      await File('${outDir.path}/ceremony.id')
-          .writeAsBytes(ceremonyId, flush: true);
+      await File(
+        '${outDir.path}/params.pqth',
+      ).writeAsBytes(params.toBytes(), flush: true);
+      await File(
+        '${outDir.path}/joint.public.pqth',
+      ).writeAsBytes(outcome.publicKey.toBytes(), flush: true);
+      await File(
+        '${outDir.path}/ceremony.id',
+      ).writeAsBytes(ceremonyId, flush: true);
 
       for (final share in outcome.shares) {
         final path =
             '${outDir.path}/share-${share.index}.${share.participantId}.pqth';
         await File(path).writeAsBytes(share.toBytes(), flush: true);
       }
-      await File('${outDir.path}/commitments.blob').writeAsBytes(
-        outcome.shares.first.verificationData,
-        flush: true,
-      );
+      await File(
+        '${outDir.path}/commitments.blob',
+      ).writeAsBytes(outcome.shares.first.verificationData, flush: true);
 
-      console.success('Split ${params.t}-of-${params.n} into ${outcome.shares.length} shares');
+      console.success(
+        'Split ${params.t}-of-${params.n} into ${outcome.shares.length} shares',
+      );
       console.detail('ceremonyId', bytesToHex(ceremonyId));
       console.detail('out-dir', outDir.path);
     } on Object catch (error) {
@@ -113,7 +119,8 @@ final class VssVerifyCommand extends Command<void> {
       ..addOption(
         'commitments',
         valueHelp: 'file',
-        help: 'Feldman commitments blob from split (defaults to share embedded data).',
+        help:
+            'Feldman commitments blob from split (defaults to share embedded data).',
       );
   }
 
@@ -121,12 +128,15 @@ final class VssVerifyCommand extends Command<void> {
   String get name => 'verify';
 
   @override
-  String get description => 'Verify one share against published verification data.';
+  String get description =>
+      'Verify one share against published verification data.';
 
   @override
   Future<void> run() async {
     try {
-      final share = Share.fromBytes(await readBytes(argResults!['share'] as String));
+      final share = Share.fromBytes(
+        await readBytes(argResults!['share'] as String),
+      );
       final commitmentsPath = argResults!['commitments'] as String?;
       final blob = commitmentsPath == null
           ? share.verificationData

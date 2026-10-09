@@ -19,12 +19,14 @@ import 'continuity_proof.dart';
 abstract final class RotationCeremony {
   /// In-process C5 simulation — prefer `package:pqthreshold/testing.dart`.
   static Future<
-      ({
-        List<Share> newShares,
-        PublicKey newPublicKey,
-        ContinuityProof continuityProof,
-        Transcript newTranscript,
-      })> simulate({
+    ({
+      List<Share> newShares,
+      PublicKey newPublicKey,
+      ContinuityProof continuityProof,
+      Transcript newTranscript,
+    })
+  >
+  simulate({
     required List<Share> oldShares,
     required PublicKey oldPublicKey,
     Uint8List? newCeremonyId,
@@ -76,10 +78,7 @@ abstract final class RotationCeremony {
     final partials = <PartialSignature>[];
     for (final share in oldShares.take(params.t)) {
       partials.add(
-        await ThresholdSigner.signPartial(
-          share: share,
-          message: payload,
-        ),
+        await ThresholdSigner.signPartial(share: share, message: payload),
       );
     }
 

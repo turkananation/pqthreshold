@@ -46,7 +46,8 @@ final class MlDsaShare {
   Uint8List toBytes() => MlDsaShareCodec.encode(this);
 
   /// Parses a share from canonical bytes.
-  factory MlDsaShare.fromBytes(Uint8List bytes) => MlDsaShareCodec.decode(bytes);
+  factory MlDsaShare.fromBytes(Uint8List bytes) =>
+      MlDsaShareCodec.decode(bytes);
 
   /// Creates a simulated share (Tier 2 / tests only).
   @internal
@@ -56,14 +57,13 @@ final class MlDsaShare {
     required String participantId,
     required int index,
     required Uint8List ceremonySeed,
-  }) =>
-      MlDsaShare._create(
-        params: params,
-        ceremonyId: ceremonyId,
-        participantId: participantId,
-        index: index,
-        ceremonySeed: ceremonySeed,
-      );
+  }) => MlDsaShare._create(
+    params: params,
+    ceremonyId: ceremonyId,
+    participantId: participantId,
+    index: index,
+    ceremonySeed: ceremonySeed,
+  );
 
   factory MlDsaShare._create({
     required ThresholdParams params,

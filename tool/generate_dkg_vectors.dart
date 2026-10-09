@@ -9,7 +9,8 @@ import 'package:pqthreshold/testing.dart';
 Uint8List _det(int length) =>
     Uint8List.fromList(List.generate(length, (i) => (i * 17 + length) & 0xFF));
 
-String _hex(Uint8List b) => b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
+String _hex(Uint8List b) =>
+    b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
 
 void main() {
   PqRandom.generator = _det;
@@ -23,10 +24,7 @@ void main() {
     bool includeShares = false,
   }) {
     final params = ThresholdParams.tOfN(t: t, n: n);
-    final outcome = DkgSimulator.run(
-      params: params,
-      ceremonyId: ceremonyId,
-    );
+    final outcome = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
     final expected = <String, dynamic>{
       'jointPublicKey': _hex(outcome.publicKey.bytes),
     };
