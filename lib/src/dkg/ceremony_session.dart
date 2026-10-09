@@ -27,14 +27,13 @@ abstract interface class CeremonySession {
     required String participantId,
     required int participantIndex,
     List<String>? participantIds,
-  }) =>
-      _CeremonySessionImpl(
-        params: params,
-        ceremonyId: ceremonyId,
-        participantId: participantId,
-        participantIndex: participantIndex,
-        participantIds: participantIds,
-      );
+  }) => _CeremonySessionImpl(
+    params: params,
+    ceremonyId: ceremonyId,
+    participantId: participantId,
+    participantIndex: participantIndex,
+    participantIds: participantIds,
+  );
 
   /// Current protocol round (`0` = setup).
   int get round;
@@ -66,17 +65,18 @@ final class _CeremonySessionImpl implements CeremonySession {
     required String participantId,
     required int participantIndex,
     List<String>? participantIds,
-  })  : _params = params,
-        _ceremonyId = Uint8List.fromList(ceremonyId),
-        _participantId = participantId,
-        _participantIndex = participantIndex,
-        _machine = _buildMachine(),
-        _transcript = Transcript.create(
-          ceremonyId: ceremonyId,
-          params: params,
-          participantIds: participantIds ??
-              List.generate(params.n, (i) => 'participant-${i + 1}'),
-        ) {
+  }) : _params = params,
+       _ceremonyId = Uint8List.fromList(ceremonyId),
+       _participantId = participantId,
+       _participantIndex = participantIndex,
+       _machine = _buildMachine(),
+       _transcript = Transcript.create(
+         ceremonyId: ceremonyId,
+         params: params,
+         participantIds:
+             participantIds ??
+             List.generate(params.n, (i) => 'participant-${i + 1}'),
+       ) {
     validateCeremonyId(_ceremonyId);
     if (participantIndex < 1 || participantIndex > params.n) {
       throw InvalidParams(
@@ -239,10 +239,10 @@ final class _CeremonySessionImpl implements CeremonySession {
   }
 
   int _protocolRoundFor(DkgMessage message) => switch (message.subKind) {
-        DkgWireSubKind.round1 => 1,
-        DkgWireSubKind.round2 => 2,
-        _ => 3,
-      };
+    DkgWireSubKind.round1 => 1,
+    DkgWireSubKind.round2 => 2,
+    _ => 3,
+  };
 
   DkgMessage _emitRound1() {
     _round1BySender[_participantIndex] = _localCommitments;
@@ -379,15 +379,17 @@ final class _CeremonySessionImpl implements CeremonySession {
       ..writeUint8(1)
       ..writeBytes(_params.toBytes())
       ..writeBytes(_ceremonyId)
-      ..writeBytes(PqBytes.lengthPrefixed([Uint8List.fromList(_participantId.codeUnits)]))
+      ..writeBytes(
+        PqBytes.lengthPrefixed([Uint8List.fromList(_participantId.codeUnits)]),
+      )
       ..writeUint16Be(_participantIndex)
       ..writeUint8(_machine.currentState.index)
       ..writeUint8(_round1Emitted ? 1 : 0)
       ..writeUint8(_round2Emitted ? 1 : 0)
       ..writeUint8(_localCoeffs.length)
-      ..writeBytes(PqBytes.concat([
-        for (final c in _localCoeffs) scalarToLeBytes(c),
-      ]))
+      ..writeBytes(
+        PqBytes.concat([for (final c in _localCoeffs) scalarToLeBytes(c)]),
+      )
       ..writeUint8(_round1BySender.length);
     for (final entry in _round1BySender.entries) {
       writer
@@ -470,7 +472,9 @@ final class _CeremonySessionImpl implements CeremonySession {
       finalShare = scalarFromLeBytes(reader.readBytes(32));
     }
     final abortText = _readLp(reader);
-    final abortReason = abortText.isEmpty ? null : String.fromCharCodes(abortText);
+    final abortReason = abortText.isEmpty
+        ? null
+        : String.fromCharCodes(abortText);
     final transcriptBytes = reader.readBytes(reader.remaining);
     final transcript = Transcript.fromWorkingCheckpoint(transcriptBytes);
 
@@ -508,8 +512,8 @@ final class _CeremonySessionImpl implements CeremonySession {
     BigInt? finalShareScalar,
     String? abortReason,
     required this._transcript,
-  })  : _ceremonyId = Uint8List.fromList(ceremonyId),
-        _machine = _buildMachine() {
+  }) : _ceremonyId = Uint8List.fromList(ceremonyId),
+       _machine = _buildMachine() {
     _machine.reset(machineState, clearHistory: true);
     _localCoeffs = localCoeffs;
     _localCommitments = FeldmanVss.commitmentsFromCoefficients(localCoeffs);

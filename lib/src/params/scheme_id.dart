@@ -36,30 +36,29 @@ const int pqThresholdSmallSetMaxParticipants = 8;
 extension SchemeIdWire on SchemeId {
   /// Big-endian uint16 ordinal on the wire.
   int get wireOrdinal => switch (this) {
-        SchemeId.frostEd25519V1 => 0x0001,
-        SchemeId.mlDsa44ThresholdV1 => 0x0002,
-        SchemeId.mlDsa65ThresholdV1 => 0x0003,
-        SchemeId.mlDsa87ThresholdV1 => 0x0004,
-        SchemeId.slhDsa128fThresholdV1 => 0x0005,
-        SchemeId.hybridFrostMlDsa65V1 => 0x0006,
-      };
+    SchemeId.frostEd25519V1 => 0x0001,
+    SchemeId.mlDsa44ThresholdV1 => 0x0002,
+    SchemeId.mlDsa65ThresholdV1 => 0x0003,
+    SchemeId.mlDsa87ThresholdV1 => 0x0004,
+    SchemeId.slhDsa128fThresholdV1 => 0x0005,
+    SchemeId.hybridFrostMlDsa65V1 => 0x0006,
+  };
 
   /// Documented maximum `n` for this scheme.
   int get maxParticipants => switch (this) {
-        SchemeId.frostEd25519V1 => frostEd25519V1MaxParticipants,
-        SchemeId.mlDsa44ThresholdV1 ||
-        SchemeId.mlDsa65ThresholdV1 ||
-        SchemeId.mlDsa87ThresholdV1 ||
-        SchemeId.slhDsa128fThresholdV1 ||
-        SchemeId.hybridFrostMlDsa65V1 =>
-          pqThresholdSmallSetMaxParticipants,
-      };
+    SchemeId.frostEd25519V1 => frostEd25519V1MaxParticipants,
+    SchemeId.mlDsa44ThresholdV1 ||
+    SchemeId.mlDsa65ThresholdV1 ||
+    SchemeId.mlDsa87ThresholdV1 ||
+    SchemeId.slhDsa128fThresholdV1 ||
+    SchemeId.hybridFrostMlDsa65V1 => pqThresholdSmallSetMaxParticipants,
+  };
 
   /// Whether this scheme uses post-quantum combined signatures (v2).
   bool get isPostQuantumThreshold => switch (this) {
-        SchemeId.frostEd25519V1 => false,
-        _ => true,
-      };
+    SchemeId.frostEd25519V1 => false,
+    _ => true,
+  };
 }
 
 /// Parses a wire ordinal into [SchemeId].

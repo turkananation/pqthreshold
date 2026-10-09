@@ -15,11 +15,7 @@ import 'threshold_params_validation.dart';
 ///
 /// Spec: `doc/PARAMS.md`, `doc/API.md` §3.1.
 final class ThresholdParams {
-  ThresholdParams._({
-    required this.t,
-    required this.n,
-    required this.scheme,
-  });
+  ThresholdParams._({required this.t, required this.n, required this.scheme});
 
   /// Minimum honest participants required.
   final int t;
@@ -41,22 +37,21 @@ final class ThresholdParams {
     unwrapParamsValidation(supportedSchemeValidator().validate(scheme));
     return switch (scheme) {
       SchemeId.frostEd25519V1 => _fromValidated(
-          unwrapParamsValidation(
-            frostEd25519V1ParamsValidator().validate((t, n)),
-          ),
-          scheme,
+        unwrapParamsValidation(
+          frostEd25519V1ParamsValidator().validate((t, n)),
         ),
+        scheme,
+      ),
       SchemeId.mlDsa44ThresholdV1 ||
       SchemeId.mlDsa65ThresholdV1 ||
       SchemeId.mlDsa87ThresholdV1 ||
       SchemeId.slhDsa128fThresholdV1 ||
-      SchemeId.hybridFrostMlDsa65V1 =>
-        _fromValidated(
-          unwrapParamsValidation(
-            pqThresholdSmallSetParamsValidator(scheme).validate((t, n)),
-          ),
-          scheme,
+      SchemeId.hybridFrostMlDsa65V1 => _fromValidated(
+        unwrapParamsValidation(
+          pqThresholdSmallSetParamsValidator(scheme).validate((t, n)),
         ),
+        scheme,
+      ),
     };
   }
 
@@ -81,8 +76,7 @@ final class ThresholdParams {
     required int t,
     required int n,
     required SchemeId scheme,
-  }) =>
-      ThresholdParams.tOfN(t: t, n: n, scheme: scheme);
+  }) => ThresholdParams.tOfN(t: t, n: n, scheme: scheme);
 
   @override
   bool operator ==(Object other) {

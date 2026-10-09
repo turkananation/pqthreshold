@@ -47,10 +47,9 @@ final class BinaryReader {
   /// Reads big-endian uint16.
   int readUint16Be() {
     _require(2);
-    final value = _data.buffer.asByteData(_data.offsetInBytes + _offset).getUint16(
-          0,
-          Endian.big,
-        );
+    final value = _data.buffer
+        .asByteData(_data.offsetInBytes + _offset)
+        .getUint16(0, Endian.big);
     _offset += 2;
     return value;
   }
@@ -58,10 +57,9 @@ final class BinaryReader {
   /// Reads big-endian uint32.
   int readUint32Be() {
     _require(4);
-    final value = _data.buffer.asByteData(_data.offsetInBytes + _offset).getUint32(
-          0,
-          Endian.big,
-        );
+    final value = _data.buffer
+        .asByteData(_data.offsetInBytes + _offset)
+        .getUint32(0, Endian.big);
     _offset += 4;
     return value;
   }

@@ -42,10 +42,10 @@ enum DkgEvent {
 
 /// Maps [DkgState] to the public `round` index on [CeremonySession].
 int dkgStateToRound(DkgState state) => switch (state) {
-      DkgState.setup => 0,
-      DkgState.round1Broadcast => 1,
-      DkgState.round2Distribute => 2,
-      DkgState.round3Complaints => 3,
-      DkgState.finalized => 4,
-      DkgState.aborted => 4,
-    };
+  DkgState.setup => 0,
+  DkgState.round1Broadcast => 1,
+  DkgState.round2Distribute => 2,
+  DkgState.round3Complaints => 3,
+  DkgState.finalized => 4,
+  DkgState.aborted => 4,
+};

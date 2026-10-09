@@ -4,11 +4,10 @@ import 'package:test/test.dart';
 
 void main() {
   test('pqthreshold_example.dart runs without stack overflow', () async {
-    final result = await Process.run(
-      'dart',
-      ['run', 'example/pqthreshold_example.dart'],
-      workingDirectory: Directory.current.path,
-    );
+    final result = await Process.run('dart', [
+      'run',
+      'example/pqthreshold_example.dart',
+    ], workingDirectory: Directory.current.path);
 
     expect(
       result.exitCode,

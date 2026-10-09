@@ -19,8 +19,5 @@ T unwrapResult<T>(Result<T, ThresholdException> result) => result.getOrThrow();
 /// Maps validation [Result] failure strings to [InvalidParams].
 @internal
 T unwrapParamsValidation<T>(Result<T, List<String>> result) {
-  return result.fold(
-    (value) => value,
-    (errors) => throwInvalidParams(errors),
-  );
+  return result.fold((value) => value, (errors) => throwInvalidParams(errors));
 }

@@ -35,15 +35,13 @@ enum SchemeMilestone {
 abstract final class SchemeCapabilities {
   /// Current implementation milestone.
   static SchemeMilestone milestone(SchemeId scheme) => switch (scheme) {
-        SchemeId.frostEd25519V1 => SchemeMilestone.production,
-        SchemeId.mlDsa44ThresholdV1 ||
-        SchemeId.mlDsa65ThresholdV1 ||
-        SchemeId.mlDsa87ThresholdV1 =>
-          SchemeMilestone.beta,
-        SchemeId.slhDsa128fThresholdV1 ||
-        SchemeId.hybridFrostMlDsa65V1 =>
-          SchemeMilestone.planned,
-      };
+    SchemeId.frostEd25519V1 => SchemeMilestone.production,
+    SchemeId.mlDsa44ThresholdV1 ||
+    SchemeId.mlDsa65ThresholdV1 ||
+    SchemeId.mlDsa87ThresholdV1 => SchemeMilestone.beta,
+    SchemeId.slhDsa128fThresholdV1 ||
+    SchemeId.hybridFrostMlDsa65V1 => SchemeMilestone.planned,
+  };
 
   /// Whether [ceremony] is implemented for [scheme].
   static bool supports(SchemeId scheme, ThresholdCeremonyKind ceremony) {
@@ -51,8 +49,7 @@ abstract final class SchemeCapabilities {
       return switch (ceremony) {
         ThresholdCeremonyKind.rootDkg ||
         ThresholdCeremonyKind.thresholdSign ||
-        ThresholdCeremonyKind.rotation =>
-          scheme == SchemeId.frostEd25519V1,
+        ThresholdCeremonyKind.rotation => scheme == SchemeId.frostEd25519V1,
       };
     }
     // M2 beta: ML-DSA-44 in-process simulate (Tier 2) only.
@@ -79,21 +76,20 @@ abstract final class SchemeCapabilities {
 
   /// Human-readable scheme label for logs and CLI.
   static String displayName(SchemeId scheme) => switch (scheme) {
-        SchemeId.frostEd25519V1 => 'FROST Ed25519 v1',
-        SchemeId.mlDsa44ThresholdV1 => 'Threshold ML-DSA-44 v1',
-        SchemeId.mlDsa65ThresholdV1 => 'Threshold ML-DSA-65 v1',
-        SchemeId.mlDsa87ThresholdV1 => 'Threshold ML-DSA-87 v1',
-        SchemeId.slhDsa128fThresholdV1 => 'Threshold SLH-DSA-128f v1',
-        SchemeId.hybridFrostMlDsa65V1 => 'Hybrid FROST + ML-DSA-65 v1',
-      };
+    SchemeId.frostEd25519V1 => 'FROST Ed25519 v1',
+    SchemeId.mlDsa44ThresholdV1 => 'Threshold ML-DSA-44 v1',
+    SchemeId.mlDsa65ThresholdV1 => 'Threshold ML-DSA-65 v1',
+    SchemeId.mlDsa87ThresholdV1 => 'Threshold ML-DSA-87 v1',
+    SchemeId.slhDsa128fThresholdV1 => 'Threshold SLH-DSA-128f v1',
+    SchemeId.hybridFrostMlDsa65V1 => 'Hybrid FROST + ML-DSA-65 v1',
+  };
 
   /// Whether [scheme] uses ML-DSA verify via pqforge.
   static bool isMlDsaThreshold(SchemeId scheme) => switch (scheme) {
-        SchemeId.mlDsa44ThresholdV1 ||
-        SchemeId.mlDsa65ThresholdV1 ||
-        SchemeId.mlDsa87ThresholdV1 ||
-        SchemeId.hybridFrostMlDsa65V1 =>
-          true,
-        _ => false,
-      };
+    SchemeId.mlDsa44ThresholdV1 ||
+    SchemeId.mlDsa65ThresholdV1 ||
+    SchemeId.mlDsa87ThresholdV1 ||
+    SchemeId.hybridFrostMlDsa65V1 => true,
+    _ => false,
+  };
 }

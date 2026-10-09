@@ -47,10 +47,7 @@ abstract final class MlDsaThresholdSigner {
       ),
     );
 
-    final active = shares
-        .take(params.t)
-        .map((s) => s.mithrilPartyId)
-        .toList()
+    final active = shares.take(params.t).map((s) => s.mithrilPartyId).toList()
       ..sort();
 
     final signature = await mithrilThresholdSign(
@@ -69,7 +66,9 @@ abstract final class MlDsaThresholdSigner {
       signature: signature,
       context: context,
     )) {
-      throw InvalidPartialSignature('Mithril produced invalid ML-DSA signature');
+      throw InvalidPartialSignature(
+        'Mithril produced invalid ML-DSA signature',
+      );
     }
     return signature;
   }
@@ -78,11 +77,14 @@ abstract final class MlDsaThresholdSigner {
   ///
   /// Returns the combined signature plus canonical [MlDsaSigningMessage] values
   /// for dir-transport under `round1/`, `round2/`, `round3/`.
-  static Future<({
-    Uint8List signature,
-    Uint8List sessionId,
-    List<MlDsaSigningMessage> wireMessages,
-  })> signWithWire({
+  static Future<
+    ({
+      Uint8List signature,
+      Uint8List sessionId,
+      List<MlDsaSigningMessage> wireMessages,
+    })
+  >
+  signWithWire({
     required List<MlDsaShare> shares,
     required Uint8List message,
     Uint8List? context,
@@ -112,10 +114,7 @@ abstract final class MlDsaThresholdSigner {
       publicKeyBytes: publicKeyBytes,
     );
 
-    final active = shares
-        .take(params.t)
-        .map((s) => s.mithrilPartyId)
-        .toList()
+    final active = shares.take(params.t).map((s) => s.mithrilPartyId).toList()
       ..sort();
 
     final wire = await mithrilWireSign(
@@ -134,7 +133,9 @@ abstract final class MlDsaThresholdSigner {
       signature: wire.signature,
       context: context,
     )) {
-      throw InvalidPartialSignature('Mithril wire_sign produced invalid signature');
+      throw InvalidPartialSignature(
+        'Mithril wire_sign produced invalid signature',
+      );
     }
 
     final wireMessages = mlDsaMessagesFromWireSignJson(

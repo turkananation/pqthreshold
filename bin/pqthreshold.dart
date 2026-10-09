@@ -123,7 +123,9 @@ final class PqthresholdRunner extends CommandRunner<void> {
     final column = _nameColumn();
     final shown = <String>{};
     for (final group in _groups.entries) {
-      final names = group.value.where((name) => commands.containsKey(name)).toList();
+      final names = group.value
+          .where((name) => commands.containsKey(name))
+          .toList();
       if (names.isEmpty) continue;
       buffer
         ..writeln()
@@ -168,7 +170,12 @@ final class PqthresholdRunner extends CommandRunner<void> {
     return width;
   }
 
-  void _writeCommandRow(StringBuffer buffer, Ansi ansi, String name, int column) {
+  void _writeCommandRow(
+    StringBuffer buffer,
+    Ansi ansi,
+    String name,
+    int column,
+  ) {
     final command = commands[name]!;
     buffer.writeln(
       '  ${ansi.cyan(name.padRight(column))}${command.description}',

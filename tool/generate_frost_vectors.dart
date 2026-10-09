@@ -9,7 +9,8 @@ import 'package:pqthreshold/testing.dart';
 Uint8List _det(int length) =>
     Uint8List.fromList(List.generate(length, (i) => (i * 17 + length) & 0xFF));
 
-String _hex(Uint8List b) => b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
+String _hex(Uint8List b) =>
+    b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
 
 Future<void> main() async {
   PqRandom.generator = _det;
@@ -20,7 +21,9 @@ Future<void> main() async {
   final dkg = DkgSimulator.run(params: params, ceremonyId: ceremonyId);
   final partials = <PartialSignature>[];
   for (final share in dkg.shares.take(2)) {
-    partials.add(await ThresholdSigner.signPartial(share: share, message: message));
+    partials.add(
+      await ThresholdSigner.signPartial(share: share, message: message),
+    );
   }
   final signature = ThresholdSigner.combine(
     partials: partials,
@@ -41,7 +44,7 @@ Future<void> main() async {
     },
   };
 
-  File('test/vectors/frost/signing_2of3.json').writeAsStringSync(
-    '${const JsonEncoder.withIndent('  ').convert(body)}\n',
-  );
+  File(
+    'test/vectors/frost/signing_2of3.json',
+  ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(body)}\n');
 }

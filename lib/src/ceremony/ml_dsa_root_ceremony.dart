@@ -16,11 +16,7 @@ abstract final class MlDsaRootCeremony {
   ///
   /// Returns simulated [MlDsaShare] values that reference a shared ceremony
   /// seed — suitable for tests until distributed lattice DKG ships.
-  static Future<
-      ({
-        List<MlDsaShare> shares,
-        MlDsaPublicKey publicKey,
-      })> simulate(
+  static Future<({List<MlDsaShare> shares, MlDsaPublicKey publicKey})> simulate(
     ThresholdParams params, {
     Uint8List? ceremonyId,
     List<String>? participantIds,
@@ -32,8 +28,8 @@ abstract final class MlDsaRootCeremony {
       );
     }
     final cid = ceremonyId ?? generateCeremonyId();
-    final ids = participantIds ??
-        [for (var i = 1; i <= params.n; i++) 'officer$i'];
+    final ids =
+        participantIds ?? [for (var i = 1; i <= params.n; i++) 'officer$i'];
 
     final keygen = await mithrilKeygen(
       t: params.t,

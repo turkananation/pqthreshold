@@ -16,7 +16,8 @@ import 'package:test/test.dart';
 
 /// A 3-of-5 share produced by the dealer VSS path.
 Share _share({ThresholdParams? params}) {
-  final resolved = params ??
+  final resolved =
+      params ??
       ThresholdParams.tOfN(t: 3, n: 5, scheme: SchemeId.frostEd25519V1);
   final result = VerifiableSecretSharing.split(
     params: resolved,
@@ -29,21 +30,23 @@ Share _share({ThresholdParams? params}) {
 
 void main() {
   group('ShareMetadata — metadata without the secret', () {
-    test('reads t, n, index, participantId and ceremonyId from serialized bytes',
-        () {
-      final share = _share();
-      final bytes = share.toBytes();
+    test(
+      'reads t, n, index, participantId and ceremonyId from serialized bytes',
+      () {
+        final share = _share();
+        final bytes = share.toBytes();
 
-      final metadata = ShareMetadata.fromBytes(bytes);
+        final metadata = ShareMetadata.fromBytes(bytes);
 
-      expect(metadata.threshold, 3);
-      expect(metadata.totalParticipants, 5);
-      expect(metadata.index, share.index);
-      expect(metadata.participantId, share.participantId);
-      expect(metadata.ceremonyId, share.ceremonyId);
-      expect(metadata.scheme, SchemeId.frostEd25519V1);
-      expect(metadata.formatVersion, 0x01);
-    });
+        expect(metadata.threshold, 3);
+        expect(metadata.totalParticipants, 5);
+        expect(metadata.index, share.index);
+        expect(metadata.participantId, share.participantId);
+        expect(metadata.ceremonyId, share.ceremonyId);
+        expect(metadata.scheme, SchemeId.frostEd25519V1);
+        expect(metadata.formatVersion, 0x01);
+      },
+    );
 
     test('agrees with the Share it was derived from', () {
       final share = _share();
@@ -76,7 +79,11 @@ void main() {
       // A public key object: right magic and version, wrong kind.
       final share = _share();
       final publicKey = VerifiableSecretSharing.split(
-        params: ThresholdParams.tOfN(t: 3, n: 5, scheme: SchemeId.frostEd25519V1),
+        params: ThresholdParams.tOfN(
+          t: 3,
+          n: 5,
+          scheme: SchemeId.frostEd25519V1,
+        ),
         ceremonyId: share.ceremonyId,
         secret: Uint8List.fromList(List<int>.generate(32, (i) => i + 1)),
         participantIds: const ['alice', 'bob', 'carol', 'dave', 'erin'],
@@ -115,7 +122,8 @@ void main() {
       final data = ByteData.sublistView(bytes);
       final idLengthOffset = 8 + 16 + 16;
       final idLength = data.getUint32(idLengthOffset, Endian.big);
-      final secretOffset = idLengthOffset + 4 + idLength + 2; // +2 for u16 index
+      final secretOffset =
+          idLengthOffset + 4 + idLength + 2; // +2 for u16 index
 
       final corrupted = Uint8List.fromList(bytes);
       // Overwrite the whole secret region with non-scalar-length garbage.
@@ -140,8 +148,9 @@ void main() {
       // that only needs metadata must not care that the tail is incomplete.
       final bytes = _share().toBytes();
 
-      final metadata =
-          ShareMetadata.fromBytes(Uint8List.sublistView(bytes, 0, bytes.length - 8));
+      final metadata = ShareMetadata.fromBytes(
+        Uint8List.sublistView(bytes, 0, bytes.length - 8),
+      );
 
       expect(metadata.threshold, 3);
       expect(metadata.totalParticipants, 5);
@@ -151,12 +160,16 @@ void main() {
       final bytes = _share().toBytes();
 
       final badMagic = Uint8List.fromList(bytes)..[0] = 0x00;
-      expect(() => ShareMetadata.fromBytes(badMagic),
-          throwsA(isA<SerializationError>()));
+      expect(
+        () => ShareMetadata.fromBytes(badMagic),
+        throwsA(isA<SerializationError>()),
+      );
 
       final badVersion = Uint8List.fromList(bytes)..[4] = 0x99;
-      expect(() => ShareMetadata.fromBytes(badVersion),
-          throwsA(isA<SerializationError>()));
+      expect(
+        () => ShareMetadata.fromBytes(badVersion),
+        throwsA(isA<SerializationError>()),
+      );
     });
 
     test('an out-of-range index in the metadata is refused', () {
@@ -173,35 +186,48 @@ void main() {
       mutated[indexOffset] = 0;
       mutated[indexOffset + 1] = 9; // 9 > n = 5
 
-      expect(() => ShareMetadata.fromBytes(mutated),
-          throwsA(isA<InvalidParams>()));
+      expect(
+        () => ShareMetadata.fromBytes(mutated),
+        throwsA(isA<InvalidParams>()),
+      );
     });
   });
 
   group('public validators', () {
-    final params = ThresholdParams.tOfN(t: 3, n: 5, scheme: SchemeId.frostEd25519V1);
+    final params = ThresholdParams.tOfN(
+      t: 3,
+      n: 5,
+      scheme: SchemeId.frostEd25519V1,
+    );
 
     test('validateShareIndex accepts 1..n and refuses everything else', () {
       for (var i = 1; i <= 5; i++) {
         expect(() => validateShareIndex(i, params), returnsNormally);
       }
       for (final bad in <int>[0, -1, 6, 255, 65535]) {
-        expect(() => validateShareIndex(bad, params),
-            throwsA(isA<InvalidParams>()),
-            reason: 'index $bad must be refused');
+        expect(
+          () => validateShareIndex(bad, params),
+          throwsA(isA<InvalidParams>()),
+          reason: 'index $bad must be refused',
+        );
       }
     });
 
-    test('validateParticipantId accepts and refuses per the documented bound', () {
-      expect(() => validateParticipantId('alice'), returnsNormally);
-      expect(() => validateParticipantId('x' * maxParticipantIdCodeUnits),
-          returnsNormally);
-      expect(() => validateParticipantId(''), throwsA(isA<InvalidParams>()));
-      expect(
-        () => validateParticipantId('x' * (maxParticipantIdCodeUnits + 1)),
-        throwsA(isA<InvalidParams>()),
-      );
-    });
+    test(
+      'validateParticipantId accepts and refuses per the documented bound',
+      () {
+        expect(() => validateParticipantId('alice'), returnsNormally);
+        expect(
+          () => validateParticipantId('x' * maxParticipantIdCodeUnits),
+          returnsNormally,
+        );
+        expect(() => validateParticipantId(''), throwsA(isA<InvalidParams>()));
+        expect(
+          () => validateParticipantId('x' * (maxParticipantIdCodeUnits + 1)),
+          throwsA(isA<InvalidParams>()),
+        );
+      },
+    );
   });
 
   group('Share.disposeSecret is reachable', () {
@@ -241,25 +267,40 @@ void main() {
         seen = b;
       });
 
-      expect(source.every((b) => b == 0), isTrue,
-          reason: 'the buffer handed to SecretBuffer must be zeroed');
-      expect(seen.every((b) => b != 0), isTrue,
-          reason: 'use must expose live material, not zeros');
-      expect(identical(seen, source), isFalse,
-          reason: 'SecretBytes always copies, so use must not alias the '
-              'caller\'s buffer');
+      expect(
+        source.every((b) => b == 0),
+        isTrue,
+        reason: 'the buffer handed to SecretBuffer must be zeroed',
+      );
+      expect(
+        seen.every((b) => b != 0),
+        isTrue,
+        reason: 'use must expose live material, not zeros',
+      );
+      expect(
+        identical(seen, source),
+        isFalse,
+        reason:
+            'SecretBytes always copies, so use must not alias the '
+            'caller\'s buffer',
+      );
     });
 
     test('the managed buffer is wiped on dispose, and use sees it', () {
-      final buffer = SecretBuffer(Uint8List.fromList(List<int>.filled(32, 0xAB)));
+      final buffer = SecretBuffer(
+        Uint8List.fromList(List<int>.filled(32, 0xAB)),
+      );
       late Uint8List backing;
       buffer.use((b) => backing = b);
       expect(backing.every((b) => b == 0xAB), isTrue);
 
       buffer.dispose();
 
-      expect(backing.every((b) => b == 0), isTrue,
-          reason: 'dispose must wipe the exact buffer use() exposed');
+      expect(
+        backing.every((b) => b == 0),
+        isTrue,
+        reason: 'dispose must wipe the exact buffer use() exposed',
+      );
     });
 
     test('mutate writes through to the managed buffer', () {
@@ -278,12 +319,16 @@ void main() {
       final snapshot = buffer.bytes;
       snapshot[0] = 0;
 
-      expect(buffer.use((b) => b[0]), 5,
-          reason: 'the snapshot must not alias the managed buffer');
+      expect(
+        buffer.use((b) => b[0]),
+        5,
+        reason: 'the snapshot must not alias the managed buffer',
+      );
     });
 
     test('use and mutate throw after dispose', () {
-      final buffer = SecretBuffer(Uint8List.fromList(List<int>.filled(8, 5)))..dispose();
+      final buffer = SecretBuffer(Uint8List.fromList(List<int>.filled(8, 5)))
+        ..dispose();
 
       expect(() => buffer.use((b) => b), throwsA(isA<StateError>()));
       expect(() => buffer.mutate((b) => b), throwsA(isA<StateError>()));

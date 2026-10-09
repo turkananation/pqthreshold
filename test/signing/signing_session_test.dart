@@ -82,7 +82,10 @@ void main() {
     begun.session.dispose();
 
     final restored = SigningSession.fromCheckpoint(checkpoint);
-    final begun2 = await SigningSession.begin(share: root.shares[1], message: message);
+    final begun2 = await SigningSession.begin(
+      share: root.shares[1],
+      message: message,
+    );
     final round1 = [begun.round1, begun2.round1];
 
     final partial = restored.completeRound2(

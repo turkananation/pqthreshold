@@ -92,7 +92,10 @@ void main() {
       final bytes = rotation.continuityProof.toBytes();
       final decoded = ContinuityProof.fromBytes(bytes);
       expect(decoded.toBytes(), bytes);
-      expect(decoded.thresholdSignature, rotation.continuityProof.thresholdSignature);
+      expect(
+        decoded.thresholdSignature,
+        rotation.continuityProof.thresholdSignature,
+      );
     });
   });
 
@@ -110,32 +113,35 @@ void main() {
       );
     });
 
-    test('ThresholdSigner.combine rejects partial from another ceremony', () async {
-      final params = ThresholdParams.tOfN(t: 2, n: 3);
-      final cidA = Uint8List.fromList(List.generate(16, (i) => i + 1));
-      final cidB = Uint8List.fromList(List.generate(16, (i) => i + 2));
-      final dkgA = DkgSimulator.run(params: params, ceremonyId: cidA);
-      final dkgB = DkgSimulator.run(params: params, ceremonyId: cidB);
-      final message = Uint8List.fromList([0xAB]);
+    test(
+      'ThresholdSigner.combine rejects partial from another ceremony',
+      () async {
+        final params = ThresholdParams.tOfN(t: 2, n: 3);
+        final cidA = Uint8List.fromList(List.generate(16, (i) => i + 1));
+        final cidB = Uint8List.fromList(List.generate(16, (i) => i + 2));
+        final dkgA = DkgSimulator.run(params: params, ceremonyId: cidA);
+        final dkgB = DkgSimulator.run(params: params, ceremonyId: cidB);
+        final message = Uint8List.fromList([0xAB]);
 
-      final partialA = await ThresholdSigner.signPartial(
-        share: dkgA.shares.first,
-        message: message,
-      );
-      final partialB = await ThresholdSigner.signPartial(
-        share: dkgB.shares[1],
-        message: message,
-      );
-
-      expect(
-        () => ThresholdSigner.combine(
-          partials: [partialA, partialB],
-          publicKey: dkgA.publicKey,
+        final partialA = await ThresholdSigner.signPartial(
+          share: dkgA.shares.first,
           message: message,
-        ),
-        throwsA(isA<WrongCeremony>()),
-      );
-    });
+        );
+        final partialB = await ThresholdSigner.signPartial(
+          share: dkgB.shares[1],
+          message: message,
+        );
+
+        expect(
+          () => ThresholdSigner.combine(
+            partials: [partialA, partialB],
+            publicKey: dkgA.publicKey,
+            message: message,
+          ),
+          throwsA(isA<WrongCeremony>()),
+        );
+      },
+    );
 
     test('DkgMessage rejects wrong ceremonyId on ingest', () {
       final params = ThresholdParams.tOfN(t: 2, n: 3);

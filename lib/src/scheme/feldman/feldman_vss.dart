@@ -17,7 +17,9 @@ abstract final class FeldmanVss {
   static const int pointBytes = 32;
 
   /// Builds Feldman commitments `C_k = a_k * B` for polynomial coefficients.
-  static List<Uint8List> commitmentsFromCoefficients(List<BigInt> coefficients) {
+  static List<Uint8List> commitmentsFromCoefficients(
+    List<BigInt> coefficients,
+  ) {
     return [
       for (final coeff in coefficients)
         Ed25519CurveOps.scalarBaseMult(scalarToLeBytes(coeff)),
@@ -54,7 +56,11 @@ abstract final class FeldmanVss {
     }
     return [
       for (var i = 0; i < count; i++)
-        Uint8List.sublistView(bytes, 1 + i * pointBytes, 1 + (i + 1) * pointBytes),
+        Uint8List.sublistView(
+          bytes,
+          1 + i * pointBytes,
+          1 + (i + 1) * pointBytes,
+        ),
     ];
   }
 
@@ -74,7 +80,9 @@ abstract final class FeldmanVss {
     }
     final right = Ed25519CurveOps.multiScalarMult(commitments, scalars);
     if (!PqBytes.constantTimeEquals(left, right)) {
-      throw InconsistentShares('Feldman share verification failed for index $shareIndex');
+      throw InconsistentShares(
+        'Feldman share verification failed for index $shareIndex',
+      );
     }
   }
 

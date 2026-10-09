@@ -62,10 +62,9 @@ final class PqthHeader {
       throw SerializationError('Unsupported PQTH format version: $version');
     }
     final kind = PqthObjectKind.fromWire(bytes[5]);
-    final schemeOrdinal = bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(
-          6,
-          Endian.big,
-        );
+    final schemeOrdinal = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(6, Endian.big);
     final scheme = schemeIdFromWireOrdinal(schemeOrdinal);
     return PqthHeader(version: version, kind: kind, scheme: scheme);
   }

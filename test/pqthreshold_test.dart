@@ -9,10 +9,7 @@ void main() {
     });
 
     test('toString includes runtime type', () {
-      expect(
-        const InvalidParams('bad t').toString(),
-        'InvalidParams: bad t',
-      );
+      expect(const InvalidParams('bad t').toString(), 'InvalidParams: bad t');
     });
   });
 

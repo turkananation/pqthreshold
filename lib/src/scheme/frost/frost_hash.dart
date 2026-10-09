@@ -24,7 +24,11 @@ BigInt frostH2Challenge(Uint8List challengeInput) {
 BigInt frostH2(Uint8List frostIdentifier, Uint8List input) {
   return _hashToScalar(
     _sha512(
-      PqBytes.concat([frostIdentifier, Uint8List.fromList([0x02]), input]),
+      PqBytes.concat([
+        frostIdentifier,
+        Uint8List.fromList([0x02]),
+        input,
+      ]),
     ),
   );
 }
@@ -33,7 +37,11 @@ BigInt frostH2(Uint8List frostIdentifier, Uint8List input) {
 BigInt frostH3(Uint8List frostIdentifier, Uint8List input) {
   return _hashToScalar(
     _sha512(
-      PqBytes.concat([frostIdentifier, Uint8List.fromList([0x03]), input]),
+      PqBytes.concat([
+        frostIdentifier,
+        Uint8List.fromList([0x03]),
+        input,
+      ]),
     ),
   );
 }
@@ -41,7 +49,11 @@ BigInt frostH3(Uint8List frostIdentifier, Uint8List input) {
 /// H4: fixed-length message digest for binding-factor prefix.
 Uint8List frostH4(Uint8List frostIdentifier, Uint8List message) {
   return _sha512(
-    PqBytes.concat([frostIdentifier, Uint8List.fromList([0x04]), message]),
+    PqBytes.concat([
+      frostIdentifier,
+      Uint8List.fromList([0x04]),
+      message,
+    ]),
   );
 }
 

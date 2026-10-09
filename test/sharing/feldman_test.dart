@@ -56,10 +56,7 @@ void main() {
       final reconstructed = VerifiableSecretSharing.reconstruct(
         shares: outcome.shares.take(2).toList(),
       );
-      expect(
-        reconstructed,
-        scalarToLeBytes(scalarFromLeBytes(secret)),
-      );
+      expect(reconstructed, scalarToLeBytes(scalarFromLeBytes(secret)));
     });
 
     test('reconstruct with t-1 shares throws InsufficientShares', () {
@@ -70,9 +67,8 @@ void main() {
       );
 
       expect(
-        () => VerifiableSecretSharing.reconstruct(
-          shares: [outcome.shares.first],
-        ),
+        () =>
+            VerifiableSecretSharing.reconstruct(shares: [outcome.shares.first]),
         throwsA(isA<InsufficientShares>()),
       );
     });
@@ -115,7 +111,8 @@ void main() {
       final vectorFile = File('test/vectors/feldman/2of3_valid.json');
       expect(vectorFile.existsSync(), isTrue, reason: 'missing test vector');
 
-      final json = jsonDecode(vectorFile.readAsStringSync()) as Map<String, dynamic>;
+      final json =
+          jsonDecode(vectorFile.readAsStringSync()) as Map<String, dynamic>;
       expect(json['format'], 'pqthreshold-test-vector-v1');
 
       final t = (json['params'] as Map)['t'] as int;
@@ -124,7 +121,9 @@ void main() {
       final vectorCeremony = _hexToBytes(json['ceremonyId'] as String);
       final inputSecret = _hexToBytes(json['inputs']['secret'] as String);
       final expectedSecret = _hexToBytes(json['expected']['secret'] as String);
-      final expectedPublic = _hexToBytes(json['expected']['jointPublicKey'] as String);
+      final expectedPublic = _hexToBytes(
+        json['expected']['jointPublicKey'] as String,
+      );
 
       final outcome = VerifiableSecretSharing.split(
         params: vectorParams,
@@ -143,7 +142,8 @@ void main() {
       final vectorFile = File('test/vectors/feldman/2of3_insufficient.json');
       expect(vectorFile.existsSync(), isTrue);
 
-      final json = jsonDecode(vectorFile.readAsStringSync()) as Map<String, dynamic>;
+      final json =
+          jsonDecode(vectorFile.readAsStringSync()) as Map<String, dynamic>;
       final t = (json['params'] as Map)['t'] as int;
       final n = (json['params'] as Map)['n'] as int;
       final vectorParams = ThresholdParams.tOfN(t: t, n: n);
@@ -157,9 +157,8 @@ void main() {
       );
 
       expect(
-        () => VerifiableSecretSharing.reconstruct(
-          shares: [outcome.shares.first],
-        ),
+        () =>
+            VerifiableSecretSharing.reconstruct(shares: [outcome.shares.first]),
         throwsA(isA<InsufficientShares>()),
       );
     });

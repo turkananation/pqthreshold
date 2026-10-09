@@ -44,15 +44,17 @@ final class ParamsValidateCommand extends Command<void> {
 
   @override
   String get usageFooter => usageExamples([
-        'pqthreshold params validate --t 2 --n 3',
-        'pqthreshold params validate --in ceremony/params.pqth',
-      ]);
+    'pqthreshold params validate --t 2 --n 3',
+    'pqthreshold params validate --in ceremony/params.pqth',
+  ]);
 
   @override
   Future<void> run() async {
     try {
       final params = await _resolveParams();
-      console.success('Valid ${params.t}-of-${params.n} (${params.scheme.name})');
+      console.success(
+        'Valid ${params.t}-of-${params.n} (${params.scheme.name})',
+      );
       printThresholdParams(params);
     } on Object catch (error) {
       handleCliError(error);
@@ -97,8 +99,8 @@ final class ParamsExportCommand extends Command<void> {
 
   @override
   String get usageFooter => usageExamples([
-        'pqthreshold params export --t 3 --n 5 --out ceremony/params.pqth',
-      ]);
+    'pqthreshold params export --t 3 --n 5 --out ceremony/params.pqth',
+  ]);
 
   @override
   Future<void> run() async {

@@ -68,7 +68,9 @@ final class DkgMessage {
   int? get recipientIndex {
     if (subKind != DkgWireSubKind.round2) return null;
     if (payload.length < 2) return null;
-    return payload.buffer.asByteData(payload.offsetInBytes).getUint16(0, Endian.big);
+    return payload.buffer
+        .asByteData(payload.offsetInBytes)
+        .getUint16(0, Endian.big);
   }
 
   /// Parses [bytes] into a [DkgMessage].
@@ -86,15 +88,18 @@ final class DkgMessage {
       throw SerializationError('Unsupported DKG message version: $version');
     }
     final kind = bytes[5];
-    final schemeOrdinal =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(6, Endian.big);
+    final schemeOrdinal = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(6, Endian.big);
     final scheme = schemeIdFromWireOrdinal(schemeOrdinal);
     final subKind = bytes[8];
     final ceremonyId = Uint8List.sublistView(bytes, 9, 25);
-    final senderIndex =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint16(25, Endian.big);
-    final payloadLength =
-        bytes.buffer.asByteData(bytes.offsetInBytes).getUint32(27, Endian.big);
+    final senderIndex = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint16(25, Endian.big);
+    final payloadLength = bytes.buffer
+        .asByteData(bytes.offsetInBytes)
+        .getUint32(27, Endian.big);
     final payloadStart = 31;
     if (bytes.length != payloadStart + payloadLength) {
       throw SerializationError('DKG message length mismatch');
@@ -186,7 +191,9 @@ final class DkgMessage {
     }
     final count = payload[0];
     if (count != expectedT) {
-      throw SerializationError('Round1 coeffCount $count != expected $expectedT');
+      throw SerializationError(
+        'Round1 coeffCount $count != expected $expectedT',
+      );
     }
     final expectedLen = 1 + count * 32;
     if (payload.length != expectedLen) {
@@ -199,12 +206,16 @@ final class DkgMessage {
   }
 
   /// Parses Round2 share scalar from [payload] for [expectedRecipient].
-  static Uint8List parseRound2Payload(Uint8List payload, int expectedRecipient) {
+  static Uint8List parseRound2Payload(
+    Uint8List payload,
+    int expectedRecipient,
+  ) {
     if (payload.length != 34) {
       throw SerializationError('Round2 payload must be 34 bytes');
     }
-    final recipient =
-        payload.buffer.asByteData(payload.offsetInBytes).getUint16(0, Endian.big);
+    final recipient = payload.buffer
+        .asByteData(payload.offsetInBytes)
+        .getUint16(0, Endian.big);
     if (recipient != expectedRecipient) {
       throw SerializationError('Round2 recipientIndex mismatch');
     }

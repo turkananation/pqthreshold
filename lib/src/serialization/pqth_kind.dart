@@ -49,6 +49,8 @@ enum PqthObjectKind {
         'Protocol message kind 0x${value.toRadixString(16)} is not a durable object',
       );
     }
-    throw SerializationError('Unknown PQTH object kind: 0x${value.toRadixString(16)}');
+    throw SerializationError(
+      'Unknown PQTH object kind: 0x${value.toRadixString(16)}',
+    );
   }
 }

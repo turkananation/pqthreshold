@@ -80,12 +80,12 @@ final class ContinuityProof {
 
   /// Signed payload bytes (`doc/PROTOCOL_MESSAGES.md` §6).
   Uint8List continuityPayloadBytes() => buildContinuityPayload(
-        oldPublicKeyBytes: oldPublicKeyBytes,
-        newPublicKeyBytes: newPublicKeyBytes,
-        signedAtUnixSeconds: signedAtUnixSeconds,
-        oldCeremonyId: oldCeremonyId,
-        newCeremonyId: newCeremonyId,
-      );
+    oldPublicKeyBytes: oldPublicKeyBytes,
+    newPublicKeyBytes: newPublicKeyBytes,
+    signedAtUnixSeconds: signedAtUnixSeconds,
+    oldCeremonyId: oldCeremonyId,
+    newCeremonyId: newCeremonyId,
+  );
 
   /// Verifies [thresholdSignature] under [oldPublicKey].
   Future<bool> verify({required PublicKey oldPublicKey}) {

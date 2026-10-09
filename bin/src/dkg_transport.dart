@@ -38,7 +38,9 @@ Future<void> writeDkgOutbox({
         'from-${message.senderIndex}-to-${message.recipientIndex}.wire',
       _ => 'from-${message.senderIndex}.wire',
     };
-    await File('${dir.path}/$name').writeAsBytes(message.wireBytes, flush: true);
+    await File(
+      '${dir.path}/$name',
+    ).writeAsBytes(message.wireBytes, flush: true);
   }
 }
 

@@ -19,14 +19,16 @@ abstract final class DkgSimulator {
     List<Share> shares,
     PublicKey publicKey,
     List<Transcript> transcripts,
-  }) run({
+  })
+  run({
     required ThresholdParams params,
     Uint8List? ceremonyId,
     List<String>? participantIds,
   }) {
     final cid = ceremonyId ?? generateCeremonyId();
     validateCeremonyId(cid);
-    final ids = participantIds ??
+    final ids =
+        participantIds ??
         List.generate(params.n, (i) => 'participant-${i + 1}');
     if (ids.length != params.n) {
       throw ArgumentError('participantIds length must equal n=${params.n}');

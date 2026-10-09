@@ -33,10 +33,10 @@ final class InspectCommand extends Command<void> {
 
   @override
   String get usageFooter => usageExamples([
-        'pqthreshold inspect --in ceremony/params.pqth',
-        'pqthreshold inspect --in officers/alice.share.wrapped.json',
-        'pqthreshold inspect --in ceremony/ceremony.id',
-      ]);
+    'pqthreshold inspect --in ceremony/params.pqth',
+    'pqthreshold inspect --in officers/alice.share.wrapped.json',
+    'pqthreshold inspect --in ceremony/ceremony.id',
+  ]);
 
   @override
   Future<void> run() async {

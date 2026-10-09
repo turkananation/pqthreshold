@@ -92,12 +92,8 @@ Future<Map<String, dynamic>> mithrilBridgeRequest(
 
 /// Threshold keygen via Mithril (ML-DSA-44); returns FIPS 204 public key bytes.
 @internal
-Future<({
-  Uint8List publicKey,
-  Uint8List ceremonySeed,
-  int t,
-  int n,
-})> mithrilKeygen({
+Future<({Uint8List publicKey, Uint8List ceremonySeed, int t, int n})>
+mithrilKeygen({
   required int t,
   required int n,
   Uint8List? seed,
@@ -107,15 +103,12 @@ Future<({
   if (ceremonySeed.length != 32) {
     throw InvalidParams('Mithril keygen seed must be 32 bytes');
   }
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'keygen',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-    },
-    executablePath: executablePath,
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'keygen',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+  }, executablePath: executablePath);
   final pk = base64Decode(response['public_key_b64'] as String);
   return (
     publicKey: Uint8List.fromList(pk),
@@ -140,30 +133,24 @@ Future<Uint8List> mithrilThresholdSign({
     throw InvalidParams('ceremonySeed must be 32 bytes');
   }
   activePartyIdsZeroBased.sort();
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'threshold_sign',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      if (rngSeed != null) 'rng_seed_hex': _bytesToHex(rngSeed),
-    },
-    executablePath: executablePath,
-  );
-  return Uint8List.fromList(
-    base64Decode(response['signature_b64'] as String),
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'threshold_sign',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    if (rngSeed != null) 'rng_seed_hex': _bytesToHex(rngSeed),
+  }, executablePath: executablePath);
+  return Uint8List.fromList(base64Decode(response['signature_b64'] as String));
 }
 
 /// Runs Mithril rounds 1–3 and returns wire payloads plus combined signature.
 @internal
-Future<({
-  Uint8List sessionId,
-  Uint8List signature,
-  Map<String, dynamic> wireJson,
-})> mithrilWireSign({
+Future<
+  ({Uint8List sessionId, Uint8List signature, Map<String, dynamic> wireJson})
+>
+mithrilWireSign({
   required int t,
   required int n,
   required Uint8List ceremonySeed,
@@ -176,18 +163,15 @@ Future<({
     throw InvalidParams('ceremonySeed must be 32 bytes');
   }
   activePartyIdsZeroBased.sort();
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'wire_sign',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      if (rngSeed != null) 'rng_seed_hex': _bytesToHex(rngSeed),
-    },
-    executablePath: executablePath,
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'wire_sign',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    if (rngSeed != null) 'rng_seed_hex': _bytesToHex(rngSeed),
+  }, executablePath: executablePath);
   return (
     sessionId: Uint8List.fromList(
       base64Decode(response['session_id_b64'] as String),
@@ -214,21 +198,16 @@ Future<Uint8List> mithrilDeriveSessionId({
     throw InvalidParams('binding must be 32 bytes');
   }
   activePartyIdsZeroBased.sort();
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'derive_session_id',
-      't': t,
-      'n': n,
-      'public_key_b64': base64Encode(publicKey),
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      'binding_b64': base64Encode(binding),
-    },
-    executablePath: executablePath,
-  );
-  return Uint8List.fromList(
-    base64Decode(response['session_id_b64'] as String),
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'derive_session_id',
+    't': t,
+    'n': n,
+    'public_key_b64': base64Encode(publicKey),
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    'binding_b64': base64Encode(binding),
+  }, executablePath: executablePath);
+  return Uint8List.fromList(base64Decode(response['session_id_b64'] as String));
 }
 
 @internal
@@ -242,19 +221,16 @@ Future<Uint8List> mithrilRound1Party({
   required Uint8List sessionId,
   String? executablePath,
 }) async {
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'round1_party',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-      'party_id': partyIdZeroBased,
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      'session_id_b64': base64Encode(sessionId),
-    },
-    executablePath: executablePath,
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'round1_party',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+    'party_id': partyIdZeroBased,
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    'session_id_b64': base64Encode(sessionId),
+  }, executablePath: executablePath);
   return Uint8List.fromList(base64Decode(response['hash_b64'] as String));
 }
 
@@ -270,22 +246,17 @@ Future<Uint8List> mithrilRound2Party({
   required List<Uint8List> round1Hashes,
   String? executablePath,
 }) async {
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'round2_party',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-      'party_id': partyIdZeroBased,
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      'session_id_b64': base64Encode(sessionId),
-      'round1_hashes_b64': [
-        for (final hash in round1Hashes) base64Encode(hash),
-      ],
-    },
-    executablePath: executablePath,
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'round2_party',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+    'party_id': partyIdZeroBased,
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    'session_id_b64': base64Encode(sessionId),
+    'round1_hashes_b64': [for (final hash in round1Hashes) base64Encode(hash)],
+  }, executablePath: executablePath);
   return Uint8List.fromList(base64Decode(response['reveal_b64'] as String));
 }
 
@@ -296,17 +267,12 @@ Future<Uint8List> mithrilAggregateWfinals({
   required List<Uint8List> round2Reveals,
   String? executablePath,
 }) async {
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'aggregate_wfinals',
-      't': t,
-      'n': n,
-      'reveals_b64': [
-        for (final reveal in round2Reveals) base64Encode(reveal),
-      ],
-    },
-    executablePath: executablePath,
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'aggregate_wfinals',
+    't': t,
+    'n': n,
+    'reveals_b64': [for (final reveal in round2Reveals) base64Encode(reveal)],
+  }, executablePath: executablePath);
   return Uint8List.fromList(base64Decode(response['wfinals_b64'] as String));
 }
 
@@ -324,29 +290,22 @@ Future<Uint8List> mithrilRound3Party({
   required Uint8List wfinals,
   String? executablePath,
 }) async {
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'round3_party',
-      't': t,
-      'n': n,
-      'seed_hex': _bytesToHex(ceremonySeed),
-      'party_id': partyIdZeroBased,
-      'active': activePartyIdsZeroBased,
-      'message_b64': base64Encode(message),
-      'session_id_b64': base64Encode(sessionId),
-      'round1_hashes_b64': [
-        for (final hash in round1Hashes) base64Encode(hash),
-      ],
-      'round2_reveals_b64': [
-        for (final reveal in round2Reveals) base64Encode(reveal),
-      ],
-      'wfinals_b64': base64Encode(wfinals),
-    },
-    executablePath: executablePath,
-  );
-  return Uint8List.fromList(
-    base64Decode(response['response_b64'] as String),
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'round3_party',
+    't': t,
+    'n': n,
+    'seed_hex': _bytesToHex(ceremonySeed),
+    'party_id': partyIdZeroBased,
+    'active': activePartyIdsZeroBased,
+    'message_b64': base64Encode(message),
+    'session_id_b64': base64Encode(sessionId),
+    'round1_hashes_b64': [for (final hash in round1Hashes) base64Encode(hash)],
+    'round2_reveals_b64': [
+      for (final reveal in round2Reveals) base64Encode(reveal),
+    ],
+    'wfinals_b64': base64Encode(wfinals),
+  }, executablePath: executablePath);
+  return Uint8List.fromList(base64Decode(response['response_b64'] as String));
 }
 
 @internal
@@ -359,23 +318,16 @@ Future<Uint8List> mithrilCombineWire({
   required List<Uint8List> round3Responses,
   String? executablePath,
 }) async {
-  final response = await mithrilBridgeRequest(
-    {
-      'op': 'combine_wire',
-      't': t,
-      'n': n,
-      'public_key_b64': base64Encode(publicKey),
-      'message_b64': base64Encode(message),
-      'wfinals_b64': base64Encode(wfinals),
-      'round3_responses_b64': [
-        for (final r in round3Responses) base64Encode(r),
-      ],
-    },
-    executablePath: executablePath,
-  );
-  return Uint8List.fromList(
-    base64Decode(response['signature_b64'] as String),
-  );
+  final response = await mithrilBridgeRequest({
+    'op': 'combine_wire',
+    't': t,
+    'n': n,
+    'public_key_b64': base64Encode(publicKey),
+    'message_b64': base64Encode(message),
+    'wfinals_b64': base64Encode(wfinals),
+    'round3_responses_b64': [for (final r in round3Responses) base64Encode(r)],
+  }, executablePath: executablePath);
+  return Uint8List.fromList(base64Decode(response['signature_b64'] as String));
 }
 
 String _bytesToHex(Uint8List bytes) =>

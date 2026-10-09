@@ -15,5 +15,6 @@ final class VersionCommand extends Command<void> {
   String get description => 'Print the pqthreshold version and exit.';
 
   @override
-  Future<void> run() async => console.info('pqthreshold $pqthresholdCliVersion');
+  Future<void> run() async =>
+      console.info('pqthreshold $pqthresholdCliVersion');
 }

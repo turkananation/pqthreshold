@@ -104,12 +104,13 @@ Future<void> _verifyNestedPackages(Directory root) async {
   final packages = Directory('${root.path}/packages');
   if (!packages.existsSync()) return;
 
-  final children = packages
-      .listSync()
-      .whereType<Directory>()
-      .where((d) => File('${d.path}/pubspec.yaml').existsSync())
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final children =
+      packages
+          .listSync()
+          .whereType<Directory>()
+          .where((d) => File('${d.path}/pubspec.yaml').existsSync())
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   for (final package in children) {
     final name = package.path.split(Platform.pathSeparator).last;

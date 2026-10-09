@@ -48,7 +48,7 @@ Future<void> main() async {
 
   final outDir = Directory('test/vectors/ceremony');
   outDir.createSync(recursive: true);
-  File('${outDir.path}/rotation_2of3.json').writeAsStringSync(
-    '${const JsonEncoder.withIndent('  ').convert(body)}\n',
-  );
+  File(
+    '${outDir.path}/rotation_2of3.json',
+  ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(body)}\n');
 }

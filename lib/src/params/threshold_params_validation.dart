@@ -40,8 +40,7 @@ Validator<SchemeId> supportedSchemeValidator() {
       SchemeId.mlDsa65ThresholdV1 ||
       SchemeId.mlDsa87ThresholdV1 ||
       SchemeId.slhDsa128fThresholdV1 ||
-      SchemeId.hybridFrostMlDsa65V1 =>
-        true,
+      SchemeId.hybridFrostMlDsa65V1 => true,
     },
     'Unknown scheme',
   );

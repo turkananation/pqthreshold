@@ -34,8 +34,16 @@ final class CeremonyRunCommand extends Command<void> {
         allowed: ['c1', 'c3', 'c5', 'full'],
         help: 'Ceremony flow to execute (in-process).',
       )
-      ..addOption('out-dir', valueHelp: 'dir', help: 'Write artifacts when set.')
-      ..addOption('message', valueHelp: 'file', help: 'Message file for c3/full.');
+      ..addOption(
+        'out-dir',
+        valueHelp: 'dir',
+        help: 'Write artifacts when set.',
+      )
+      ..addOption(
+        'message',
+        valueHelp: 'file',
+        help: 'Message file for c3/full.',
+      );
   }
 
   @override
@@ -120,10 +128,12 @@ final class CeremonyRunCommand extends Command<void> {
     console.detail('newPublicKey', bytesToHex(rotation.newPublicKey.bytes));
     if (outDir != null) {
       await _writeDkgOut(outDir, params, root);
-      await File('$outDir/new-joint.public.pqth')
-          .writeAsBytes(rotation.newPublicKey.toBytes(), flush: true);
-      await File('$outDir/continuity.pqth')
-          .writeAsBytes(rotation.continuityProof.toBytes(), flush: true);
+      await File(
+        '$outDir/new-joint.public.pqth',
+      ).writeAsBytes(rotation.newPublicKey.toBytes(), flush: true);
+      await File(
+        '$outDir/continuity.pqth',
+      ).writeAsBytes(rotation.continuityProof.toBytes(), flush: true);
     }
   }
 
@@ -143,22 +153,24 @@ final class CeremonyRunCommand extends Command<void> {
   Future<void> _writeDkgOut(
     String outDir,
     ThresholdParams params,
-    ({
-      List<Share> shares,
-      PublicKey publicKey,
-      List<Transcript> transcripts,
-    }) root,
+    ({List<Share> shares, PublicKey publicKey, List<Transcript> transcripts})
+    root,
   ) async {
     final dir = Directory(outDir);
     await dir.create(recursive: true);
-    await File('$outDir/params.pqth').writeAsBytes(params.toBytes(), flush: true);
-    await File('$outDir/joint.public.pqth')
-        .writeAsBytes(root.publicKey.toBytes(), flush: true);
-    await File('$outDir/transcript.pqth')
-        .writeAsBytes(root.transcripts.first.toBytes(), flush: true);
+    await File(
+      '$outDir/params.pqth',
+    ).writeAsBytes(params.toBytes(), flush: true);
+    await File(
+      '$outDir/joint.public.pqth',
+    ).writeAsBytes(root.publicKey.toBytes(), flush: true);
+    await File(
+      '$outDir/transcript.pqth',
+    ).writeAsBytes(root.transcripts.first.toBytes(), flush: true);
     for (final share in root.shares) {
-      await File('$outDir/share-${share.index}.pqth')
-          .writeAsBytes(share.toBytes(), flush: true);
+      await File(
+        '$outDir/share-${share.index}.pqth',
+      ).writeAsBytes(share.toBytes(), flush: true);
     }
   }
 }
