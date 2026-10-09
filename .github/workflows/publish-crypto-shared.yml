@@ -96,13 +96,28 @@ jobs:
       # Exporting to $RUNNER_TEMP puts the package in a directory with no ancestor
       # .pubignore, so the archive contains exactly the package. This is also the
       # single mechanism for workflow_dispatch, which has no tag to check out.
+      #
+      # The archive is built from the index (`git ls-files`) rather than
+      # `git archive <ref> <pathspec>`. On the runners' git (2.55), that form
+      # fails inside the shallow checkout actions/checkout produces —
+      # "pathspec did not match any files" even though packages/crypto_shared
+      # exists and the steps above have just read it — while the index-based
+      # archive works on every git version, shallow or not.
       - name: Stage package outside the repository
         run: |
           set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # A dispatched run starts on the default branch. Fetch the
+            # requested ref and check it out so the index and working
+            # tree are the release tree.
+            git fetch --depth=1 origin "${{ inputs.ref }}"
+            git checkout --force FETCH_HEAD
+          fi
           stage="${RUNNER_TEMP}/crypto_shared"
           rm -rf "$stage"
           mkdir -p "$stage"
-          git archive "${{ inputs.ref || github.ref }}" packages/crypto_shared \
+          git ls-files -- packages/crypto_shared \
+            | tar -cf - -T - \
             | tar -x -C "$stage" --strip-components=2
           echo "STAGE=$stage" >> "$GITHUB_ENV"
           echo "Staged to $stage:" >&2
