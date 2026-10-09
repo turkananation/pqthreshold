@@ -20,3 +20,52 @@ jobs:
 
       - name: Verify (quick)
         run: dart run tool/verify.dart quick
+
+  # Pub-points gate. Fails if the package drops below MIN_POINTS/160.
+  #
+  # This is advisory-by-design rather than blocking on the last few points: it
+  # is `continue-on-error: true` so a pub.dev criteria change or a pana release
+  # cannot block a merge on a technicality. It is still reported on every PR so
+  # a real regression is visible in the checks list.
+  #
+  # The `quick` verify job above is the blocking gate.
+  pub-points:
+    name: Pub points (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Cache pub cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-points-${{ runner.os }}-${{ hashFiles('pubspec.yaml') }}
+          restore-keys: pub-points-${{ runner.os }}-
+
+      - name: Install pana
+        run: dart pub global activate pana
+
+      - name: Read MIN_POINTS
+        id: floor
+        run: echo "value=160" >> "$GITHUB_OUTPUT"
+
+      - name: Score with pana
+        env:
+          MIN_POINTS: ${{ steps.floor.outputs.value }}
+          REPORT: pana-report.txt
+        run: ./tool/pana_gate.sh
+
+      - name: Publish report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pana-report
+          path: pana-report.txt
+          if-no-files-found: ignore
