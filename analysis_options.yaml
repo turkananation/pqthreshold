@@ -19,9 +19,16 @@ include: package:lints/recommended.yaml
 #   rules:
 #     - camel_case_types
 
-# analyzer:
-#   exclude:
-#     - path/to/excluded/files/**
+# Nested packages are resolved and analysed on their own by
+# `tool/verify.dart quick`, which runs `dart pub get` inside each one first.
+#
+# They must be excluded here because `dart analyze` at the repo root walks the
+# whole tree, and a nested package has no entry in the root package_config.json.
+# Without this exclusion the root analyze cannot resolve
+# `package:crypto_shared/...` and fails on the root package's own release gate.
+analyzer:
+  exclude:
+    - packages/**
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints

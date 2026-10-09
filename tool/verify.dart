@@ -89,6 +89,35 @@ Future<void> _runQuick(Directory root) async {
   await _buildMithrilBridgeIfNeeded(root);
   await _runCommand(root, 'dart', ['analyze', '--fatal-infos']);
   await _runCommand(root, 'dart', ['test', '--timeout=2m']);
+  await _verifyNestedPackages(root);
+}
+
+/// Resolves, analyses and tests each nested package.
+///
+/// `packages/` is excluded from the root `analysis_options.yaml`, because the
+/// root `dart analyze` walks the whole tree and a nested package has no entry in
+/// the root package_config.json. These packages are not dropped from the gate as
+/// a result: each one gets its own `pub get`, its own analyze, and its own
+/// tests here. `crypto_shared` is a separately published package whose source
+/// lives in this repository, so it must keep a working gate.
+Future<void> _verifyNestedPackages(Directory root) async {
+  final packages = Directory('${root.path}/packages');
+  if (!packages.existsSync()) return;
+
+  final children = packages
+      .listSync()
+      .whereType<Directory>()
+      .where((d) => File('${d.path}/pubspec.yaml').existsSync())
+      .toList()
+    ..sort((a, b) => a.path.compareTo(b.path));
+
+  for (final package in children) {
+    final name = package.path.split(Platform.pathSeparator).last;
+    stdout.writeln('\n=== nested package: $name ===');
+    await _runCommand(package, 'dart', ['pub', 'get']);
+    await _runCommand(package, 'dart', ['analyze', '--fatal-infos']);
+    await _runCommand(package, 'dart', ['test', '--timeout=2m']);
+  }
 }
 
 Future<void> _buildMithrilBridgeIfNeeded(Directory root) async {
@@ -137,9 +166,9 @@ Future<void> _runPhaseTests(Directory root) async {
   }
   final cryptoShared = Directory('${root.path}/packages/crypto_shared');
   if (cryptoShared.existsSync()) {
-    stdout.writeln('Running packages/crypto_shared tests');
-    await _runCommand(cryptoShared, 'dart', ['pub', 'get']);
-    await _runCommand(cryptoShared, 'dart', ['test']);
+    // Already resolved, analysed and tested by _verifyNestedPackages in quick
+    // mode; nothing extra to do here.
+    stdout.writeln('packages/crypto_shared covered by the quick gate.');
   }
 }
 

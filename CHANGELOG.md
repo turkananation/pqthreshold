@@ -47,10 +47,26 @@ No wire-format change. `ShareMetadata` parses the existing PQTH layout and
 `Share.toBytes()` output is byte-identical. `t`/`n` are still re-validated on
 the wire path by `ThresholdParams.fromBytes`.
 
+### Fixed
+
+- **The `quick` release gate no longer fails on `packages/crypto_shared`.** The
+  root `dart analyze` walks the whole repository, but a nested package has no
+  entry in the root `package_config.json`, so every
+  `package:crypto_shared/...` import failed to resolve and CI went red on the
+  root package's own gate. `packages/**` is now excluded from the root
+  `analysis_options.yaml`, and `tool/verify.dart quick` resolves, analyses and
+  tests each nested package in its own directory. The nested package is
+  **covered by the gate, not skipped by it** — coverage is now stronger than
+  before, because crypto_shared is also analyzed rather than only tested.
+- Corrected the stale claim that `crypto_shared` is unpublished. It is published
+  as `package:crypto_shared` 1.0.0. See `README.md`.
+
 ## 1.0.1
 
-- Exclude the unpublished `crypto_shared` companion package from the pub.dev
-  archive.
+- Exclude the separately published `crypto_shared` companion package from the
+  `pqthreshold` pub.dev archive. (`crypto_shared` is published on its own as
+  `package:crypto_shared` 1.0.0; earlier notes in this file described it as
+  unpublished, which was incorrect.)
 - Move ML-DSA and Mithril APIs behind explicit experimental library barrels.
 - Document the stable FROST-only API boundary and companion package location.
 
