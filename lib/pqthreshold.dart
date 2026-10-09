@@ -20,7 +20,10 @@ export 'src/serialization/pqth_header.dart';
 export 'src/util/secret_buffer.dart';
 
 /// Verifiable secret sharing and threshold key material (Phase 2+).
+export 'src/params/params_validation.dart'
+    show validateShareIndex, validateParticipantId, maxParticipantIdCodeUnits;
 export 'src/sharing/share.dart';
+export 'src/sharing/share_metadata.dart';
 export 'src/sharing/verifiable_secret_sharing.dart';
 
 /// Distributed key generation (Phase 3+).

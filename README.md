@@ -179,8 +179,12 @@ When **not** to use it:
 The stable `pqthreshold` barrel is the FROST Ed25519 v1 API. ML-DSA threshold
 experiments are available through
 `package:pqthreshold/pqthreshold_experimental.dart` and are not part of the
-stable 1.0 contract. The companion `crypto_shared` package is maintained in
-the GitHub repository and is not bundled in this pub package.
+stable 1.0 contract.
+
+The companion `crypto_shared` package is maintained in this GitHub repository
+under `packages/crypto_shared` and is **published separately** as
+[`package:crypto_shared`](https://pub.dev/packages/crypto_shared) — it is not
+bundled into this pub package.
 
 | Area | Status |
 | ------ | -------- |

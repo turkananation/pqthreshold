@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:pqforge/pqforge.dart';
 
 import '../errors/threshold_exception.dart';
+import '../params/params_validation.dart';
 import '../params/threshold_params.dart';
 import '../serialization/public_key_codec.dart';
 import '../serialization/share_codec.dart';
@@ -58,10 +59,8 @@ final class Share {
     required Uint8List verificationData,
   }) {
     validateCeremonyId(ceremonyId);
-    _validateParticipantId(participantId);
-    if (index < 1 || index > params.n) {
-      throw InvalidParams('Share index $index out of range 1..${params.n}');
-    }
+    validateParticipantId(participantId);
+    validateShareIndex(index, params);
     return Share._(
       params: params,
       ceremonyId: Uint8List.fromList(ceremonyId),
@@ -76,14 +75,22 @@ final class Share {
   @internal
   Uint8List secretShareBytes() => Uint8List.fromList(_secretShare.bytes);
 
-  @internal
+  /// Zeroes the secret scalar held by this share.
+  ///
+  /// Public because a third-party custodian that unwraps a share — for example
+  /// to hand it to a signing ceremony — must be able to dispose of it. A
+  /// `Share` holding an unwrapped scalar is a live secret, and leaving no
+  /// public way to wipe it would make the library's own custody guidance
+  /// impossible to follow.
+  ///
+  /// Safe to call more than once; subsequent calls are no-ops.
+  ///
+  /// Afterwards any operation that needs the scalar — [toBytes],
+  /// [Share.fromBytes]-derived use, or reconstruction — throws a
+  /// [StateError] from the underlying [SecretBuffer]. [params], [ceremonyId],
+  /// [participantId], [index] and [verificationData] remain readable, as does
+  /// [ShareMetadata.fromBytes] on bytes this share produced before disposal.
   void disposeSecret() => _secretShare.dispose();
-
-  static void _validateParticipantId(String participantId) {
-    if (participantId.isEmpty || participantId.codeUnits.length > 256) {
-      throw InvalidParams('participantId must be 1..256 UTF-8 bytes');
-    }
-  }
 
   @override
   bool operator ==(Object other) {
