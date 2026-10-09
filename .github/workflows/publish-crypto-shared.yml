@@ -70,22 +70,6 @@ jobs:
       - name: Print Dart version
         run: dart --version
 
-      # A workflow_dispatch has no tag, so check out the requested ref.
-      - name: Check out requested ref
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ inputs.ref }}
-          path: dispatch
-
-      - name: Stage the requested ref in place
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: |
-          set -euo pipefail
-          git -C dispatch archive "${{ inputs.ref }}" packages/crypto_shared \
-            | tar -x -C . --strip-components=2
-          rm -rf dispatch
-
       - name: Install dependencies
         run: dart pub get
 
@@ -98,8 +82,45 @@ jobs:
           pubspec_ver="$(python3 -c "import pathlib,re; t=pathlib.Path('pubspec.yaml').read_text(); print(re.search(r'^version:\s+(\S+)', t, re.M).group(1))")"
           test "$ver" = "$pubspec_ver"
 
+      # Stage the package OUTSIDE the repository before publishing.
+      #
+      # `dart pub publish` collects .pubignore from the package directory AND its
+      # ancestors. The repository root .pubignore ends with `packages/`, which is
+      # correct when publishing pqthreshold from the root — it keeps the nested
+      # package out of pqthreshold's archive. But it also means publishing
+      # crypto_shared from inside the tree hides everything: the dry run reports
+      # "The pubspec is hidden", the archive is <1 KB, and LICENSE, README and
+      # CHANGELOG all go missing. `dart pub publish -C packages/crypto_shared`
+      # does not help; the ancestor rules still apply.
+      #
+      # Exporting to $RUNNER_TEMP puts the package in a directory with no ancestor
+      # .pubignore, so the archive contains exactly the package. This is also the
+      # single mechanism for workflow_dispatch, which has no tag to check out.
+      - name: Stage package outside the repository
+        run: |
+          set -euo pipefail
+          stage="${RUNNER_TEMP}/crypto_shared"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          git archive "${{ inputs.ref || github.ref }}" packages/crypto_shared \
+            | tar -x -C "$stage" --strip-components=2
+          echo "STAGE=$stage" >> "$GITHUB_ENV"
+          echo "Staged to $stage:" >&2
+          ls -la "$stage" >&2
+
+      - name: Verify the staged package
+        working-directory: ${{ env.STAGE }}
+        run: |
+          set -euo pipefail
+          for f in pubspec.yaml LICENSE README.md CHANGELOG.md; do
+            test -s "$f" || { echo "::error::$f missing or empty in staged package"; exit 1; }
+          done
+          dart pub get
+
       - name: Publish dry run
+        working-directory: ${{ env.STAGE }}
         run: dart pub publish --dry-run
 
       - name: Publish to pub.dev
+        working-directory: ${{ env.STAGE }}
         run: dart pub publish --force
