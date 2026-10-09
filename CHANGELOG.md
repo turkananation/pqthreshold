@@ -49,6 +49,10 @@ the wire path by `ThresholdParams.fromBytes`.
 
 ### Fixed
 
+- **pubspec `description` shortened to 166 characters.** It was 475, which is
+  outside pub.dev's 20-180 scoring window and cost the description points. The
+  longer text was accurate but did not belong in the one-line summary; the detail
+  lives in `README.md` and `doc/ARCHITECTURE.md`.
 - **The `quick` release gate no longer fails on `packages/crypto_shared`.** The
   root `dart analyze` walks the whole repository, but a nested package has no
   entry in the root `package_config.json`, so every
